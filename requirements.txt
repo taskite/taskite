@@ -7,3 +7,4 @@ shortuuid==1.0.13
 python-dotenv==1.0.1
 whitenoise==6.7.0
 pillow==10.4.0
+gunicorn==23.0.0
