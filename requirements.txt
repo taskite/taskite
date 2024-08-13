@@ -1,0 +1,9 @@
+Django==5.1
+djangorestframework==3.15.2
+psycopg==3.2.1
+celery==5.4.0
+redis==5.0.8
+shortuuid==1.0.13
+python-dotenv==1.0.1
+whitenoise==6.7.0
+pillow==10.4.0
