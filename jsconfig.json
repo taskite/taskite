@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./client/*"]
+      "@/*": ["./dashboard/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

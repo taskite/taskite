@@ -10,10 +10,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./client', import.meta.url))
+      '@': fileURLToPath(new URL('./dashboard', import.meta.url))
     }
   },
   build: {
-    assetsDir: 'static/client/'
+    assetsDir: 'static/dashboard/'
   }
 })

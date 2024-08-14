@@ -19,9 +19,9 @@ fse.ensureDirSync(staticDir);
 
 // Move index.html to taskite/templates
 const indexHtmlPath = path.join(distDir, 'index.html');
-const destIndexHtmlPath = path.join(templateDir, 'index.html');
+const destIndexHtmlPath = path.join(templateDir, 'dashboard', 'index.html');
 fse.moveSync(indexHtmlPath, destIndexHtmlPath, { overwrite: true });
-console.log('Moved index.html to taskite/templates/');
+console.log('Moved index.html to taskite/templates/dashboard');
 
 // Move static files to taskite/static
 const staticSrcDir = path.join(distDir, 'static');

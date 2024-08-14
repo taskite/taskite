@@ -292,4 +292,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-taskite/static/client/
+taskite/static/dashboard/
+taskite/templates/dashboard/
