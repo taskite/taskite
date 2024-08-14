@@ -1,15 +1,11 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <a-flex justify="center" align="center" style="height: 100vh;">
+      <a-button type="primary">About</a-button>
+    </a-flex>
   </div>
 </template>
 
 <style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
+
 </style>

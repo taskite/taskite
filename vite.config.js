@@ -14,6 +14,6 @@ export default defineConfig({
     }
   },
   build: {
-    assetsDir: 'static'
+    assetsDir: 'static/client/'
   }
 })

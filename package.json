@@ -11,6 +11,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "ant-design-vue": "^4.2.3",
     "fs-extra": "^11.2.0",
     "pinia": "^2.1.7",
     "vue": "^3.4.29",
