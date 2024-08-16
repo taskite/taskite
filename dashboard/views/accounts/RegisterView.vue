@@ -1,21 +1,23 @@
 <script setup>
 import { useUserStore } from '@/stores/user'
-import { accountLoginAPI, client, setCSRFToken } from '@/utils/api'
-import { message } from 'ant-design-vue';
+import { accountRegisterAPI, client, setCSRFToken } from '@/utils/api'
+import { message } from 'ant-design-vue'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 
 const userStore = useUserStore()
 const router = useRouter()
 
-const loginForm = ref({
+const registerForm = ref({
   email: '',
+  first_name: '',
+  last_name: '',
   password: '',
 })
 
 const onFinish = async (values) => {
   try {
-    const { data } = await accountLoginAPI(values)
+    const { data } = await accountRegisterAPI(values)
     userStore.loginUser(data.user)
 
     // After Login CSRF Token changes, so we need to set csrf token again to our API Client
@@ -32,11 +34,11 @@ const onFinish = async (values) => {
 <template>
   <a-flex justify="center" align="center" style="height: 90vh">
     <a-card size="small" style="width: 300px">
-      <h2>Login</h2>
+      <h2>Register</h2>
       <a-form
         layout="vertical"
-        :model="loginForm"
-        name="loginForm"
+        :model="registerForm"
+        name="registerForm"
         hideRequiredMark
         @finish="onFinish"
       >
@@ -45,7 +47,21 @@ const onFinish = async (values) => {
           name="email"
           :rules="[{ required: true, message: 'Please input your email!' }]"
         >
-          <a-input v-model:value="loginForm.email"></a-input>
+          <a-input v-model:value="registerForm.email"></a-input>
+        </a-form-item>
+
+        <a-form-item
+          label="First name"
+          name="first_name"
+          :rules="[
+            { required: true, message: 'Please input your first_name!' },
+          ]"
+        >
+          <a-input v-model:value="registerForm.first_name"></a-input>
+        </a-form-item>
+
+        <a-form-item label="Last name" name="last_name">
+          <a-input v-model:value="registerForm.last_name"></a-input>
         </a-form-item>
 
         <a-form-item
@@ -54,7 +70,7 @@ const onFinish = async (values) => {
           :rules="[{ required: true, message: 'Please input your password!' }]"
         >
           <a-input-password
-            v-model:value="loginForm.password"
+            v-model:value="registerForm.password"
           ></a-input-password>
         </a-form-item>
         <a-form-item>

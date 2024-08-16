@@ -1,7 +1,9 @@
 import uuid
+import random
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 class UserManager(BaseUserManager):
@@ -57,6 +59,12 @@ class User(AbstractBaseUser):
 
     def __str__(self) -> str:
         return f"{self.username} <{self.email}>"
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            if not self.username:
+                self.username = slugify(self.first_name) + str(random.randint(100, 999))
+        return super().save(*args, **kwargs)
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
