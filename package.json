@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@formkit/drag-and-drop": "^0.1.6",
     "ant-design-vue": "^4.2.3",
     "axios": "^1.7.4",
     "axios-case-converter": "^1.1.1",

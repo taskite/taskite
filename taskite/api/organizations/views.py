@@ -11,7 +11,8 @@ from taskite.api.organizations.serializers import FlatOrganizationUserSerializer
 class OrganizationViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def list(self, request):
+    @action(methods=['GET'], detail=False, url_path='with-user-info')
+    def list_with_user_info(self, request):
         organization_users = OrganizationUser.objects.filter(
             user=request.user
         ).select_related("organization")

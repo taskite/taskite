@@ -6,6 +6,19 @@ const router = createRouter({
   history: createWebHistory('dashboard'),
   routes: [
     {
+      path: '/boards/:boardId',
+      name: 'board-base',
+      component: () => import('@/views/BoardBaseView.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: 'tasks',
+          name: 'tasks',
+          component: () => import('@/views/tasks/IndexView.vue')
+        }
+      ]
+    },
+    {
       path: '/',
       name: 'home-base',
       component: HomeBaseView,

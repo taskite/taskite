@@ -31,4 +31,9 @@ export const accountStatusAPI = () => client.get('/accounts/status')
 
 export const accountLogoutAPI = () => client.get('/accounts/logout')
 
-export const organizationListAPI = () => client.get('/organizations')
+export const organizationListWithUserInfoAPI = () => client.get('/organizations/with-user-info')
+
+export const createBoardAPI = (data) => client.post('/boards', data) 
+export const boardListAPI = () => client.get('/boards')
+
+export const stateListAPI = (boardId) => client.get(`/boards/${boardId}/states`)

@@ -6,15 +6,23 @@ import {
   UploadOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
+  ProjectOutlined,
+  HomeOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons-vue'
 import { RouterView } from 'vue-router'
-import { organizationListAPI } from '@/utils/api';
-const selectedKeys = ref(['1'])
+import { organizationListWithUserInfoAPI } from '@/utils/api'
+import { useOrganizationStore } from '@/stores/organization';
+const selectedKeys = ref(['boards'])
 const collapsed = ref(false)
+
+// const organizations = ref([])
+const organizationStore = useOrganizationStore()
 
 const fetchOrganizations = async () => {
   try {
-    await organizationListAPI()
+    const { data } = await organizationListWithUserInfoAPI()
+    organizationStore.setOrganizations(data)
   } catch (error) {
     console.log(error)
   }
@@ -39,18 +47,30 @@ onMounted(async () => {
     >
       <div class="logo" />
       <a-menu v-model:selectedKeys="selectedKeys" mode="inline">
-        <a-menu-item key="1">
-          <user-outlined />
-          <span>nav 1</span>
+        <a-menu-item key="boards">
+          <ProjectOutlined />
+          <span>Boards</span>
         </a-menu-item>
-        <a-menu-item key="2">
-          <video-camera-outlined />
-          <span>nav 2</span>
+
+        <a-divider></a-divider>
+
+        <a-menu-item-group key="organizations" title="Organizations">
+          <a-menu-item
+            :key="organization.id"
+            v-for="organization in organizationStore.organizations"
+            >
+            <HomeOutlined />
+            <span>{{ organization.name }}</span>
+            </a-menu-item
+          >
+        </a-menu-item-group>
+
+        <a-divider></a-divider>
+        <a-menu-item>
+          <LogoutOutlined />
+          <span>Logout</span>
         </a-menu-item>
-        <a-menu-item key="3">
-          <upload-outlined />
-          <span>nav 3</span>
-        </a-menu-item>
+        <a-divider></a-divider>
       </a-menu>
     </a-layout-sider>
     <a-layout>

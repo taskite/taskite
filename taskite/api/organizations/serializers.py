@@ -8,7 +8,7 @@ class FlatOrganizationUserSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='organization.name')
     boards_count = serializers.IntegerField(source='organization.boards_count')
     created_at = serializers.DateTimeField(source='organization.created_at')
-    role = serializers.CharField(source='get_role_display')
+    # role = serializers.CharField(source='get_role_display')
     
     class Meta:
         model = OrganizationUser
