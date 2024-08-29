@@ -43,7 +43,7 @@ const fetchBoardMemberships = async () => {
 }
 
 const redirectToBoardTasks = (boardId) => {
-  router.push({ name: 'tasks', params: { boardId } })
+  router.push({ name: 'boards-detail', params: { boardId } })
 }
 
 const loadBoards = async () => {

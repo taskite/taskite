@@ -1,5 +1,6 @@
 <script setup>
 import BoardPriorityFilters from '@/components/boards/BoardPriorityFilters.vue'
+import BoardAssigneeFilters from '@/components/boards/BoardAssigneeFilters.vue'
 import { useBoardStore } from '@/stores/board'
 import {
   boardDetailAPI,
@@ -23,16 +24,6 @@ const boardStore = useBoardStore()
 const groupBy = ref('none')
 
 const loading = ref(false)
-
-const board = ref(null)
-const setBoard = async (boardId) => {
-  try {
-    const { data } = await boardDetailAPI(boardId)
-    board.value = data
-  } catch (error) {
-    console.log(error)
-  }
-}
 
 const fetchStates = async (boardId) => {
   try {
@@ -74,9 +65,7 @@ const loadBoardMembers = async () => {
 }
 
 const loadBoardItems = async () => {
-  // Set Board
   const boardId = route.params.boardId
-  await setBoard(boardId)
 
   // Fetch State
   const states = await fetchStates(boardId)
@@ -110,10 +99,19 @@ const showFilterDropdown = ref(false)
   </div>
   <div class="h-screen flex flex-col" v-else>
     <div
-      class="flex flex-row justify-between items-center py-3 px-3 task-header"
+      class="flex flex-row justify-between items-center pb-3 px-3 task-header"
     >
       <div class="flex gap-1">
-        <div class="font-bold text-xl">{{ board?.name }}</div>
+        <a-avatar-group :max-count="5">
+          <a-tooltip
+            :title="member.firstName"
+            placement="top"
+            v-for="member in boardStore.members"
+            :key="member.id"
+          >
+            <a-avatar :src="generateAvatar(member.firstName)"></a-avatar>
+          </a-tooltip>
+        </a-avatar-group>
       </div>
 
       <div class="flex flex-row gap-1 items-center">
@@ -133,6 +131,8 @@ const showFilterDropdown = ref(false)
                 ></a-button>
               </template>
               <BoardPriorityFilters />
+              <a-divider style="margin: 12px 0;" />
+              <BoardAssigneeFilters />
             </a-card>
           </template>
         </a-dropdown>
@@ -156,20 +156,6 @@ const showFilterDropdown = ref(false)
           type="vertical"
           style="height: 20px; background-color: darkgray"
         />
-        <a-avatar-group :max-count="5">
-          <a-tooltip
-            :title="member.firstName"
-            placement="top"
-            v-for="member in boardStore.members"
-            :key="member.id"
-          >
-            <a-avatar :src="generateAvatar(member.firstName)"></a-avatar>
-          </a-tooltip>
-        </a-avatar-group>
-        <a-divider
-          type="vertical"
-          style="height: 20px; background-color: darkgray"
-        />
         <a-button type="primary" :icon="h(PlusOutlined)">New task</a-button>
       </div>
     </div>
@@ -179,7 +165,7 @@ const showFilterDropdown = ref(false)
         v-for="state in boardStore.kanban"
         :key="state.id"
       >
-        <div class="font-bold text-lg mb-1">{{ state.name }}</div>
+        <div class="font-semi-bold text-lg my-1">{{ state.name }}</div>
         <VueDraggable
           class="flex flex-col gap-2 overflow-y-auto state-tasks"
           v-model="state.tasks"
@@ -221,7 +207,7 @@ const showFilterDropdown = ref(false)
 }
 
 .state-tasks {
-  max-height: calc(100% - 4.5rem);
+  max-height: calc(100% - 9rem);
 }
 
 /* Custom scrollbar for the draggable container */

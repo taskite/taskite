@@ -12,14 +12,26 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         {
-          path: 'tasks',
-          name: 'tasks',
-          component: () => import('@/views/tasks/IndexView.vue')
+          path: '',
+          name: 'boards-detail',
+          component: () => import('@/views/boards/IndexView.vue')
         },
         {
           path: 'members',
           name: 'members',
           component: () => import('@/views/members/IndexView.vue')
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('@/views/boards/SettingsBaseView.vue'),
+          children: [
+            {
+              path: '',
+              name: 'settings-general',
+              component: () => import('@/views/boards/settings/IndexView.vue')
+            }
+          ]
         }
       ]
     },

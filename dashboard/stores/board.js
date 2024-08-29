@@ -2,6 +2,11 @@ import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useBoardStore = defineStore('board', () => {
+  const selectedBoard = ref({})
+  const setSelectedBoard = (boardData) => {
+    selectedBoard.value = boardData
+  }
+
   const kanban = ref([])
 
   const setKanban = (kanbanData) => {
@@ -33,20 +38,39 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   const prioritiesFilter = ref([])
+  const assigneesFilter = ref([])
 
   const loadKanban = async () => {
     const kanbanData = states.value.map((state) => {
       var stateTasks = tasks.value.filter((task) => {
         // Check for priorities Filter
-        if(prioritiesFilter.value.length > 0 && !prioritiesFilter.value.includes(task.priorityId)) return false
+        if (
+          prioritiesFilter.value.length > 0 &&
+          !prioritiesFilter.value.includes(task.priorityId)
+        )
+          return false
+
+        // Check for assignees Filter
+        if (assigneesFilter.value.length > 0) {
+          if (task.assignees.length === 0) return false
+
+          // Check if any of the task's assignees match the assigneesFilter
+          const hasMatchingAssignee = task.assignees.some((assignee) =>
+            assigneesFilter.value.includes(assignee.id)
+          )
+
+          if (!hasMatchingAssignee) {
+            return false
+          }
+        }
 
         return task.stateId === state.id
       })
 
-      stateTasks = stateTasks.map(task => {
+      stateTasks = stateTasks.map((task) => {
         return {
           ...task,
-          priority: priorities.value.find(p => p.id === task.priorityId)
+          priority: priorities.value.find((p) => p.id === task.priorityId),
         }
       })
 
@@ -59,9 +83,14 @@ export const useBoardStore = defineStore('board', () => {
     setKanban(kanbanData)
   }
 
-  watch(prioritiesFilter, async (newFilters, existingFilters) => {
-    await loadKanban()
-  })
+  watch(
+    [prioritiesFilter, assigneesFilter],
+    async (newFilters, existingFilters) => {
+      console.log('Reload')
+
+      await loadKanban()
+    }
+  )
 
   return {
     kanban,
@@ -76,6 +105,9 @@ export const useBoardStore = defineStore('board', () => {
     tasks,
     setTasks,
     loadKanban,
-    prioritiesFilter
+    selectedBoard,
+    setSelectedBoard,
+    prioritiesFilter,
+    assigneesFilter,
   }
 })

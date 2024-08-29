@@ -5,7 +5,7 @@ export const generateAvatar = (seedValue) => {
     return createAvatar(initials, {
         seed: seedValue,
         scale: 70,
-        backgroundColor: ['8e8e8e'],
+        backgroundColor: ['8a7c9e'],
         radius: 50
     }).toDataUri()
 }

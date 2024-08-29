@@ -1,76 +1,122 @@
 <script setup>
 import {
-  PieChartOutlined,
-  DesktopOutlined,
-  UserOutlined,
   TeamOutlined,
-  FileOutlined,
-  ArrowLeftOutlined,
-  HomeOutlined,
+  ProjectOutlined,
+  TableOutlined,
+  SettingOutlined,
+  ClockCircleOutlined,
+  CalendarOutlined,
+  CarryOutOutlined,
+  LeftOutlined,
 } from '@ant-design/icons-vue'
-import { RouterView, RouterLink } from 'vue-router'
-import { h, ref } from 'vue'
-const collapsed = ref(false)
-const selectedKeys = ref(['tasks'])
+import { RouterView, RouterLink, useRoute } from 'vue-router'
+import { h, onMounted, ref } from 'vue'
+import { useBoardStore } from '@/stores/board'
+import { boardDetailAPI } from '@/utils/api'
+
+const activeKey = ref('board')
+const boardStore = useBoardStore()
+
+const route = useRoute()
+
+const fetchBoard = async () => {
+  try {
+    const { data } = await boardDetailAPI(route.params.boardId)
+    boardStore.setSelectedBoard(data)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+onMounted(async () => {
+  await fetchBoard()
+})
 </script>
 
 <template>
-  <a-layout style="min-height: 100vh">
-    <a-layout-sider
-      v-model:collapsed="collapsed"
-      collapsible
-      :style="{  }"
-    >
-      <div class="p-2">
+  <div class="ml-2">
+    <a-tabs v-model:activeKey="activeKey">
+      <a-tab-pane key="board">
+        <template #tab>
+          <span>
+            <ProjectOutlined />
+            Board
+          </span>
+        </template>
+      </a-tab-pane>
+      <a-tab-pane key="table">
+        <template #tab>
+          <span>
+            <TableOutlined />
+            Table
+          </span>
+        </template>
+      </a-tab-pane>
+
+      <a-tab-pane key="timeline">
+        <template #tab>
+          <span>
+            <ClockCircleOutlined />
+            Timeline
+          </span>
+        </template>
+      </a-tab-pane>
+
+      <a-tab-pane key="calender">
+        <template #tab>
+          <span>
+            <CalendarOutlined />
+            Calender
+          </span>
+        </template>
+      </a-tab-pane>
+
+      <a-tab-pane key="sprints">
+        <template #tab>
+          <span>
+            <CarryOutOutlined />
+            Sprints
+          </span>
+        </template>
+      </a-tab-pane>
+
+      <a-tab-pane key="members">
+        <template #tab>
+          <span>
+            <TeamOutlined />
+            Members
+          </span>
+        </template>
+      </a-tab-pane>
+
+      <a-tab-pane key="settings">
+        <template #tab>
+          <span>
+            <SettingOutlined />
+            Settings
+          </span>
+        </template>
+      </a-tab-pane>
+
+      <template #leftExtra>
+        <a-button class="mr-4" type="text">
+          <a-typography-title :level="5">{{
+            boardStore.selectedBoard?.name
+          }}</a-typography-title>
+        </a-button>
+      </template>
+
+      <template #rightExtra>
         <RouterLink :to="{ name: 'home-base' }">
-          <a-button type="text" :icon="h(HomeOutlined)" class="w-full">Home</a-button>
+          <a-button :icon="h(LeftOutlined)" class="mr-2" type="text">
+            Back to Home
+          </a-button>
         </RouterLink>
-      </div>
-      <a-menu v-model:selectedKeys="selectedKeys" mode="inline">
-        <a-menu-item key="tasks">
-          <pie-chart-outlined />
-          <span>Tasks</span>
-        </a-menu-item>
-        <a-menu-item key="members">
-          <desktop-outlined />
-          <span>Members</span>
-        </a-menu-item>
-        <a-menu-item key="activity_log">
-          <desktop-outlined />
-          <span>Activity Log</span>
-        </a-menu-item>
-      </a-menu>
-    </a-layout-sider>
-    <a-layout>
-      <!-- <a-layout-header style="background: #fff; padding: 0" /> -->
-      <a-layout-content style="">
-        <div
-          :style="{ background: '#fff', minHeight: '100vh' }"
-        >
-          <RouterView></RouterView>
-        </div>
-      </a-layout-content>
-    </a-layout>
-  </a-layout>
+      </template>
+    </a-tabs>
+  </div>
+
+  <RouterView />
 </template>
 
-<style scoped>
-.logo {
-  height: 32px;
-  margin: 16px;
-  background: rgba(152, 22, 22, 0.3);
-}
-
-.site-layout .site-layout-background {
-  background: #fff;
-}
-
-.ant-layout-sider {
-    background: #fff;
-    border-right: 2px solid darkgray;
-}
-
-/* .ant-layout-sider-trigger {
-  background-color: #fff;
-} */
-</style>
+<style scoped></style>
