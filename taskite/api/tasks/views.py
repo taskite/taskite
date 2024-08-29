@@ -3,16 +3,16 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from taskite.api.states.serializers import StateSerializer
-from taskite.models import State
+from taskite.models import Task
 from taskite.mixins import BoardMixin
+from taskite.api.tasks.serializers import TaskSerializer
 from taskite.permissions import BoardPermission
 
 
-class StatesViewSet(BoardMixin, ViewSet):
+class TasksViewSet(BoardMixin, ViewSet):
     permission_classes = [IsAuthenticated, BoardPermission]
 
     def list(self, request, *args, **kwargs):
-        states = State.objects.filter(board=request.board).order_by("sequence")
-        serializer = StateSerializer(states, many=True)
+        tasks = Task.objects.filter(board=request.board).prefetch_related("assignees")
+        serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

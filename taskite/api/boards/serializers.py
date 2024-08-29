@@ -1,16 +1,39 @@
 from rest_framework import serializers
 
-from taskite.models import Board, User
+from taskite.models.board import Board, BoardMembership
+from taskite.models.user import User
 
 
 class BoardCreateSerializer(serializers.Serializer):
-    organization_id = serializers.UUIDField()
+    workspace_id = serializers.UUIDField()
     name = serializers.CharField()
-    visibility = serializers.ChoiceField(choices=Board.Visibility.choices)
-    description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    description = serializers.CharField(required=False, allow_blank=True)
 
 
-class CreatedBySerializer(serializers.ModelSerializer):
+class BoardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = [
+            "id",
+            "name",
+            "description",
+            "workspace_id",
+            "created_at"
+        ]
+
+
+class BoardMembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BoardMembership
+        fields = [
+            "id",
+            "board_id",
+            "role",
+            "created_at"
+        ]
+
+
+class BoardMemberSeralizer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
@@ -19,21 +42,4 @@ class CreatedBySerializer(serializers.ModelSerializer):
             "username",
             "first_name",
             "last_name",
-        ]
-
-
-class BoardSerializer(serializers.ModelSerializer):
-    created_by = CreatedBySerializer()
-
-    class Meta:
-        model = Board
-        fields = [
-            "id",
-            "name",
-            "organization_id",
-            "created_by",
-            "description",
-            "task_prefix",
-            "visibility",
-            "created_at",
         ]

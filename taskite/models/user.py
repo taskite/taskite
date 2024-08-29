@@ -1,9 +1,10 @@
-import uuid
 import random
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 from django.utils.text import slugify
+
+from taskite.models.base import UUIDTimestampModel
 
 
 class UserManager(BaseUserManager):
@@ -29,8 +30,7 @@ class ActiveUserManager(models.Manager):
         )
 
 
-class User(AbstractBaseUser):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class User(UUIDTimestampModel, AbstractBaseUser):
     username = models.CharField(max_length=124, unique=True, blank=True)
     email = models.CharField(max_length=124, unique=True)
     first_name = models.CharField(max_length=124)
@@ -42,10 +42,6 @@ class User(AbstractBaseUser):
 
     verified_at = models.DateTimeField(blank=True, null=True)
     restricted_at = models.DateTimeField(blank=True, null=True)
-
-    # Timestamp
-    joined_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "first_name"]

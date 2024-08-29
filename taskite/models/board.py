@@ -1,21 +1,16 @@
-import uuid
 from django.db import models
 
+from taskite.models.base import UUIDTimestampModel
 
-class Board(models.Model):
-    class Visibility(models.TextChoices):
-        PUBLIC = ("public", "Public")
-        PRIVATE = ("private", "Private")
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    organization = models.ForeignKey(
-        "Organization", related_name="boards", on_delete=models.CASCADE
+class Board(UUIDTimestampModel):
+    workspace = models.ForeignKey(
+        "Workspace", on_delete=models.CASCADE, related_name="boards"
     )
     name = models.CharField(max_length=124)
     description = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey("User", on_delete=models.SET_NULL, null=True)
-    visibility = models.CharField(
-        max_length=10, choices=Visibility.choices, default=Visibility.PRIVATE
+    created_by = models.ForeignKey(
+        "User", on_delete=models.SET_NULL, null=True, related_name="created_boards"
     )
     cover = models.ImageField(blank=True, null=True, upload_to="boards/covers/")
     task_number_counter = models.IntegerField(default=1)
@@ -23,8 +18,6 @@ class Board(models.Model):
     tasks_count = models.IntegerField(default=0)
     members_count = models.IntegerField(default=0)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     archived_at = models.DateTimeField(blank=True, null=True)
 
     members = models.ManyToManyField(
@@ -59,22 +52,20 @@ class Board(models.Model):
             return "".join(word[0].upper() for word in words[:2])
 
 
-class BoardMembership(models.Model):
+class BoardMembership(UUIDTimestampModel):
     class Role(models.TextChoices):
         ADMIN = ("admin", "Admin")
-        STAFF = ("staff", "Staff")
+        COLLABORATOR = ("collaborator", "Collaborator")
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     board = models.ForeignKey(
         "Board", on_delete=models.CASCADE, related_name="memberships"
     )
     user = models.ForeignKey(
         "User", on_delete=models.CASCADE, related_name="board_memberships"
     )
-    role = models.CharField(max_length=10, choices=Role.choices, default=Role.STAFF)
-
-    joined_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    role = models.CharField(
+        max_length=20, choices=Role.choices, default=Role.COLLABORATOR
+    )
 
     class Meta:
         db_table = "board_memberships"

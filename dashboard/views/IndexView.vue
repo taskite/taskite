@@ -1,9 +1,10 @@
 <script setup>
-import { useOrganizationStore } from '@/stores/organization'
-import { boardListAPI, createBoardAPI } from '@/utils/api'
+import { useDashboardStore } from '@/stores/dashboard'
+import { boardListAPI, boardMembershipsAPI, createBoardAPI } from '@/utils/api'
 import { PlusOutlined } from '@ant-design/icons-vue'
-import { ref, h, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router';
+import { ref, h, onMounted, watch, onActivated } from 'vue'
+import { useRouter } from 'vue-router'
+import BoardNew from '@/components/boards/BoardNew.vue'
 
 const router = useRouter()
 
@@ -12,7 +13,7 @@ const onBoardSearch = (value) => {
   console.log(value)
 }
 
-const organizationStore = useOrganizationStore()
+const dashboardStore = useDashboardStore()
 
 const boardNewModal = ref(false)
 const showBoardNewModal = () => {
@@ -22,55 +23,54 @@ const closeBoardNewModal = () => {
   boardNewModal.value = false
 }
 
-const newBoardForm = ref({
-  organizationId: '',
-  name: '',
-  description: '',
-  visibility: 'private',
-})
 
-const onNewBoardFinish = async (values) => {
-  try {
-    const { data } = await createBoardAPI(values)
-    boards.value.push(data)
-    boardNewModal.value = false
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-const boards = ref([])
 const fetchBoards = async () => {
   try {
     const { data } = await boardListAPI()
-    boards.value = data
+    return data
   } catch (error) {
     console.log(error)
   }
 }
 
-const groupedBoards = computed(() => {
-  const organizations = organizationStore.organizations.map((organization) => {
-    const boardList = boards.value.filter(
-      (board) => board.organizationId === organization.id
-    )
-
-    return {
-      ...organization,
-      boards: boardList,
-    }
-  })
-
-  return organizations
-})
+const fetchBoardMemberships = async () => {
+  try {
+    const { data } = await boardMembershipsAPI()
+    return data
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 const redirectToBoardTasks = (boardId) => {
   router.push({ name: 'tasks', params: { boardId } })
 }
 
-onMounted(async () => {
-  await fetchBoards()
+const loadBoards = async () => {
+  const boards = await fetchBoards()
+  const memberships = await fetchBoardMemberships()
+
+  const boardsData = boards.map((board) => {
+    const membership = memberships.find(
+      (membership) => membership.boardId === board.id
+    )
+
+    return {
+      ...board,
+      membership,
+    }
+  })
+
+  console.log('Boards data before store update:', boardsData)
+  dashboardStore.setBoards(boardsData)
+  console.log('Store boards after update:', dashboardStore.boards)
+}
+
+onMounted(() => {
+  loadBoards()
 })
+
+
 </script>
 
 <template>
@@ -78,7 +78,7 @@ onMounted(async () => {
     <a-button :icon="h(PlusOutlined)" type="primary" @click="showBoardNewModal"
       >New board</a-button
     >
-    <a-button>New organization</a-button>
+    <a-button>New workspace</a-button>
     <a-input-search
       v-model:value="searchValue"
       placeholder="Search for a board"
@@ -87,72 +87,31 @@ onMounted(async () => {
     />
   </a-flex>
 
-  <div v-for="org in groupedBoards" :key="org.id" style="margin-top: 20px">
-    <a-typography-title :level="5">{{ org.name }}</a-typography-title>
+  <div
+    v-for="workspace in dashboardStore.workspaces"
+    :key="workspace.id"
+    style="margin-top: 20px"
+  >
+    <a-typography-title :level="5">{{ workspace.name }}</a-typography-title>
 
     <a-row :gutter="16">
-      <a-col :span="6" v-for="board in org.boards">
-        <a-card size="small" @click="redirectToBoardTasks(board.id)" class="board-item">
+      <a-col
+        :span="6"
+        v-for="board in dashboardStore.getBoardsFromWorkspaceId(workspace.id)"
+      >
+        <a-card
+          size="small"
+          @click="redirectToBoardTasks(board.id)"
+          class="board-item"
+        >
           <a-typography-text strong>{{ board.name }}</a-typography-text>
         </a-card>
       </a-col>
     </a-row>
   </div>
 
-  <a-modal v-model:open="boardNewModal" title="New board" :footer="null">
-    <a-form
-      :model="newBoardForm"
-      name="newBoardForm"
-      @finish="onNewBoardFinish"
-      layout="vertical"
-      hideRequiredMark
-    >
-      <a-form-item label="Organization" name="organizationId">
-        <a-select v-model:value="newBoardForm.organizationId">
-          <a-select-option
-            :value="organization.id"
-            v-for="organization in organizationStore.organizations"
-            :key="organization.id"
-          >
-            {{ organization.name }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-
-      <a-form-item
-        label="Name"
-        name="name"
-        :rules="[{ required: true, message: 'Please input board name!' }]"
-      >
-        <a-input v-model:value="newBoardForm.name"></a-input>
-      </a-form-item>
-
-      <a-form-item label="Visibility" name="visibility">
-        <a-select v-model:value="newBoardForm.visibility">
-          <a-select-option value="private">Private</a-select-option>
-          <a-select-option value="public">Public</a-select-option>
-        </a-select>
-      </a-form-item>
-
-      <a-form-item label="Description" name="description">
-        <a-textarea
-          v-model:value="newBoardForm.description"
-          :rows="4"
-        ></a-textarea>
-      </a-form-item>
-
-      <a-flex justify="space-between">
-        <a-form-item>
-          <a-button @click="closeBoardNewModal">Cancel</a-button>
-        </a-form-item>
-
-        <a-form-item>
-          <a-button type="primary" :icon="h(PlusOutlined)" html-type="submit"
-            >Create board</a-button
-          >
-        </a-form-item>
-      </a-flex>
-    </a-form>
+  <a-modal v-model:open="boardNewModal" title="New Board" :footer="null">
+    <BoardNew @close="closeBoardNewModal" />
   </a-modal>
 </template>
 

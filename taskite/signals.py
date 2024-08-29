@@ -2,23 +2,18 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from taskite.models import (
-    OrganizationUser,
-    Organization,
+    Workspace,
+    WorkspaceMembership,
     Board,
     State,
     Priority,
     BoardMembership,
 )
 
-
-@receiver(post_save, sender=Organization)
-def create_organization_owner(sender, instance, created, **kwargs):
+@receiver(post_save, sender=Workspace)
+def create_default_workspace(sender, instance, created, **kwargs):
     if created:
-        OrganizationUser.objects.create(
-            organization=instance,
-            user=instance.created_by,
-            role=OrganizationUser.Role.OWNER,
-        )
+        WorkspaceMembership.objects.create(workspace=instance, user=instance.created_by, role=WorkspaceMembership.Role.ADMIN)
 
 
 @receiver(post_save, sender=Board)

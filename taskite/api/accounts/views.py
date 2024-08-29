@@ -11,7 +11,7 @@ from taskite.api.accounts.serializers import (
     LoginSerializer,
     RegisterSerializer,
 )
-from taskite.models import User, Organization, OrganizationUser
+from taskite.models import User, Workspace
 from taskite.exceptions import InvalidInputException
 
 
@@ -98,8 +98,8 @@ class AccountsViewSet(ViewSet):
                 new_user.save()
 
                 # Initiate a new organization
-                Organization.objects.create(
-                    name=f"{new_user.first_name}'s Org", created_by=new_user
+                Workspace.objects.create(
+                    name=f"{new_user.first_name}'s space", created_by=new_user
                 )
         except Exception as e:
             print(e)

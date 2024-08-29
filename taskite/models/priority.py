@@ -1,16 +1,13 @@
-import uuid
 from django.db import models
 
+from taskite.models.base import UUIDTimestampModel
 
-class Priority(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+
+class Priority(UUIDTimestampModel):
     board = models.ForeignKey(
         "Board", on_delete=models.CASCADE, related_name="priorities"
     )
     name = models.CharField(max_length=124)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Priority"
@@ -22,3 +19,6 @@ class Priority(models.Model):
             )
         ]
         ordering = ("created_at",)
+
+    def __str__(self) -> str:
+        return f"{self.name}"

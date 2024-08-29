@@ -3,7 +3,7 @@ import { useUserStore } from '@/stores/user'
 import { accountRegisterAPI, client, setCSRFToken } from '@/utils/api'
 import { message } from 'ant-design-vue'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -32,53 +32,65 @@ const onFinish = async (values) => {
 </script>
 
 <template>
-  <a-flex justify="center" align="center" style="height: 90vh">
-    <a-card size="small" style="width: 300px">
-      <h2>Register</h2>
-      <a-form
-        layout="vertical"
-        :model="registerForm"
-        name="registerForm"
-        hideRequiredMark
-        @finish="onFinish"
-      >
-        <a-form-item
-          label="Email"
-          name="email"
-          :rules="[{ required: true, message: 'Please input your email!' }]"
+  <div class="h-screen account-page">
+    <a-flex
+      justify="center"
+      align="center"
+      style="height: 90vh"
+    >
+      <a-card size="small" class="w-80 px-2">
+        <div class="text-2xl font-semibold mb-2 flex justify-center">Register</div>
+        <a-form
+          layout="vertical"
+          :model="registerForm"
+          name="registerForm"
+          hideRequiredMark
+          @finish="onFinish"
         >
-          <a-input v-model:value="registerForm.email"></a-input>
-        </a-form-item>
-
-        <a-form-item
-          label="First name"
-          name="first_name"
-          :rules="[
-            { required: true, message: 'Please input your first_name!' },
-          ]"
-        >
-          <a-input v-model:value="registerForm.first_name"></a-input>
-        </a-form-item>
-
-        <a-form-item label="Last name" name="last_name">
-          <a-input v-model:value="registerForm.last_name"></a-input>
-        </a-form-item>
-
-        <a-form-item
-          label="Password"
-          name="password"
-          :rules="[{ required: true, message: 'Please input your password!' }]"
-        >
-          <a-input-password
-            v-model:value="registerForm.password"
-          ></a-input-password>
-        </a-form-item>
-        <a-form-item>
-          <a-button type="primary" html-type="submit" style="width: 100%"
-            >Submit</a-button
+          <a-form-item
+            label="Email"
+            name="email"
+            :rules="[{ required: true, message: 'Please input your email!' }]"
           >
-        </a-form-item>
-      </a-form>
-    </a-card>
-  </a-flex>
+            <a-input v-model:value="registerForm.email"></a-input>
+          </a-form-item>
+
+          <a-form-item
+            label="First name"
+            name="first_name"
+            :rules="[
+              { required: true, message: 'Please input your first_name!' },
+            ]"
+          >
+            <a-input v-model:value="registerForm.first_name"></a-input>
+          </a-form-item>
+
+          <a-form-item label="Last name" name="last_name">
+            <a-input v-model:value="registerForm.last_name"></a-input>
+          </a-form-item>
+
+          <a-form-item
+            label="Password"
+            name="password"
+            :rules="[
+              { required: true, message: 'Please input your password!' },
+            ]"
+          >
+            <a-input-password
+              v-model:value="registerForm.password"
+            ></a-input-password>
+          </a-form-item>
+          <a-form-item>
+            <a-button type="primary" html-type="submit" style="width: 100%"
+              >Continue</a-button
+            >
+          </a-form-item>
+        </a-form>
+        
+        <div class="flex justify-center mb-3">
+          Already have an account? &nbsp<RouterLink :to="{ name: 'login' }">Login</RouterLink>
+        </div>
+      </a-card>
+    </a-flex>
+  </div>
 </template>

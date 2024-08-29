@@ -1,5 +1,5 @@
 from rest_framework.exceptions import APIException
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 
 
 class InvalidInputException(APIException):
@@ -8,10 +8,22 @@ class InvalidInputException(APIException):
     default_code = "invalid_input"
 
 
-class OrganizationNotFoundException(APIException):
+class WorkspaceNotFoundException(APIException):
     status_code = HTTP_400_BAD_REQUEST
-    default_detail = "No organization found."
-    default_code = "no_organization_found"
+    default_detail = "No workspace found."
+    default_code = "no_workspace_found"
+
+
+class WorkspaceInvalidPermission(APIException):
+    status_code = HTTP_401_UNAUTHORIZED
+    default_detail = "You don't have enough permission to perform this action."
+    default_code = "no_workspace_permission_found"
+
+
+class BoardInvalidPermission(APIException):
+    status_code = HTTP_401_UNAUTHORIZED
+    default_detail = "You don't have enough permission to perform this action."
+    default_code = "no_board_permission_found"
 
 
 class BoardNotFoundException(APIException):

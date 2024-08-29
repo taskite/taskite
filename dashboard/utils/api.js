@@ -31,9 +31,22 @@ export const accountStatusAPI = () => client.get('/accounts/status')
 
 export const accountLogoutAPI = () => client.get('/accounts/logout')
 
+export const organizationListAPI = () => client.get('/organizations')
 export const organizationListWithUserInfoAPI = () => client.get('/organizations/with-user-info')
+export const organizationPermissionsAPI = () => client.get('/organizations/permissions')
+
+export const workspaceListAPI = () => client.get('/workspaces')
+export const workspaceMembershipsAPI = () => client.get('/workspaces/memberships')
 
 export const createBoardAPI = (data) => client.post('/boards', data) 
 export const boardListAPI = () => client.get('/boards')
+export const boardMembershipsAPI = () => client.get('/boards/memberships')
+export const boardMembershipAPI = (boardId) => client.get(`/boards/${boardId}/membership`)
+export const boardMembersAPI = (boardId) => client.get(`/boards/${boardId}/members`)
+export const boardDetailAPI = (boardId) => client.get(`/boards/${boardId}`)
 
 export const stateListAPI = (boardId) => client.get(`/boards/${boardId}/states`)
+
+export const priorityListAPI = (boardId) => client.get(`/boards/${boardId}/priorities`)
+
+export const taskListAPI = (boardId) => client.get(`/boards/${boardId}/tasks`)

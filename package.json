@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@dicebear/collection": "^9.2.1",
+    "@dicebear/core": "^9.2.1",
     "@formkit/drag-and-drop": "^0.1.6",
     "ant-design-vue": "^4.2.3",
     "axios": "^1.7.4",
@@ -19,14 +21,19 @@
     "fs-extra": "^11.2.0",
     "js-cookie": "^3.0.5",
     "pinia": "^2.1.7",
+    "swapy": "^0.1.1",
     "vue": "^3.4.29",
+    "vue-draggable-plus": "^0.5.3",
     "vue-router": "^4.3.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.1",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.4.20",
     "jsdom": "^24.1.0",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
     "vite": "^5.3.1",
     "vitest": "^1.6.0"
   }

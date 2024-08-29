@@ -15,6 +15,11 @@ const router = createRouter({
           path: 'tasks',
           name: 'tasks',
           component: () => import('@/views/tasks/IndexView.vue')
+        },
+        {
+          path: 'members',
+          name: 'members',
+          component: () => import('@/views/members/IndexView.vue')
         }
       ]
     },

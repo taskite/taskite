@@ -11,25 +11,54 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons-vue'
 import { RouterView } from 'vue-router'
-import { organizationListWithUserInfoAPI } from '@/utils/api'
-import { useOrganizationStore } from '@/stores/organization';
+import {
+  workspaceListAPI,
+  workspaceMembershipsAPI,
+} from '@/utils/api'
+import { useDashboardStore } from '@/stores/dashboard'
 const selectedKeys = ref(['boards'])
 const collapsed = ref(false)
 
-// const organizations = ref([])
-const organizationStore = useOrganizationStore()
+const dashboardStore = useDashboardStore()
 
-const fetchOrganizations = async () => {
+const fetchWorkspace = async () => {
   try {
-    const { data } = await organizationListWithUserInfoAPI()
-    organizationStore.setOrganizations(data)
+    const { data } = await workspaceListAPI()
+    return data
   } catch (error) {
     console.log(error)
+    return []
   }
 }
 
-onMounted(async () => {
-  await fetchOrganizations()
+const fetchWorkspaceMemberships = async () => {
+  try {
+    const { data } = await workspaceMembershipsAPI()
+    return data
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+
+const loadWorkspaces = async () => {
+  const workspaces = await fetchWorkspace()
+  const memberships = await fetchWorkspaceMemberships()
+
+  const workspaceData = workspaces.map((workspace) => {
+    const membership = memberships.find((membership) => membership.workspaceId === workspace.id)
+
+    return {
+      ...workspace,
+      membership
+    }
+  })
+
+  dashboardStore.setWorkspaces(workspaceData)
+}
+
+onMounted(() => {
+  loadWorkspaces()
 })
 </script>
 
@@ -54,15 +83,14 @@ onMounted(async () => {
 
         <a-divider></a-divider>
 
-        <a-menu-item-group key="organizations" title="Organizations">
+        <a-menu-item-group key="workspaces" title="Workspaces">
           <a-menu-item
-            :key="organization.id"
-            v-for="organization in organizationStore.organizations"
-            >
-            <HomeOutlined />
-            <span>{{ organization.name }}</span>
-            </a-menu-item
+            :key="workspace.id"
+            v-for="workspace in dashboardStore.workspaces"
           >
+            <HomeOutlined />
+            <span>{{ workspace.name }}</span>
+          </a-menu-item>
         </a-menu-item-group>
 
         <a-divider></a-divider>

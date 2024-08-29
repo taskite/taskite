@@ -1,9 +1,9 @@
 <script setup>
 import { useUserStore } from '@/stores/user'
 import { accountLoginAPI, client, setCSRFToken } from '@/utils/api'
-import { message } from 'ant-design-vue';
+import { message } from 'ant-design-vue'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router';
+import { useRouter, RouterLink } from 'vue-router'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -30,39 +30,50 @@ const onFinish = async (values) => {
 </script>
 
 <template>
-  <a-flex justify="center" align="center" style="height: 90vh">
-    <a-card size="small" style="width: 300px">
-      <h2>Login</h2>
-      <a-form
-        layout="vertical"
-        :model="loginForm"
-        name="loginForm"
-        hideRequiredMark
-        @finish="onFinish"
-      >
-        <a-form-item
-          label="Email"
-          name="email"
-          :rules="[{ required: true, message: 'Please input your email!' }]"
+  <div class="h-screen account-page">
+    <a-flex justify="center" align="center" style="height: 90vh">
+      <a-card size="small" class="px-2 w-80">
+        <div class="text-2xl font-semibold mb-2 flex justify-center">Log In</div>
+        <a-form
+          layout="vertical"
+          :model="loginForm"
+          name="loginForm"
+          hideRequiredMark
+          @finish="onFinish"
         >
-          <a-input v-model:value="loginForm.email"></a-input>
-        </a-form-item>
-
-        <a-form-item
-          label="Password"
-          name="password"
-          :rules="[{ required: true, message: 'Please input your password!' }]"
-        >
-          <a-input-password
-            v-model:value="loginForm.password"
-          ></a-input-password>
-        </a-form-item>
-        <a-form-item>
-          <a-button type="primary" html-type="submit" style="width: 100%"
-            >Submit</a-button
+          <a-form-item
+            label="Email"
+            name="email"
+            :rules="[{ required: true, message: 'Please input your email!' }]"
           >
-        </a-form-item>
-      </a-form>
-    </a-card>
-  </a-flex>
+            <a-input v-model:value="loginForm.email"></a-input>
+          </a-form-item>
+
+          <a-form-item
+            label="Password"
+            name="password"
+            :rules="[
+              { required: true, message: 'Please input your password!' },
+            ]"
+          >
+            <a-input-password
+              v-model:value="loginForm.password"
+            ></a-input-password>
+          </a-form-item>
+          <a-form-item>
+            <a-button type="primary" html-type="submit" style="width: 100%"
+              >Continue</a-button
+            >
+          </a-form-item>
+        </a-form>
+
+        <div class="flex justify-center mb-3">
+          Don't have an account? &nbsp<RouterLink :to="{ name: 'register' }">Register</RouterLink>
+        </div>
+      </a-card>
+    </a-flex>
+  </div>
 </template>
+
+<style>
+</style>
