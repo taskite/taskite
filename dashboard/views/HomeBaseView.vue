@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { h, onMounted, ref } from 'vue'
 import {
   UserOutlined,
   VideoCameraOutlined,
@@ -15,6 +15,7 @@ import { workspaceListAPI, workspaceMembershipsAPI } from '@/utils/api'
 import { useDashboardStore } from '@/stores/dashboard'
 import { generateAvatar } from '@/utils/generators'
 import { useUserStore } from '@/stores/user'
+import VerificationBanner from '@/components/VerificationBanner.vue'
 const selectedKeys = ref(['boards'])
 const collapsed = ref(false)
 
@@ -83,14 +84,10 @@ onMounted(() => {
         </a-menu-item-group>
 
         <a-divider></a-divider>
-        <a-menu-item>
-          <LogoutOutlined />
-          <span>Logout</span>
-        </a-menu-item>
-        <a-divider></a-divider>
       </a-menu>
     </a-layout-sider>
     <a-layout>
+      <VerificationBanner />
       <a-layout-header
         style="background: #fff; padding: 0; border-bottom: 2px solid darkgray"
       >
@@ -110,12 +107,27 @@ onMounted(() => {
 
           <div>
             <a-dropdown class="mr-2" :trigger="['click']">
-              <a-avatar :src="generateAvatar(userStore.loggedInUser.firstName)"></a-avatar>
+              <a-avatar
+                :src="generateAvatar(userStore.loggedInUser.firstName)"
+              ></a-avatar>
               <template #overlay>
                 <a-card class="w-80" size="small">
                   <div class="flex flex-col gap-1">
-                    <div>{{ userStore.loggedInUser.firstName }} {{ userStore.loggedInUser?.lastName }}</div>
-                    <div class="text-xs">{{ userStore.loggedInUser.email }}</div>
+                    <div>
+                      {{ userStore.loggedInUser.firstName }}
+                      {{ userStore.loggedInUser?.lastName }}
+                    </div>
+                    <div class="text-xs">
+                      {{ userStore.loggedInUser.email }}
+                    </div>
+                    <RouterLink :to="{ name: 'logout' }">
+                      <a-button
+                        type="dashed"
+                        class="mt-2 w-full"
+                        :icon="h(LogoutOutlined)"
+                        >Logout</a-button
+                      >
+                    </RouterLink>
                   </div>
                 </a-card>
               </template>

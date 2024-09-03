@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeBaseView from '@/views/HomeBaseView.vue'
 
+
 const router = createRouter({
   // history: createWebHistory(import.meta.env.BASE_URL),
   history: createWebHistory('dashboard'),
@@ -99,6 +100,12 @@ const router = createRouter({
       name: 'logout',
       component: () => import('@/views/accounts/LogoutView.vue'),
     },
+    // {
+    //   path: '/accounts/verify',
+    //   name: 'account-verify',
+    //   component: () => import('@/views/accounts/VerifyView.vue'),
+    //   // meta: { requiresAuth: true, allowUnverified: true },
+    // },
   ],
 })
 
@@ -108,13 +115,15 @@ router.beforeEach((to, from) => {
   const isAuthenticated = !!loggedInUserData
 
   // to.matched.some(record => record.meta.requiresAuth)
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    // this route requires auth, check if logged in
-    // if not, redirect to login page.
-    return {
-      path: '/accounts/login',
-      // save the location we were at to come back later
-      query: { redirect: to.fullPath },
+  if (to.meta.requiresAuth) {
+    if (!isAuthenticated) {
+      // this route requires auth, check if logged in
+      // if not, redirect to login page.
+      return {
+        path: '/accounts/login',
+        // save the location we were at to come back later
+        query: { redirect: to.fullPath },
+      }
     }
   }
 })

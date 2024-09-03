@@ -54,3 +54,15 @@ class InviteWorkspaceConfirmView(View):
 
         login(request, user)
         return redirect(f"{settings.APP_URL}" + reverse("dashboard"))
+
+
+
+class AccountVerificationView(View):
+    def get(self, request, verification_id):
+        user = User.objects.filter(verification_id=verification_id).first()
+        if not user:
+            raise Http404
+        
+        user.verify()
+        login(request, user)
+        return redirect(f"{settings.APP_URL}" + reverse("dashboard"))

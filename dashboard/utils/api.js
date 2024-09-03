@@ -23,17 +23,15 @@ export const setCSRFToken = () => {
 }
 
 export const accountLoginAPI = (data) => client.post('/accounts/login', data)
-
 export const accountRegisterAPI = (data, query) =>
   client.post('/accounts/register', data, {
     params: {
       ...query,
     },
   })
-
 export const accountStatusAPI = () => client.get('/accounts/status')
-
 export const accountLogoutAPI = () => client.get('/accounts/logout')
+export const accountResendVerification = () => client.post('/accounts/resend-verification')
 
 export const organizationListAPI = () => client.get('/organizations')
 export const organizationListWithUserInfoAPI = () =>

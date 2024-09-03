@@ -14,7 +14,7 @@ export const useUserStore = defineStore('user', () => {
     loggedInUser.value = null
   }
 
-  const isAuthenticated = !!loggedInUser.value
+  const isAuthenticated = computed(() => !!loggedInUser.value)
 
   return { loggedInUser, loginUser, logoutUser, isAuthenticated }
 })

@@ -1,7 +1,10 @@
 import random
 from django.db import models
+from django.urls import reverse
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 from django.utils.text import slugify
 
 from taskite.models.base import UUIDTimestampModel
@@ -43,6 +46,8 @@ class User(UUIDTimestampModel, AbstractBaseUser):
     verified_at = models.DateTimeField(blank=True, null=True)
     restricted_at = models.DateTimeField(blank=True, null=True)
 
+    verification_id = models.CharField(max_length=64, blank=True, null=True)
+
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "first_name"]
     EMAIL_FIELD = "email"
@@ -60,6 +65,9 @@ class User(UUIDTimestampModel, AbstractBaseUser):
         if self._state.adding:
             if not self.username:
                 self.username = slugify(self.first_name) + str(random.randint(100, 999))
+
+            if not self.verified_at:
+                self.verification_id = get_random_string(64)
         return super().save(*args, **kwargs)
 
     def has_perm(self, perm, obj=None):
@@ -77,3 +85,23 @@ class User(UUIDTimestampModel, AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+    @property
+    def is_verified(self):
+        return self.verified_at is not None
+
+    def verify(self):
+        self.verified_at = timezone.now()
+        self.verification_id = None
+        self.save(update_fields=["verified_at", "verification_id"])
+
+    @property
+    def verification_link(self):
+        if not self.verification_id:
+            self.verification_id = get_random_string(64)
+            self.save(update_fields=["verification_id"])
+
+        print(self.verification_id)
+        return settings.BASE_URL + reverse(
+            "account-verification", args=[self.verification_id]
+        )

@@ -14,12 +14,13 @@ const registerForm = ref({
   first_name: '',
   last_name: '',
   password: '',
+  company: '',
 })
 
 const onFinish = async (values) => {
   try {
     const query = {
-      inviteId: route.query?.inviteId
+      inviteId: route.query?.inviteId,
     }
 
     const { data } = await accountRegisterAPI(values, query)
@@ -38,13 +39,11 @@ const onFinish = async (values) => {
 
 <template>
   <div class="h-screen account-page">
-    <a-flex
-      justify="center"
-      align="center"
-      style="height: 90vh"
-    >
+    <a-flex justify="center" align="center" style="height: 90vh">
       <a-card size="small" class="w-96 px-2">
-        <div class="text-2xl font-semibold mb-2 flex justify-center">Register</div>
+        <div class="text-2xl font-semibold mb-2 flex justify-center">
+          Register
+        </div>
         <a-form
           layout="vertical"
           :model="registerForm"
@@ -57,21 +56,36 @@ const onFinish = async (values) => {
             name="email"
             :rules="[{ required: true, message: 'Please input your email!' }]"
           >
-            <a-input v-model:value="registerForm.email" :disabled="route.query?.email"></a-input>
+            <a-input
+              v-model:value="registerForm.email"
+              :disabled="route.query?.email"
+            ></a-input>
           </a-form-item>
+
+          <a-row :gutter="12">
+            <a-col :span="12">
+              <a-form-item
+                label="First name"
+                name="first_name"
+                :rules="[
+                  { required: true, message: 'Please input your first name!' },
+                ]"
+              >
+                <a-input v-model:value="registerForm.first_name"></a-input>
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item label="Last name" name="last_name">
+                <a-input v-model:value="registerForm.last_name"></a-input>
+              </a-form-item>
+            </a-col>
+          </a-row>
 
           <a-form-item
-            label="First name"
-            name="first_name"
-            :rules="[
-              { required: true, message: 'Please input your first_name!' },
-            ]"
+            label="Company"
+            name="company"
           >
-            <a-input v-model:value="registerForm.first_name"></a-input>
-          </a-form-item>
-
-          <a-form-item label="Last name" name="last_name">
-            <a-input v-model:value="registerForm.last_name"></a-input>
+            <a-input v-model:value="registerForm.company"></a-input>
           </a-form-item>
 
           <a-form-item
@@ -91,9 +105,11 @@ const onFinish = async (values) => {
             >
           </a-form-item>
         </a-form>
-        
+
         <div class="flex justify-center mb-3">
-          Already have an account? &nbsp<RouterLink :to="{ name: 'login' }">Login</RouterLink>
+          Already have an account? &nbsp<RouterLink :to="{ name: 'login' }"
+            >Login</RouterLink
+          >
         </div>
       </a-card>
     </a-flex>

@@ -5,7 +5,7 @@ from taskite.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "created_at"]
+        fields = ["id", "username", "email", "first_name", "last_name", "created_at", "is_verified"]
 
 
 class LoginSerializer(serializers.Serializer):
@@ -19,3 +19,4 @@ class RegisterSerializer(serializers.Serializer):
     last_name = serializers.CharField(required=False, allow_blank=True)
     password = serializers.CharField()
     invite_id = serializers.UUIDField(required=False)
+    company = serializers.CharField(required=False, allow_blank=True, allow_null=True)

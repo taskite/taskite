@@ -1,10 +1,12 @@
 import time
 from django.contrib.auth import login, logout
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 
 from taskite.api.accounts.serializers import (
     UserSerializer,
@@ -13,6 +15,7 @@ from taskite.api.accounts.serializers import (
 )
 from taskite.models import User, Workspace, WorkspaceInvite, WorkspaceMembership
 from taskite.exceptions import InvalidInputException
+from taskite.tasks import verification_email
 
 
 class AccountsViewSet(ViewSet):
@@ -91,6 +94,7 @@ class AccountsViewSet(ViewSet):
             )
         password = data.pop("password")
         invite_id = request.query_params.get("invite_id", None)
+        company = data.pop("company", None)
 
         if invite_id:
             workspace_invite = WorkspaceInvite.objects.filter(
@@ -107,6 +111,7 @@ class AccountsViewSet(ViewSet):
                     new_user = User(**data)
                     new_user.set_password(password)
                     new_user.save()
+                    new_user.verify()
                     WorkspaceMembership.objects.create(
                         workspace=workspace,
                         user=new_user,
@@ -126,10 +131,11 @@ class AccountsViewSet(ViewSet):
                     new_user = User(**data)
                     new_user.set_password(password)
                     new_user.save()
-                    workspace = Workspace(
-                        name=f"{new_user.first_name}'s space", created_by=new_user
-                    )
+                    if not company:
+                        company = f"{new_user.first_name}'s space"
+                    workspace = Workspace(name=company, created_by=new_user)
                     workspace.save()
+                    verification_email.delay(new_user.email)
             except Exception as e:
                 print(e)
                 return Response(
@@ -149,4 +155,18 @@ class AccountsViewSet(ViewSet):
         logout(request)
         return Response(
             data={"detail": "Logout successfull!"}, status=status.HTTP_200_OK
+        )
+
+    @action(
+        methods=["POST"],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        url_path="resend-verification",
+    )
+    def resend_verification(self, request):
+        user = request.user
+        verification_email.delay(user.email)
+        return Response(
+            data={"detail": "Verification link has been send to your email address."},
+            status=status.HTTP_200_OK,
         )
