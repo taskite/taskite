@@ -7,6 +7,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = False
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
+CSRF_TRUSTED_ORIGINS = ["https://taskite.in"]
 
 BASE_URL = os.environ.get("BASE_URL", "https://taskite.in")
 APP_URL = os.environ.get("APP_URL", "https://taskite.in")
