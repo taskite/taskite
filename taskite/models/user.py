@@ -101,7 +101,6 @@ class User(UUIDTimestampModel, AbstractBaseUser):
             self.verification_id = get_random_string(64)
             self.save(update_fields=["verification_id"])
 
-        print(self.verification_id)
         return settings.BASE_URL + reverse(
             "account-verification", args=[self.verification_id]
         )

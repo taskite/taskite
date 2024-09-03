@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from celery import shared_task
+from sentry_sdk import capture_exception
 
 from taskite.models.user import User
 
@@ -22,9 +23,8 @@ def verification_email(email):
             html_message=html_content,
             fail_silently=False,
         )
-        print("success")
     except Exception as e:
-        print(e)
+        capture_exception(e)
 
 
 def welcome_email(user_id):
