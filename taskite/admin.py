@@ -15,6 +15,9 @@ from taskite.models import (
     Priority,
     Workspace,
     WorkspaceMembership,
+    Team,
+    TeamMembership,
+    WorkspaceInvite
 )
 
 
@@ -92,31 +95,26 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = []
 
 
-# class OrganizationUserAdmin(admin.StackedInline):
-#     model = OrganizationUser
-#     extra = 1
-
-
-# @admin.register(Organization)
-# class OrganizationAdmin(admin.ModelAdmin):
-#     list_display = ["name", "created_at"]
-#     raw_id_fields = ["created_by"]
-#     inlines = [OrganizationUserAdmin]
-
-
 class WorkspaceMembershipAdmin(admin.StackedInline):
     model = WorkspaceMembership
+    extra = 0
+
+
+class WorkspaceInviteInlineAdmin(admin.StackedInline):
+    model = WorkspaceInvite
+    extra = 0
 
 
 @admin.register(Workspace)
 class WorkspaceAdmin(admin.ModelAdmin):
     list_display = ["name", "created_at"]
     raw_id_fields = ["created_by"]
-    inlines = [WorkspaceMembershipAdmin]
+    inlines = [WorkspaceMembershipAdmin, WorkspaceInviteInlineAdmin]
 
 
 class BoardMembershipAdmin(admin.StackedInline):
     model = BoardMembership
+    extra = 1
 
 
 @admin.register(Board)
@@ -124,6 +122,17 @@ class BoardAdmin(admin.ModelAdmin):
     list_display = ["name", "created_by"]
     raw_id_fields = ["created_by"]
     inlines = [BoardMembershipAdmin]
+
+
+class TeamMembershipInline(admin.StackedInline):
+    model = TeamMembership
+    extra = 1
+
+
+@admin.register(Team)
+class TeamAdmin(admin.ModelAdmin):
+    list_display = ["id", "name", "created_at"]
+    inlines = [TeamMembershipInline]
 
 
 @admin.register(State)
@@ -145,7 +154,6 @@ class TaskAssigneeInlineAdmin(admin.StackedInline):
 class TaskAdmin(admin.ModelAdmin):
     list_display = ["name", "summary", "created_at"]
     inlines = [TaskAssigneeInlineAdmin]
-
 
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)

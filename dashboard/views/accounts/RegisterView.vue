@@ -3,13 +3,14 @@ import { useUserStore } from '@/stores/user'
 import { accountRegisterAPI, client, setCSRFToken } from '@/utils/api'
 import { message } from 'ant-design-vue'
 import { ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { useRouter, RouterLink, useRoute } from 'vue-router'
 
 const userStore = useUserStore()
 const router = useRouter()
+const route = useRoute()
 
 const registerForm = ref({
-  email: '',
+  email: route.query?.email || '',
   first_name: '',
   last_name: '',
   password: '',
@@ -17,14 +18,18 @@ const registerForm = ref({
 
 const onFinish = async (values) => {
   try {
-    const { data } = await accountRegisterAPI(values)
+    const query = {
+      inviteId: route.query?.inviteId
+    }
+
+    const { data } = await accountRegisterAPI(values, query)
     userStore.loginUser(data.user)
 
     // After Login CSRF Token changes, so we need to set csrf token again to our API Client
     setCSRFToken()
 
     // Redirect to home Page
-    router.push({ name: 'index' })
+    router.push({ name: 'home-index' })
   } catch (error) {
     message.warning(error.data.response.detail)
   }
@@ -38,7 +43,7 @@ const onFinish = async (values) => {
       align="center"
       style="height: 90vh"
     >
-      <a-card size="small" class="w-80 px-2">
+      <a-card size="small" class="w-96 px-2">
         <div class="text-2xl font-semibold mb-2 flex justify-center">Register</div>
         <a-form
           layout="vertical"
@@ -52,7 +57,7 @@ const onFinish = async (values) => {
             name="email"
             :rules="[{ required: true, message: 'Please input your email!' }]"
           >
-            <a-input v-model:value="registerForm.email"></a-input>
+            <a-input v-model:value="registerForm.email" :disabled="route.query?.email"></a-input>
           </a-form-item>
 
           <a-form-item

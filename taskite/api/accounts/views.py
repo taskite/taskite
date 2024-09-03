@@ -11,7 +11,7 @@ from taskite.api.accounts.serializers import (
     LoginSerializer,
     RegisterSerializer,
 )
-from taskite.models import User, Workspace
+from taskite.models import User, Workspace, WorkspaceInvite, WorkspaceMembership
 from taskite.exceptions import InvalidInputException
 
 
@@ -90,23 +90,52 @@ class AccountsViewSet(ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         password = data.pop("password")
+        invite_id = request.query_params.get("invite_id", None)
 
-        try:
-            with transaction.atomic():
-                new_user = User(**data)
-                new_user.set_password(password)
-                new_user.save()
-
-                # Initiate a new organization
-                Workspace.objects.create(
-                    name=f"{new_user.first_name}'s space", created_by=new_user
+        if invite_id:
+            workspace_invite = WorkspaceInvite.objects.filter(
+                id=invite_id, accepted=False
+            ).first()
+            if not workspace_invite:
+                return Response(
+                    data={"detail": "Invalid or expired workspace invitation"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-        except Exception as e:
-            print(e)
-            return Response(
-                data={"detail": "Failed to create an account"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            try:
+                with transaction.atomic():
+                    workspace = workspace_invite.workspace
+                    new_user = User(**data)
+                    new_user.set_password(password)
+                    new_user.save()
+                    WorkspaceMembership.objects.create(
+                        workspace=workspace,
+                        user=new_user,
+                        role=WorkspaceMembership.Role.COLLABORATOR,
+                    )
+                    workspace_invite.accepted = True
+                    workspace_invite.save(update_fields=["accepted"])
+            except Exception as e:
+                print(e)
+                return Response(
+                    data={"detail": "Failed to create an account"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+        else:
+            try:
+                with transaction.atomic():
+                    new_user = User(**data)
+                    new_user.set_password(password)
+                    new_user.save()
+                    workspace = Workspace(
+                        name=f"{new_user.first_name}'s space", created_by=new_user
+                    )
+                    workspace.save()
+            except Exception as e:
+                print(e)
+                return Response(
+                    data={"detail": "Failed to create an account"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         login(request, new_user)
         user_serializer = UserSerializer(new_user)

@@ -1,10 +1,11 @@
+from django.db.models import Q
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
-from taskite.models import Board, Workspace, BoardMembership, WorkspaceMembership
+from taskite.models import Board, Workspace, BoardMembership, WorkspaceMembership, User
 from taskite.api.boards.serializers import (
     BoardSerializer,
     BoardMembershipSerializer,
@@ -54,7 +55,10 @@ class BoardViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        boards = Board.objects.filter(memberships__user=request.user)
+        boards = Board.objects.filter(
+            Q(memberships__user=request.user)
+            | Q(memberships__team__members=request.user)
+        ).distinct()
         serializer = BoardSerializer(boards, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -71,10 +75,10 @@ class BoardViewSet(ViewSet):
         if not workspace_membership:
             raise WorkspaceInvalidPermission
 
-        board_membership = BoardMembership.objects.filter(
-            board=board, user=request.user
-        ).first()
-        if not board_membership:
+        board_membership_queryset = BoardMembership.objects.filter(board=board).filter(
+            Q(user=request.user) | Q(team__members=request.user)
+        )
+        if not board_membership_queryset.exists():
             raise BoardInvalidPermission
 
         serializer = BoardSerializer(board)
@@ -123,12 +127,15 @@ class BoardViewSet(ViewSet):
         if not workspace_membership:
             raise WorkspaceInvalidPermission
 
-        board_membership = BoardMembership.objects.filter(
-            board=board, user=request.user
-        ).first()
-        if not board_membership:
+        board_membership_queryset = BoardMembership.objects.filter(board=board).filter(
+            Q(user=request.user) | Q(team__members=request.user)
+        )
+        if not board_membership_queryset.exists():
             raise BoardInvalidPermission
 
-        members = board.members.all()
+        members = User.objects.filter(
+            Q(boards=board) | Q(teams__boards=board)
+        ).distinct()
+
         serializer = BoardMemberSeralizer(members, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)

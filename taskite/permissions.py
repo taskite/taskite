@@ -1,5 +1,5 @@
 from rest_framework import permissions
-
+from django.db.models import Q
 from taskite.models import Board, WorkspaceMembership, BoardMembership
 
 
@@ -56,10 +56,8 @@ class BoardPermission(permissions.BasePermission):
         if workspace_membership.role == WorkspaceMembership.Role.ADMIN:
             return True
 
-        board_membership = BoardMembership.objects.filter(
-            board=request.board, user=request.user
-        ).first()
-        if not board_membership:
-            return False
-
-        return True
+        return (
+            BoardMembership.objects.filter(board=request.board)
+            .filter(Q(user=request.user) | Q(team__members=request.user))
+            .exists()
+        )

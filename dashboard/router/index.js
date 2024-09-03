@@ -7,19 +7,18 @@ const router = createRouter({
   routes: [
     {
       path: '/boards/:boardId',
-      name: 'board-base',
       component: () => import('@/views/BoardBaseView.vue'),
       meta: { requiresAuth: true },
       children: [
         {
           path: '',
           name: 'boards-detail',
-          component: () => import('@/views/boards/IndexView.vue')
+          component: () => import('@/views/boards/IndexView.vue'),
         },
         {
           path: 'members',
           name: 'members',
-          component: () => import('@/views/members/IndexView.vue')
+          component: () => import('@/views/members/IndexView.vue'),
         },
         {
           path: 'settings',
@@ -29,22 +28,59 @@ const router = createRouter({
             {
               path: '',
               name: 'settings-general',
-              component: () => import('@/views/boards/settings/IndexView.vue')
-            }
-          ]
-        }
-      ]
+              component: () => import('@/views/boards/settings/IndexView.vue'),
+            },
+          ],
+        },
+      ],
     },
     {
       path: '/',
-      name: 'home-base',
       component: HomeBaseView,
       meta: { requiresAuth: true },
       children: [
         {
           path: '',
-          name: 'index',
-          component: () => import('@/views/IndexView.vue'),
+          name: 'home-index',
+          component: () => import('@/views/HomeView.vue'),
+        },
+        {
+          path: 'workspaces/:workspaceId',
+          component: () => import('@/views/WorkspaceBaseView.vue'),
+          meta: { requiresAuth: true },
+          children: [
+            {
+              path: 'general',
+              name: 'workspace-general',
+              component: () => import('@/views/workspaces/GeneralView.vue'),
+            },
+            {
+              path: 'members',
+              name: 'workspace-members',
+              component: () => import('@/views/workspaces/MembersView.vue'),
+            },
+            {
+              path: 'teams',
+              name: 'workspace-teams',
+              component: () => import('@/views/workspaces/TeamsView.vue'),
+            },
+            {
+              path: 'notifications',
+              name: 'workspace-notifications',
+              component: () =>
+                import('@/views/workspaces/NotificationsView.vue'),
+            },
+            {
+              path: 'billing',
+              name: 'workspace-billing',
+              component: () => import('@/views/workspaces/BillingView.vue'),
+            },
+            {
+              path: 'advance',
+              name: 'workspace-advance',
+              component: () => import('@/views/workspaces/AdvanceView.vue'),
+            },
+          ],
         },
       ],
     },

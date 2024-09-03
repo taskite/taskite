@@ -11,15 +11,15 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons-vue'
 import { RouterView } from 'vue-router'
-import {
-  workspaceListAPI,
-  workspaceMembershipsAPI,
-} from '@/utils/api'
+import { workspaceListAPI, workspaceMembershipsAPI } from '@/utils/api'
 import { useDashboardStore } from '@/stores/dashboard'
+import { generateAvatar } from '@/utils/generators'
+import { useUserStore } from '@/stores/user'
 const selectedKeys = ref(['boards'])
 const collapsed = ref(false)
 
 const dashboardStore = useDashboardStore()
+const userStore = useUserStore()
 
 const fetchWorkspace = async () => {
   try {
@@ -31,30 +31,10 @@ const fetchWorkspace = async () => {
   }
 }
 
-const fetchWorkspaceMemberships = async () => {
-  try {
-    const { data } = await workspaceMembershipsAPI()
-    return data
-  } catch (error) {
-    console.log(error)
-    return []
-  }
-}
-
 const loadWorkspaces = async () => {
   const workspaces = await fetchWorkspace()
-  const memberships = await fetchWorkspaceMemberships()
 
-  const workspaceData = workspaces.map((workspace) => {
-    const membership = memberships.find((membership) => membership.workspaceId === workspace.id)
-
-    return {
-      ...workspace,
-      membership
-    }
-  })
-
-  dashboardStore.setWorkspaces(workspaceData)
+  dashboardStore.setWorkspaces(workspaces)
 }
 
 onMounted(() => {
@@ -77,8 +57,10 @@ onMounted(() => {
       <div class="logo" />
       <a-menu v-model:selectedKeys="selectedKeys" mode="inline">
         <a-menu-item key="boards">
-          <ProjectOutlined />
-          <span>Boards</span>
+          <RouterLink :to="{ name: 'home-index' }">
+            <ProjectOutlined />
+            <span>Boards</span>
+          </RouterLink>
         </a-menu-item>
 
         <a-divider></a-divider>
@@ -88,8 +70,15 @@ onMounted(() => {
             :key="workspace.id"
             v-for="workspace in dashboardStore.workspaces"
           >
-            <HomeOutlined />
-            <span>{{ workspace.name }}</span>
+            <RouterLink
+              :to="{
+                name: 'workspace-general',
+                params: { workspaceId: workspace.id },
+              }"
+            >
+              <HomeOutlined />
+              <span>{{ workspace.name }}</span>
+            </RouterLink>
           </a-menu-item>
         </a-menu-item-group>
 
@@ -105,16 +94,34 @@ onMounted(() => {
       <a-layout-header
         style="background: #fff; padding: 0; border-bottom: 2px solid darkgray"
       >
-        <menu-unfold-outlined
-          v-if="collapsed"
-          class="trigger"
-          @click="() => (collapsed = !collapsed)"
-        />
-        <menu-fold-outlined
-          v-else
-          class="trigger"
-          @click="() => (collapsed = !collapsed)"
-        />
+        <div class="flex justify-between items-center">
+          <div>
+            <menu-unfold-outlined
+              v-if="collapsed"
+              class="trigger"
+              @click="() => (collapsed = !collapsed)"
+            />
+            <menu-fold-outlined
+              v-else
+              class="trigger"
+              @click="() => (collapsed = !collapsed)"
+            />
+          </div>
+
+          <div>
+            <a-dropdown class="mr-2" :trigger="['click']">
+              <a-avatar :src="generateAvatar(userStore.loggedInUser.firstName)"></a-avatar>
+              <template #overlay>
+                <a-card class="w-80" size="small">
+                  <div class="flex flex-col gap-1">
+                    <div>{{ userStore.loggedInUser.firstName }} {{ userStore.loggedInUser?.lastName }}</div>
+                    <div class="text-xs">{{ userStore.loggedInUser.email }}</div>
+                  </div>
+                </a-card>
+              </template>
+            </a-dropdown>
+          </div>
+        </div>
       </a-layout-header>
       <a-layout-content
         :style="{

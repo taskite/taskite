@@ -48,22 +48,8 @@ const redirectToBoardTasks = (boardId) => {
 
 const loadBoards = async () => {
   const boards = await fetchBoards()
-  const memberships = await fetchBoardMemberships()
 
-  const boardsData = boards.map((board) => {
-    const membership = memberships.find(
-      (membership) => membership.boardId === board.id
-    )
-
-    return {
-      ...board,
-      membership,
-    }
-  })
-
-  console.log('Boards data before store update:', boardsData)
-  dashboardStore.setBoards(boardsData)
-  console.log('Store boards after update:', dashboardStore.boards)
+  dashboardStore.setBoards(boards)
 }
 
 onMounted(() => {

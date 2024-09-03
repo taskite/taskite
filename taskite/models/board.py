@@ -20,8 +20,11 @@ class Board(UUIDTimestampModel):
 
     archived_at = models.DateTimeField(blank=True, null=True)
 
-    members = models.ManyToManyField(
-        "User", through="BoardMembership", related_name="boards"
+    users = models.ManyToManyField(
+        "User", through="BoardMembership", related_name="boards",
+    )
+    teams = models.ManyToManyField(
+        "Team", through="BoardMembership", related_name="boards"
     )
 
     def __str__(self) -> str:
@@ -39,7 +42,7 @@ class Board(UUIDTimestampModel):
             if not self.task_prefix:
                 self.task_prefix = self.generate_acronym(self.name)
         return super().save(*args, **kwargs)
-
+    
     def generate_acronym(self, name):
         words = name.split()
 
@@ -61,7 +64,18 @@ class BoardMembership(UUIDTimestampModel):
         "Board", on_delete=models.CASCADE, related_name="memberships"
     )
     user = models.ForeignKey(
-        "User", on_delete=models.CASCADE, related_name="board_memberships"
+        "User",
+        on_delete=models.CASCADE,
+        related_name="board_memberships",
+        blank=True,
+        null=True,
+    )
+    team = models.ForeignKey(
+        "Team",
+        on_delete=models.CASCADE,
+        related_name="team_board_memberships",
+        blank=True,
+        null=True,
     )
     role = models.CharField(
         max_length=20, choices=Role.choices, default=Role.COLLABORATOR
@@ -70,9 +84,9 @@ class BoardMembership(UUIDTimestampModel):
     class Meta:
         db_table = "board_memberships"
         constraints = [
-            models.UniqueConstraint(
-                fields=["board", "user"], name="unique_member_per_board"
-            )
+            # models.UniqueConstraint(
+            #     fields=["board", "user"], name="unique_member_per_board"
+            # )
         ]
 
     def __str__(self) -> str:

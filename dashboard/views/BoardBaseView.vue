@@ -80,11 +80,11 @@ onMounted(async () => {
         </template>
       </a-tab-pane>
 
-      <a-tab-pane key="members">
+      <a-tab-pane key="collaborators">
         <template #tab>
           <span>
             <TeamOutlined />
-            Members
+            Collaborators
           </span>
         </template>
       </a-tab-pane>
@@ -107,7 +107,7 @@ onMounted(async () => {
       </template>
 
       <template #rightExtra>
-        <RouterLink :to="{ name: 'home-base' }">
+        <RouterLink :to="{ name: 'home-index' }">
           <a-button :icon="h(LeftOutlined)" class="mr-2" type="text">
             Back to Home
           </a-button>

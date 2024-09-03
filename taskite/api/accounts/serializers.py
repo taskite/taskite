@@ -18,3 +18,4 @@ class RegisterSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField(required=False, allow_blank=True)
     password = serializers.CharField()
+    invite_id = serializers.UUIDField(required=False)

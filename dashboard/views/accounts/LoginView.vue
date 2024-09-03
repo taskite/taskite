@@ -22,7 +22,7 @@ const onFinish = async (values) => {
     setCSRFToken()
 
     // Redirect to home Page
-    router.push({ name: 'index' })
+    router.push({ name: 'home-index' })
   } catch (error) {
     message.warning(error.data.response.detail)
   }

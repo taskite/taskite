@@ -54,7 +54,7 @@ const submitForm = async (values) => {
         <a-form-item label="Workspace" name="workspaceId">
           <a-select v-model:value="boardNewForm.workspaceId">
             <a-select-option
-              v-for="workspace in dashboardStore.allowedWorkspaces"
+              v-for="workspace in dashboardStore.workspaces"
               :value="workspace.id"
             >
               {{ workspace.name }}

@@ -9,6 +9,7 @@ from taskite.api.workspaces.serializers import (
     WorkspaceSerializer,
     WorkspaceMembershipSerializer,
 )
+from taskite.exceptions import WorkspaceNotFoundException
 
 
 class WorkspaceViewSet(ViewSet):
@@ -17,6 +18,16 @@ class WorkspaceViewSet(ViewSet):
     def list(self, request, *args, **kwargs):
         workspaces = Workspace.objects.filter(memberships__user=request.user)
         serializer = WorkspaceSerializer(workspaces, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        workspace = Workspace.objects.filter(
+            memberships__user=request.user, id=kwargs.get("pk")
+        ).first()
+        if not workspace:
+            raise WorkspaceNotFoundException
+
+        serializer = WorkspaceSerializer(workspace)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=["GET"], detail=False)
