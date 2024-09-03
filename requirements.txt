@@ -9,3 +9,5 @@ whitenoise==6.7.0
 pillow==10.4.0
 gunicorn==23.0.0
 scout-apm==3.1.0
+sentry-sdk[django]==2.13.0
+dj-database-url==2.2.0
