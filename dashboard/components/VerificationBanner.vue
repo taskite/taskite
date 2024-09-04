@@ -9,7 +9,13 @@ const resendVerificationEmail = async () => {
         const { data } = await accountResendVerification()
         message.success(data.detail)
     } catch (error) {
-        console.log(error)
+        if(error?.response.status === 429) {
+          message.warning('Please wait for sometime, before retrying to send another email.')
+
+          return
+        }
+
+        message.error(error.response.data.detail)
     }
 }
 </script>

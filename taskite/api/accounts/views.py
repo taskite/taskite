@@ -1,12 +1,11 @@
-import time
 from django.contrib.auth import login, logout
 from django.db import transaction
-from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from rest_framework.decorators import action
+from rest_framework.decorators import action, throttle_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import UserRateThrottle
 
 from taskite.api.accounts.serializers import (
     UserSerializer,
@@ -18,11 +17,14 @@ from taskite.exceptions import InvalidInputException
 from taskite.tasks import verification_email
 
 
+class ResendEmailThrottle(UserRateThrottle):
+    rate = '1/minute'
+
+
 class AccountsViewSet(ViewSet):
 
     @action(methods=["GET"], detail=False)
     def status(self, request):
-        # time.sleep(1)
         if request.user.is_authenticated:
             data = {
                 "is_authenticated": True,
@@ -162,6 +164,7 @@ class AccountsViewSet(ViewSet):
         detail=False,
         permission_classes=[IsAuthenticated],
         url_path="resend-verification",
+        throttle_classes=[ResendEmailThrottle]
     )
     def resend_verification(self, request):
         user = request.user
