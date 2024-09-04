@@ -24,6 +24,7 @@ def verification_email(email):
             fail_silently=False,
         )
     except Exception as e:
+        print(e)
         capture_exception(e)
 
 
