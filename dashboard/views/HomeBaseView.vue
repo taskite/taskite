@@ -9,13 +9,22 @@ import {
   ProjectOutlined,
   HomeOutlined,
   LogoutOutlined,
+  BellOutlined,
+  CheckOutlined,
+  CloseOutlined,
 } from '@ant-design/icons-vue'
 import { RouterView } from 'vue-router'
-import { workspaceListAPI, workspaceMembershipsAPI } from '@/utils/api'
+import {
+  accountPendingInvitesAPI,
+  workspaceListAPI,
+  workspaceMembershipsAPI,
+} from '@/utils/api'
 import { useDashboardStore } from '@/stores/dashboard'
 import { generateAvatar } from '@/utils/generators'
 import { useUserStore } from '@/stores/user'
 import VerificationBanner from '@/components/VerificationBanner.vue'
+import PendingInviteList from '@/components/home/PendingInviteList.vue'
+import { message } from 'ant-design-vue'
 const selectedKeys = ref(['boards'])
 const collapsed = ref(false)
 
@@ -32,6 +41,16 @@ const fetchWorkspace = async () => {
   }
 }
 
+const pendingInvites = ref([])
+const loadPendingInvites = async () => {
+  try {
+    const { data } = await accountPendingInvitesAPI()
+    pendingInvites.value = data
+  } catch (error) {
+    message.error(error.response.data.detail)
+  }
+}
+
 const loadWorkspaces = async () => {
   const workspaces = await fetchWorkspace()
 
@@ -40,6 +59,7 @@ const loadWorkspaces = async () => {
 
 onMounted(() => {
   loadWorkspaces()
+  loadPendingInvites()
 })
 </script>
 
@@ -106,7 +126,23 @@ onMounted(() => {
           </div>
 
           <div>
-            <a-dropdown class="mr-2" :trigger="['click']">
+            <a-dropdown :trigger="['click']">
+              <a-button :icon="h(BellOutlined)" type="text" class="mr-2">
+                <span>Notifications</span>
+                <a-tag
+                  class="ml-2"
+                  :bordered="false"
+                  size="small"
+                  color="error"
+                  v-if="pendingInvites.length > 0"
+                  >{{ pendingInvites.length }}</a-tag
+                >
+              </a-button>
+              <template #overlay>
+                <PendingInviteList :invites="pendingInvites" />
+              </template>
+            </a-dropdown>
+            <a-dropdown class="mr-3" :trigger="['click']">
               <a-avatar
                 :src="generateAvatar(userStore.loggedInUser.firstName)"
               ></a-avatar>

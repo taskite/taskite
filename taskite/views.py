@@ -56,13 +56,25 @@ class InviteWorkspaceConfirmView(View):
         return redirect(f"{settings.APP_URL}" + reverse("dashboard"))
 
 
+class InviteWorkspaceRejectView(View):
+    def get(self, request, invite_id):
+        invite = WorkspaceInvite.objects.filter(id=invite_id, accepted=False).first()
+        if not invite:
+            raise Http404
+
+        invite.delete()
+        if request.user.is_authenticated:
+            return redirect(f"{settings.APP_URL}" + reverse("dashboard"))
+
+        return redirect("index")
+
 
 class AccountVerificationView(View):
     def get(self, request, verification_id):
         user = User.objects.filter(verification_id=verification_id).first()
         if not user:
             raise Http404
-        
+
         user.verify()
         login(request, user)
         return redirect(f"{settings.APP_URL}" + reverse("dashboard"))

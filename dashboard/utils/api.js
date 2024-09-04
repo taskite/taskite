@@ -31,7 +31,10 @@ export const accountRegisterAPI = (data, query) =>
   })
 export const accountStatusAPI = () => client.get('/accounts/status')
 export const accountLogoutAPI = () => client.get('/accounts/logout')
-export const accountResendVerification = () => client.post('/accounts/resend-verification')
+export const accountResendVerification = () =>
+  client.post('/accounts/resend-verification')
+export const accountPendingInvitesAPI = () =>
+  client.get('/accounts/pending-invites')
 
 export const organizationListAPI = () => client.get('/organizations')
 export const organizationListWithUserInfoAPI = () =>

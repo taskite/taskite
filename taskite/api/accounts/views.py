@@ -11,6 +11,7 @@ from taskite.api.accounts.serializers import (
     UserSerializer,
     LoginSerializer,
     RegisterSerializer,
+    WorkspaceInviteSerializer,
 )
 from taskite.models import User, Workspace, WorkspaceInvite, WorkspaceMembership
 from taskite.exceptions import InvalidInputException
@@ -18,7 +19,7 @@ from taskite.tasks import verification_email
 
 
 class ResendEmailThrottle(UserRateThrottle):
-    rate = '1/minute'
+    rate = "1/minute"
 
 
 class AccountsViewSet(ViewSet):
@@ -164,7 +165,7 @@ class AccountsViewSet(ViewSet):
         detail=False,
         permission_classes=[IsAuthenticated],
         url_path="resend-verification",
-        throttle_classes=[ResendEmailThrottle]
+        throttle_classes=[ResendEmailThrottle],
     )
     def resend_verification(self, request):
         user = request.user
@@ -173,3 +174,18 @@ class AccountsViewSet(ViewSet):
             data={"detail": "Verification link has been send to your email address."},
             status=status.HTTP_200_OK,
         )
+
+    @action(
+        methods=["GET"],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        url_path="pending-invites",
+    )
+    def pending_invites(self, request):
+        workspace_invites = (
+            WorkspaceInvite.objects.filter(email=request.user.email, accepted=False)
+            .select_related("workspace")
+            .select_related("invited_by")
+        )
+        serializer = WorkspaceInviteSerializer(workspace_invites, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

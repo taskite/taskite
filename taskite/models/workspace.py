@@ -70,3 +70,7 @@ class WorkspaceInvite(UUIDTimestampModel):
     @property
     def confirmation_link(self):
         return settings.BASE_URL + reverse("invite-workspace-confirm", args=[self.id])
+
+    @property
+    def rejection_link(self):
+        return settings.BASE_URL + reverse("invite-workspace-reject", args=[self.id])
