@@ -5,19 +5,30 @@ from rest_framework import status
 
 from taskite.api.teams.serializers import TeamSerializer
 from taskite.models.team import Team
-from taskite.models.workspace import Workspace
-from taskite.exceptions import WorkspaceNotFoundException
+from taskite.mixins import WorkspaceMixin
+from taskite.permissions import (
+    WorkspaceCollaboratorPermission,
+    WorkspaceAdminPermission,
+)
 
 
-class TeamsViewSet(ViewSet):
+class TeamsViewSet(WorkspaceMixin, ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
-        workspace = Workspace.objects.filter(id=kwargs.get("workspace_id")).first()
-        if not workspace:
-            raise WorkspaceNotFoundException
+    def get_permissions(self):
+        if self.action == "list":
+            return [IsAuthenticated(), WorkspaceCollaboratorPermission()]
+        elif self.action == "create":
+            return [IsAuthenticated(), WorkspaceAdminPermission()]
+        elif self.action == "destroy":
+            return [IsAuthenticated(), WorkspaceAdminPermission()]
 
-        teams = Team.objects.filter(workspace=workspace).prefetch_related("members")
+        return super().get_permissions()
+
+    def list(self, request, *args, **kwargs):
+        teams = Team.objects.filter(workspace=request.workspace).prefetch_related(
+            "members"
+        )
         serializer = TeamSerializer(teams, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)

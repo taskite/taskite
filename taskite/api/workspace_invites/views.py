@@ -2,34 +2,43 @@ from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
 
-from taskite.models.workspace import Workspace, WorkspaceMembership, WorkspaceInvite
-from taskite.exceptions import WorkspaceNotFoundException
-from taskite.api.workspace_memberships.serializers import WorkspaceMembershipSerializer
+from taskite.permissions import (
+    WorkspaceAdminPermission,
+    WorkspaceCollaboratorPermission,
+)
+from taskite.mixins import WorkspaceMixin
+from taskite.models.workspace import WorkspaceInvite
+from taskite.exceptions import (
+    WorkspaceInviteNotFoundException,
+)
 from taskite.tasks.workspace import workspace_invite_confirm
 from taskite.api.workspace_invites.serializers import WorkspaceInviteSerializer
 
 
-class WorkspaceInvitesViewSet(ViewSet):
+class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
-        workspace = Workspace.objects.filter(id=kwargs.get("workspace_id")).first()
-        if not workspace:
-            raise WorkspaceNotFoundException
+    def get_permissions(self):
+        if self.action == "list":
+            return [IsAuthenticated(), WorkspaceCollaboratorPermission()]
+        elif self.action == "create":
+            return [IsAuthenticated(), WorkspaceAdminPermission()]
+        elif self.action == "destroy":
+            return [IsAuthenticated(), WorkspaceAdminPermission()]
 
-        workspace_invites = WorkspaceInvite.objects.filter(
-            workspace=workspace, accepted=False
-        ).select_related("invited_by").order_by("-created_at")
+        return super().get_permissions()
+
+    def list(self, request, *args, **kwargs):
+        workspace_invites = (
+            WorkspaceInvite.objects.filter(workspace=request.workspace, accepted=False)
+            .select_related("invited_by")
+            .order_by("-created_at")
+        )
         serializer = WorkspaceInviteSerializer(workspace_invites, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        workspace = Workspace.objects.filter(id=kwargs.get("workspace_id")).first()
-        if not workspace:
-            raise WorkspaceNotFoundException
-
         emails = request.data.get("emails")
         if not emails:
             return Response(
@@ -39,7 +48,7 @@ class WorkspaceInvitesViewSet(ViewSet):
         invites = []
         for email in emails:
             invite = WorkspaceInvite.objects.create(
-                workspace=workspace, email=email, invited_by=request.user
+                workspace=request.workspace, email=email, invited_by=request.user
             )
             workspace_invite_confirm.delay(invite.id)
             invites.append(invite)
@@ -49,4 +58,16 @@ class WorkspaceInvitesViewSet(ViewSet):
         return Response(
             data=serializer.data,
             status=status.HTTP_200_OK,
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        workspace_invite = WorkspaceInvite.objects.filter(
+            workspace=request.workspace, id=kwargs.get("pk")
+        ).first()
+        if not workspace_invite:
+            raise WorkspaceInviteNotFoundException
+
+        workspace_invite.delete()
+        return Response(
+            data={"detail": "Workspace invite deleted"}, status=status.HTTP_200_OK
         )

@@ -1,5 +1,10 @@
 <script setup>
-import { workspaceInviteListAPI, workspaceMembershipListAPI } from '@/utils/api'
+import {
+  workspaceInviteDeleteAPI,
+  workspaceInviteListAPI,
+  workspaceMembershipDeleteAPI,
+  workspaceMembershipListAPI,
+} from '@/utils/api'
 import { generateAvatar } from '@/utils/generators'
 import {
   CaretDownOutlined,
@@ -16,6 +21,7 @@ dayjs.extend(relativeTime)
 
 import { onMounted, ref, h, computed } from 'vue'
 import Spinner from '@/components/base/Spinner.vue'
+import { message } from 'ant-design-vue'
 
 const props = defineProps(['workspace'])
 
@@ -40,6 +46,15 @@ const loadMemberships = async () => {
     console.log(error)
   } finally {
     membersLoading.value = false
+  }
+}
+const deleteWorkspaceMembership = async (membership) => {
+  try {
+    console.log(membership)
+    await workspaceMembershipDeleteAPI(props.workspace.id, membership.id)
+    memberships.value = memberships.value.filter((m) => m.id !== membership.id)
+  } catch (error) {
+    console.log(error)
   }
 }
 
@@ -79,11 +94,6 @@ const membershipColumns = [
   },
 ]
 
-const roleMap = {
-  admin: 'Admin',
-  collaborator: 'Collaborator',
-}
-
 const searchVal = ref('')
 const onMemberSearch = (searchValue) => {
   console.log(searchValue)
@@ -96,6 +106,14 @@ const openMemberInviteModal = () => {
 const updateInvites = (invitesData) => {
   invites.value.push(...invitesData)
   memberInviteModalOpen.value = false
+}
+const deleteInvitation = async (invite) => {
+  try {
+    await workspaceInviteDeleteAPI(props.workspace.id, invite.id)
+    invites.value = invites.value.filter((i) => i.id !== invite.id)
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 onMounted(() => {
@@ -133,7 +151,10 @@ onMounted(() => {
               </div>
 
               <div>
-                <a-button type="link" :icon="h(DeleteOutlined)"
+                <a-button
+                  type="link"
+                  :icon="h(DeleteOutlined)"
+                  @click="deleteInvitation(invite)"
                   >Remove</a-button
                 >
               </div>
@@ -205,11 +226,9 @@ onMounted(() => {
 
       <template v-else-if="column.key === 'action'">
         <div>
-          <a class="text-slate-500">
+          <a class="text-slate-500" @click="deleteWorkspaceMembership(record)">
             <CloseOutlined />
-            <span>
-              Remove
-            </span>
+            <span> Remove </span>
           </a>
         </div>
       </template>

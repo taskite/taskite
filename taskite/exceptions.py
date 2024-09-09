@@ -30,3 +30,15 @@ class BoardNotFoundException(APIException):
     status_code = HTTP_400_BAD_REQUEST
     default_detail = "No board found."
     default_code = "no_board_found"
+
+
+class WorkspaceMembershipNotFoundException(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No workspace membership found."
+    default_code = "no_workspace_membership_found"
+
+
+class WorkspaceInviteNotFoundException(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No workspace invite found."
+    default_code = "no_workspace_invite_found"

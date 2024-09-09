@@ -9,6 +9,7 @@ from taskite.api.priorities.views import PrioritiesViewSet
 from taskite.api.workspace_memberships.views import WorkspaceMembershipsViewset
 from taskite.api.teams.views import TeamsViewSet
 from taskite.api.workspace_invites.views import WorkspaceInvitesViewSet
+from taskite.api.board_memberships.views import BoardMembershipsViewset
 
 router = SimpleRouter(trailing_slash=False, use_regex_path=False)
 
@@ -28,5 +29,6 @@ router.register("boards", BoardViewSet, basename="board")
 router.register("boards/<uuid:board_id>/states", StatesViewSet, basename="state")
 router.register("boards/<uuid:board_id>/tasks", TasksViewSet, basename="task")
 router.register("boards/<uuid:board_id>/priorities", PrioritiesViewSet, basename="priority")
+router.register("boards/<uuid:board_id>/memberships", BoardMembershipsViewset, basename="board-membership")
 
 urlpatterns = router.urls

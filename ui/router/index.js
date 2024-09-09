@@ -3,8 +3,7 @@ import HomeBaseView from '@/views/HomeBaseView.vue'
 
 
 const router = createRouter({
-  // history: createWebHistory(import.meta.env.BASE_URL),
-  history: createWebHistory('dashboard'),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/boards/:boardId',
@@ -13,13 +12,18 @@ const router = createRouter({
       children: [
         {
           path: '',
-          name: 'boards-detail',
+          name: 'board-detail',
           component: () => import('@/views/boards/IndexView.vue'),
         },
         {
-          path: 'members',
-          name: 'members',
-          component: () => import('@/views/members/IndexView.vue'),
+          path: 'collaborators',
+          name: 'board-collaborators',
+          component: () => import('@/views/boards/CollaboratorsView.vue'),
+        },
+        {
+          path: 'sprints',
+          name: 'board-sprints',
+          component: () => import('@/views/boards/SprintsView.vue')
         },
         {
           path: 'settings',
@@ -28,9 +32,14 @@ const router = createRouter({
           children: [
             {
               path: '',
-              name: 'settings-general',
-              component: () => import('@/views/boards/settings/IndexView.vue'),
+              name: 'board-settings-general',
+              component: () => import('@/views/boards/settings/GeneralView.vue'),
             },
+            {
+              path: 'collaborators',
+              name: 'board-settings-collaborators',
+              component: () => import('@/views/boards/settings/CollaboratorsView.vue')
+            }
           ],
         },
       ],

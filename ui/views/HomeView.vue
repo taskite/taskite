@@ -43,7 +43,7 @@ const fetchBoardMemberships = async () => {
 }
 
 const redirectToBoardTasks = (boardId) => {
-  router.push({ name: 'boards-detail', params: { boardId } })
+  router.push({ name: 'board-detail', params: { boardId } })
 }
 
 const loadBoards = async () => {
@@ -64,7 +64,6 @@ onMounted(() => {
     <a-button :icon="h(PlusOutlined)" type="primary" @click="showBoardNewModal"
       >New board</a-button
     >
-    <a-button>New workspace</a-button>
     <a-input-search
       v-model:value="searchValue"
       placeholder="Search for a board"

@@ -6,11 +6,19 @@ from rest_framework.response import Response
 from taskite.models import Task
 from taskite.mixins import BoardMixin
 from taskite.api.tasks.serializers import TaskSerializer
-from taskite.permissions import BoardPermission
+from taskite.permissions import BoardCollaboratorPermission, BoardAdminPermission
 
 
 class TasksViewSet(BoardMixin, ViewSet):
-    permission_classes = [IsAuthenticated, BoardPermission]
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action == 'list':
+            return [IsAuthenticated(), BoardCollaboratorPermission()]
+        elif self.action == 'create':
+            return [IsAuthenticated(), BoardAdminPermission()]
+
+        return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         tasks = Task.objects.filter(board=request.board).prefetch_related("assignees")

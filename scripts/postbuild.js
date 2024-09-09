@@ -1,4 +1,3 @@
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fse from 'fs-extra';
@@ -19,9 +18,9 @@ fse.ensureDirSync(staticDir);
 
 // Move index.html to taskite/templates
 const indexHtmlPath = path.join(distDir, 'index.html');
-const destIndexHtmlPath = path.join(templateDir, 'dashboard', 'index.html');
+const destIndexHtmlPath = path.join(templateDir, 'ui', 'index.html');
 fse.moveSync(indexHtmlPath, destIndexHtmlPath, { overwrite: true });
-console.log('Moved index.html to taskite/templates/dashboard');
+console.log('Moved index.html to taskite/templates');
 
 // Move static files to taskite/static
 const staticSrcDir = path.join(distDir, 'static');

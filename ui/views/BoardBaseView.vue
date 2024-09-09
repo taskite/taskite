@@ -9,15 +9,17 @@ import {
   CarryOutOutlined,
   LeftOutlined,
 } from '@ant-design/icons-vue'
-import { RouterView, RouterLink, useRoute } from 'vue-router'
+import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { h, onMounted, ref } from 'vue'
 import { useBoardStore } from '@/stores/board'
 import { boardDetailAPI } from '@/utils/api'
 
-const activeKey = ref('board')
 const boardStore = useBoardStore()
 
 const route = useRoute()
+const router = useRouter()
+
+const activeKey = ref(route.name)
 
 const fetchBoard = async () => {
   try {
@@ -31,12 +33,18 @@ const fetchBoard = async () => {
 onMounted(async () => {
   await fetchBoard()
 })
+
+const changeTab = (key) => {
+  const boardId = route.params.boardId
+
+  router.push({ name: key, params: { boardId: boardId } })
+}
 </script>
 
 <template>
   <div class="ml-2">
-    <a-tabs v-model:activeKey="activeKey">
-      <a-tab-pane key="board">
+    <a-tabs v-model:activeKey="activeKey" @change="changeTab">
+      <a-tab-pane key="board-detail">
         <template #tab>
           <span>
             <ProjectOutlined />
@@ -71,7 +79,7 @@ onMounted(async () => {
         </template>
       </a-tab-pane>
 
-      <a-tab-pane key="sprints">
+      <a-tab-pane key="board-sprints">
         <template #tab>
           <span>
             <CarryOutOutlined />
@@ -80,16 +88,16 @@ onMounted(async () => {
         </template>
       </a-tab-pane>
 
-      <a-tab-pane key="collaborators">
+      <!-- <a-tab-pane key="board-collaborators">
         <template #tab>
           <span>
             <TeamOutlined />
             Collaborators
           </span>
         </template>
-      </a-tab-pane>
+      </a-tab-pane> -->
 
-      <a-tab-pane key="settings">
+      <a-tab-pane key="board-settings-general">
         <template #tab>
           <span>
             <SettingOutlined />

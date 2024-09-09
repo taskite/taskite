@@ -1,6 +1,9 @@
 from rest_framework import permissions
 from django.db.models import Q
-from taskite.models import Board, WorkspaceMembership, BoardMembership
+from taskite.models import Board, WorkspaceMembership, BoardMembership, Workspace
+
+from .workspace import WorkspaceAdminPermission, WorkspaceCollaboratorPermission
+from .board import BoardCollaboratorPermission, BoardAdminPermission
 
 
 # class BoardViewPermission(permissions.BasePermission):

@@ -7,10 +7,19 @@ from taskite.models.priority import Priority
 from taskite.permissions import BoardPermission
 from taskite.mixins import BoardMixin
 from taskite.api.priorities.serializers import PrioritySerializer
+from taskite.permissions import BoardCollaboratorPermission, BoardAdminPermission
 
 
 class PrioritiesViewSet(BoardMixin, ViewSet):
     permission_classes = [IsAuthenticated, BoardPermission]
+
+    def get_permissions(self):
+        if self.action == 'list':
+            return [IsAuthenticated(), BoardCollaboratorPermission()]
+        elif self.action == 'create':
+            return [IsAuthenticated(), BoardAdminPermission()]
+
+        return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         priorities = Priority.objects.filter(board=request.board)

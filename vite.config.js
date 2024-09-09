@@ -10,11 +10,11 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./dashboard', import.meta.url))
+      '@': fileURLToPath(new URL('./ui', import.meta.url))
     }
   },
   build: {
-    assetsDir: 'static/dashboard/'
+    assetsDir: 'static/ui/'
   },
   server: {
     proxy: {
