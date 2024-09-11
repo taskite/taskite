@@ -1,6 +1,18 @@
 from rest_framework import serializers
 
-from taskite.models import Workspace, WorkspaceMembership
+from taskite.models import Workspace, WorkspaceMembership, User
+
+
+class MemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+        ]
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):

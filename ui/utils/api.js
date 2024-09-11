@@ -59,6 +59,13 @@ export const workspaceInviteCreateAPI = (workspaceId, data) =>
   client.post(`/workspaces/${workspaceId}/invites`, data)
 export const workspaceInviteDeleteAPI = (workspaceId, inviteId) =>
   client.delete(`/workspaces/${workspaceId}/invites/${inviteId}`)
+export const workspaceMembersSearchAPI = (workspaceId, searchValue) => {
+  client.get(`/workspaces/${workspaceId}/members/search`, {
+    params: {
+      q: searchValue,
+    },
+  })
+}
 
 export const teamListAPI = (workspaceId) =>
   client.get(`/workspaces/${workspaceId}/teams`)
@@ -71,7 +78,8 @@ export const boardMembershipAPI = (boardId) =>
 export const boardMembersAPI = (boardId) =>
   client.get(`/boards/${boardId}/members`)
 export const boardDetailAPI = (boardId) => client.get(`/boards/${boardId}`)
-export const boardMembershipListAPI = (boardId) => client.get(`/boards/${boardId}/memberships`)
+export const boardMembershipListAPI = (boardId) =>
+  client.get(`/boards/${boardId}/memberships`)
 
 export const stateListAPI = (boardId) => client.get(`/boards/${boardId}/states`)
 

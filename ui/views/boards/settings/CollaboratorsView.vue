@@ -9,6 +9,8 @@ import {
   UserAddOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons-vue'
+import CollaboratorAddUserModal from '@/components/boards/settings/CollaboratorAddUserModal.vue'
+import CollaboratorAddTeamModal from '@/components/boards/settings/CollaboratorAddTeamModal.vue'
 
 dayjs.extend(relativeTime)
 
@@ -56,6 +58,11 @@ const columns = [
   },
 ]
 
+const openAddUserModal = ref(false)
+const showAddUserModal = () => {
+  openAddUserModal.value = true
+}
+
 onMounted(() => {
   loadMemberships()
 })
@@ -102,7 +109,10 @@ onMounted(() => {
       <div class="flex justify-between items-center">
         <div class="text-2xl font-bold">Collaborators</div>
         <div class="flex gap-3">
-          <a-button type="primary" :icon="h(UserAddOutlined)"
+          <a-button
+            type="primary"
+            :icon="h(UserAddOutlined)"
+            @click="showAddUserModal"
             >Add user</a-button
           >
           <a-button type="primary" :icon="h(UsergroupAddOutlined)"
@@ -112,4 +122,8 @@ onMounted(() => {
       </div>
     </template>
   </a-table>
+
+  <a-modal v-model:open="openAddUserModal" title="Add user to the board">
+    <CollaboratorAddUserModal />
+  </a-modal>
 </template>

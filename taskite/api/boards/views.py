@@ -35,7 +35,7 @@ class BoardViewSet(ViewSet):
         )
         if not permission_queryset.exists():
             raise WorkspaceInvalidPermission
-        
+
     def check_for_board_permission(self, user, board):
         # Check for workspace permission
         workspace_membership = self.get_workspace_membership(user, board.workspace)
@@ -122,9 +122,9 @@ class BoardViewSet(ViewSet):
         board = Board.objects.filter(id=kwargs.get("pk")).first()
         if not board:
             raise BoardNotFoundException
-        
+
         self.check_for_board_permission(request.user, board)
-        
+
         members = User.objects.filter(
             Q(boards=board) | Q(teams__boards=board)
         ).distinct()
