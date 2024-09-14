@@ -1,10 +1,14 @@
 from django.contrib import admin
-from django.urls import path, re_path, include
-from django.views.generic import TemplateView
+from django.urls import path, include
 from taskite.views import (
     InviteWorkspaceConfirmView,
     InviteWorkspaceRejectView,
     AccountVerificationView,
+    IndexView, 
+    LoginView,
+    RegisterView,
+    WorkspaceDashboardView,
+    WorkspaceMembersView
 )
 
 # fmt: off
@@ -14,5 +18,9 @@ urlpatterns = [
     path("invites/workspace/<uuid:invite_id>/confirm/", InviteWorkspaceConfirmView.as_view(), name="invite-workspace-confirm"),
     path("invites/workspace/<uuid:invite_id>/reject/", InviteWorkspaceRejectView.as_view(), name="invite-workspace-reject"),
     path("accounts/verification/<str:verification_id>/", AccountVerificationView.as_view(), name="account-verification"),
-    re_path(r"^.*$", TemplateView.as_view(template_name="ui/index.html"), name="root"), 
+    path("accounts/login/", LoginView.as_view(), name="accounts-login"),
+    path("accounts/register/", RegisterView.as_view(), name="accounts-register"),
+    path("<str:workspace_slug>/", WorkspaceDashboardView.as_view(), name="workspaces-dashboard"),
+    path("<str:workspace_slug>/members/", WorkspaceMembersView.as_view(), name="workspaces-members"),
+    path("", IndexView.as_view(), name="home-index")
 ]

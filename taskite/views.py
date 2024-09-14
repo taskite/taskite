@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 from django.http import Http404, HttpResponseServerError
@@ -6,15 +6,84 @@ from django.db import transaction
 from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework import serializers
 
-from taskite.models.workspace import WorkspaceInvite, WorkspaceMembership
-from taskite.models.user import User
+from taskite.models import User, WorkspaceInvite, WorkspaceMembership, Workspace
+from taskite.serializers import WorkspaceSerializer, ProfileSerializer
 
 
-# Create your views here.
-class IndexView(View):
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "first_name", "last_name", "username"]
+
+
+class LoginView(View):
     def get(self, request):
-        return render(request, "index.html")
+        next = request.GET.get("next", "/")
+        context = {
+            "props": {
+                "next": next,
+            }
+        }
+        return render(request, "accounts/login.html", context)
+
+
+class RegisterView(View):
+    def get(self, request):
+        return render(request, "accounts/register.html")
+
+
+class IndexView(LoginRequiredMixin, View):
+    def get(self, request):
+        workspace = request.user.workspaces.first()
+
+        return redirect("workspaces-dashboard", workspace_slug=workspace.slug)
+
+
+class WorkspaceDashboardView(LoginRequiredMixin, View):
+    def get(self, request, workspace_slug):
+        workspace = Workspace.objects.filter(slug=workspace_slug).first()
+        if not workspace:
+            raise Http404
+
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=request.user
+        ).first()
+        if not workspace_membership:
+            raise Http404
+
+        context = {
+            "props": {
+                "workspace": WorkspaceSerializer(workspace).data,
+                "membership_role": workspace_membership.role,
+                "current_user": ProfileSerializer(request.user).data,
+            }
+        }
+        return render(request, "workspaces/dashboard.html", context)
+
+
+class WorkspaceMembersView(LoginRequiredMixin, View):
+    def get(self, request, workspace_slug):
+        workspace = Workspace.objects.filter(slug=workspace_slug).first()
+        if not workspace:
+            raise Http404
+
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=request.user
+        ).first()
+        if not workspace_membership:
+            raise Http404
+
+        context = {
+            "props": {
+                "workspace": WorkspaceSerializer(workspace).data,
+                "membership_role": workspace_membership.role,
+                "current_user": ProfileSerializer(request.user).data,
+            }
+        }
+        return render(request, "workspaces/members.html", context)
 
 
 class InviteWorkspaceConfirmView(View):

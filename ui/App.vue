@@ -27,7 +27,6 @@ onMounted(async () => {
 
 const theme = {
   token: {
-    // fontSize: 13,
     borderRadius: 3,
     colorPrimary: '#6f5c92',
     fontFamily: 'Inter, sans-serif',

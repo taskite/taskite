@@ -34,6 +34,9 @@ class ActiveUserManager(models.Manager):
 
 
 class User(UUIDTimestampModel, AbstractBaseUser):
+    current_workspace = models.ForeignKey(
+        "Workspace", on_delete=models.SET_NULL, null=True, blank=True
+    )
     username = models.CharField(max_length=124, unique=True, blank=True)
     email = models.CharField(max_length=124, unique=True)
     first_name = models.CharField(max_length=124)

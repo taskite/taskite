@@ -83,7 +83,6 @@ class AccountsViewSet(ViewSet):
     def register(self, request):
         register_serializer = RegisterSerializer(data=request.data)
         if not register_serializer.is_valid():
-            print(register_serializer.errors)
             raise InvalidInputException
 
         data = register_serializer.validated_data

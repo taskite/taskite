@@ -36,6 +36,18 @@ class BoardViewSet(ViewSet):
         if not permission_queryset.exists():
             raise WorkspaceInvalidPermission
 
+    def check_for_workspace_collaborator_membership(self, user, workspace):
+        permission_queryset = WorkspaceMembership.objects.filter(
+            user=user,
+            workspace=workspace,
+            role__in=[
+                WorkspaceMembership.Role.ADMIN,
+                WorkspaceMembership.Role.COLLABORATOR,
+            ],
+        )
+        if not permission_queryset.exists():
+            raise WorkspaceInvalidPermission
+
     def check_for_board_permission(self, user, board):
         # Check for workspace permission
         workspace_membership = self.get_workspace_membership(user, board.workspace)
@@ -73,14 +85,17 @@ class BoardViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        boards = Board.objects.filter(
-            Q(
-                workspace__memberships__user=request.user,
-                workspace__memberships__role=WorkspaceMembership.Role.ADMIN,
-            )
-            | Q(memberships__user=request.user)
-            | Q(memberships__team__members=request.user)
-        ).distinct()
+        workspace_id = request.query_params.get("workspace_id")
+        if not workspace_id:
+            raise InvalidInputException
+
+        workspace = Workspace.objects.filter(id=workspace_id).first()
+        if not workspace:
+            raise WorkspaceInvalidPermission
+
+        self.check_for_workspace_collaborator_membership(request.user, workspace)
+
+        boards = Board.objects.filter(workspace=workspace)
         serializer = BoardSerializer(boards, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 

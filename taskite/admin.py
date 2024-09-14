@@ -32,7 +32,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["email", "username"]
+        fields = ["email", "username",]
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -86,7 +86,7 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ["wide"],
-                "fields": ["email", "username", "password1", "password2"],
+                "fields": ["email", "username", "first_name", "last_name", "password1", "password2"],
             },
         ),
     ]
