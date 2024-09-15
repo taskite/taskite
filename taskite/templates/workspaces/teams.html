@@ -1,0 +1,6 @@
+{% extends '_client.html' %}
+{% load django_vite %}
+
+{% block script %}
+{% vite_asset 'packs/workspaces/teams.js' %}
+{% endblock script %}

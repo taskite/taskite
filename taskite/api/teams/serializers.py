@@ -27,3 +27,10 @@ class TeamSerializer(serializers.ModelSerializer):
             "members",
             "created_at",
         ]
+
+
+class TeamCreateSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    description = serializers.CharField(
+        required=False, allow_blank=True
+    )

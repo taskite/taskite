@@ -1,6 +1,6 @@
 <script setup>
 import { h, onMounted, ref } from 'vue';
-import { Table, Select, Avatar, Flex, Button, Tag, Typography } from 'ant-design-vue'
+import { Table, Select, Avatar, Flex, Button, Tag, SelectOption } from 'ant-design-vue'
 
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import { workspaceMembershipsAPI } from '@/utils/api/workspaces';
@@ -29,6 +29,10 @@ const columns = [
     {
         title: 'Name',
         key: 'name'
+    },
+    {
+        title: 'Email',
+        key: 'email'
     },
     {
         title: 'Role',
@@ -81,12 +85,16 @@ onMounted(() => {
                     </Flex>
                 </template>
 
+                <template v-else-if="column.key === 'email'">
+                    {{ record.user.email }}
+                </template>
+
                 <template v-else-if="column.key === 'role'">
                     <Select v-model:value="record.role" style="width: 140px"
                         @change="(role) => handleRoleChange(record.id, role)"
                         :disabled="props.membershipRole !== 'admin'">
-                        <Select.Option value="collaborator">Collaborator</Select.Option>
-                        <Select.Option value="admin">Admin</Select.Option>
+                        <SelectOption value="collaborator">Collaborator</SelectOption>
+                        <SelectOption value="admin">Admin</SelectOption>
                     </Select>
                 </template>
 
@@ -103,7 +111,8 @@ onMounted(() => {
 
                 <template v-else-if="column.key === 'actions'">
                     <Flex gap="middle">
-                        <Button type="text" :icon="h(CloseOutlined)" :disabled="props.membershipRole !== 'admin'">
+                        <Button type="text" :icon="h(CloseOutlined)" :disabled="props.membershipRole !== 'admin'"
+                            class="text-gray-500">
                             Remove
                         </Button>
                     </Flex>

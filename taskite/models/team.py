@@ -8,6 +8,7 @@ class Team(UUIDTimestampModel):
         "Workspace", related_name="teams", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=124)
+    description = models.TextField(blank=True, null=True)
     members = models.ManyToManyField(
         "User", through="TeamMembership", related_name="teams"
     )

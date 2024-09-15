@@ -5,12 +5,12 @@ from django.http import Http404, HttpResponseServerError
 from django.db import transaction
 from django.shortcuts import redirect
 from django.conf import settings
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import serializers
 
-from taskite.models import User, WorkspaceInvite, WorkspaceMembership, Workspace
-from taskite.serializers import WorkspaceSerializer, ProfileSerializer
+from taskite.models import User, WorkspaceInvite, WorkspaceMembership, Workspace, Team
+from taskite.serializers import WorkspaceSerializer, ProfileSerializer, TeamSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,6 +33,12 @@ class LoginView(View):
 class RegisterView(View):
     def get(self, request):
         return render(request, "accounts/register.html")
+
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect("accounts-login")
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -84,6 +90,54 @@ class WorkspaceMembersView(LoginRequiredMixin, View):
             }
         }
         return render(request, "workspaces/members.html", context)
+
+
+class WorkspaceTeamsView(LoginRequiredMixin, View):
+    def get(self, request, workspace_slug):
+        workspace = Workspace.objects.filter(slug=workspace_slug).first()
+        if not workspace:
+            raise Http404
+
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=request.user
+        ).first()
+        if not workspace_membership:
+            raise Http404
+
+        context = {
+            "props": {
+                "workspace": WorkspaceSerializer(workspace).data,
+                "membership_role": workspace_membership.role,
+                "current_user": ProfileSerializer(request.user).data,
+            }
+        }
+        return render(request, "workspaces/teams.html", context)
+
+
+class WorkspaceTeamsEditView(LoginRequiredMixin, View):
+    def get(self, request, workspace_slug, team_id):
+        workspace = Workspace.objects.filter(slug=workspace_slug).first()
+        if not workspace:
+            raise Http404
+
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=request.user, role=WorkspaceMembership.Role.ADMIN
+        ).first()
+        if not workspace_membership:
+            raise Http404
+
+        team = Team.objects.filter(workspace=workspace, id=team_id).first()
+        if not team:
+            raise Http404
+
+        context = {
+            "props": {
+                "workspace": WorkspaceSerializer(workspace).data,
+                "current_user": ProfileSerializer(request.user).data,
+                "team": TeamSerializer(team).data
+            }
+        }
+        return render(request, "workspaces/teams_edit.html", context)
 
 
 class InviteWorkspaceConfirmView(View):

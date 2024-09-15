@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from taskite.models import Workspace, User
+from taskite.models import Workspace, User, Team
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -24,4 +24,14 @@ class WorkspaceSerializer(serializers.ModelSerializer):
             "slug",
             "description",
             "created_at",
+        ]
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = [
+            "id",
+            "name",
+            "created_at"
         ]

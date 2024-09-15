@@ -10,6 +10,7 @@ from taskite.api.workspace_memberships.views import WorkspaceMembershipsViewset
 from taskite.api.teams.views import TeamsViewSet
 from taskite.api.workspace_invites.views import WorkspaceInvitesViewSet
 from taskite.api.board_memberships.views import BoardMembershipsViewset
+from taskite.api.team_memberships.views import TeamMembershipsViewSet
 
 router = SimpleRouter(trailing_slash=False, use_regex_path=False)
 
@@ -22,6 +23,7 @@ router.register("accounts", AccountsViewSet, basename="accounts")
 router.register("workspaces/<uuid:workspace_id>/memberships", WorkspaceMembershipsViewset, basename="workspace-membership")
 router.register("workspaces/<uuid:workspace_id>/invites", WorkspaceInvitesViewSet, basename="workspace-invite")
 router.register("workspaces/<uuid:workspace_id>/teams", TeamsViewSet, basename="team")
+router.register("workspaces/<uuid:workspace_id>/team_memberships", TeamMembershipsViewSet, basename="team-membership")
 router.register("workspaces", WorkspaceViewSet, basename="workspace")
 
 # Boards

@@ -2,7 +2,11 @@
 export default {
   content: ['./taskite/static/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#8B5CF6'
+      }
+    },
   },
   plugins: [],
   corePlugins: {

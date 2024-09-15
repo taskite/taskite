@@ -18,23 +18,33 @@ const changePage = (event) => {
         window.location.href = `/${props.workspace.slug}/${event.key}/`
     }
 }
+
+const logoutUser = () => {
+    window.location.href = "/accounts/logout"
+}
 </script>
 
 <template>
     <BaseLayout>
         <Layout>
             <Layout.Sider v-model:collapsed="collapsed" :trigger="null" collapsible>
-                <div style="padding: 5px 10px;">
+                <div class="p-2">
                     <Flex gap="small" justify="space-between" align="center">
                         <div>{{ props.workspace.name }}</div>
                         <Dropdown :trigger="['click']">
                             <Avatar :src="generateAvatar(props.currentUser.firstName, 20)" shape="square" />
 
                             <template #overlay>
-                                <Card size="small">
-                                    <div>{{ props.currentUser.email }}</div>
-                                    <div>@{{ props.currentUser.username }}</div>
-                                    <Button :icon="h(LogoutOutlined)" style="width: 100%;">Logout</Button>
+                                <Card size="small" class="w-72">
+                                    <div class="mb-4">
+                                        <div class="font-semibold">
+                                            {{ props.currentUser.firstName }} 
+                                            {{ props.currentUser?.lastName }}
+                                        </div>
+                                        <div class="text-xs text-gray-600">@{{ props.currentUser.username }}</div>
+                                    </div>
+                                    <div class="mt-2 cursor-pointer">Edit profile</div>
+                                    <div class="mt-2 cursor-pointer" @click="logoutUser">Logout</div>
                                 </Card>
                             </template>
                         </Dropdown>
