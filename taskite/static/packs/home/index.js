@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
 import 'ant-design-vue/dist/reset.css'
+import '@/assets/base.css'
 
-import App from '@/components/home/index.vue'
-const props = JSON.parse(document.getElementById('props').textContent)
+import IndexApp from '@/components/home/index.vue'
 
-const app = createApp(App, props)
+const app = createApp(IndexApp)
 
 app.mount('#app')

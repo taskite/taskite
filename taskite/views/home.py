@@ -3,8 +3,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 
 
-class IndexView(LoginRequiredMixin, View):
+class IndexView(View):
     def get(self, request):
+        if not request.user.is_authenticated:
+            return render(request, "home/index.html")
+
         if not request.user.is_verified:
             # Redirect them to email verification page
             return redirect("accounts-verify")
@@ -13,7 +16,6 @@ class IndexView(LoginRequiredMixin, View):
             return redirect("home-create")
 
         return redirect("workspaces-dashboard", workspace_slug=workspace.slug)
-
 
 
 class CreateView(LoginRequiredMixin, View):

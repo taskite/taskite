@@ -1,16 +1,13 @@
 <script setup>
-import { Button, Flex } from 'ant-design-vue'
+import BaseLayout from '@/components/base/base-layout.vue';
 </script>
 
 <template>
-  <Flex justify="center" align="center" class="center">
-    <h1>Coming Soon</h1>
-  </Flex>
+  <BaseLayout>
+    <div class="flex justify-center items-center h-screen">
+      <h1>Coming Soon</h1>
+    </div>
+  </BaseLayout>
 </template>
 
-<style scoped>
-.center {
-  height: 100vh;
-}
-</style>
-
+<style scoped></style>
