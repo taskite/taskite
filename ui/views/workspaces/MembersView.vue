@@ -21,7 +21,7 @@ dayjs.extend(relativeTime)
 
 import { onMounted, ref, h, computed } from 'vue'
 import Spinner from '@/components/base/Spinner.vue'
-import { message } from 'ant-design-vue'
+import { Flex, message } from 'ant-design-vue'
 
 const props = defineProps(['workspace'])
 
@@ -125,12 +125,8 @@ onMounted(() => {
 <template>
   <div class="flex items-center justify-between mb-4">
     <div>
-      <a-input-search
-        v-model:value="searchVal"
-        placeholder="Search members"
-        style="width: 300px"
-        @search="onMemberSearch"
-      />
+      <a-input-search v-model:value="searchVal" placeholder="Search members" style="width: 300px"
+        @search="onMemberSearch" />
     </div>
 
     <div class="flex gap-4">
@@ -141,54 +137,32 @@ onMounted(() => {
 
         <template #overlay>
           <a-card size="small" class="w-90">
-            <div
-              class="flex justify-between items-center"
-              v-for="invite in invites"
-              :key="invite.id"
-            >
+            <div class="flex justify-between items-center" v-for="invite in invites" :key="invite.id">
               <div>
                 {{ invite.email }}
               </div>
 
               <div>
-                <a-button
-                  type="link"
-                  :icon="h(DeleteOutlined)"
-                  @click="deleteInvitation(invite)"
-                  >Remove</a-button
-                >
+                <a-button type="link" :icon="h(DeleteOutlined)" @click="deleteInvitation(invite)">Remove</a-button>
               </div>
             </div>
           </a-card>
         </template>
       </a-dropdown>
-      <a-button
-        :icon="h(PlusOutlined)"
-        type="primary"
-        @click="openMemberInviteModal"
-        >Invite member</a-button
-      >
+      <a-button :icon="h(PlusOutlined)" type="primary" @click="openMemberInviteModal">Invite member</a-button>
     </div>
   </div>
 
   <div class="flex items-center justify-center" v-if="membersLoading">
     <Spinner />
   </div>
-  <a-table
-    :dataSource="membershipsDataSource"
-    :columns="membershipColumns"
-    v-else
-  >
+  <a-table :dataSource="membershipsDataSource" :columns="membershipColumns" v-else>
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'name'">
-        <div>
-          <a-avatar
-            class="mr-2"
-            :src="generateAvatar(record.user.firstName)"
-            size="small"
-          ></a-avatar>
-          <span> {{ record.user.firstName }} {{ record.user?.lastName }} </span>
-        </div>
+        <Flex align="center" gap="middle">
+          <a-avatar class="mr-2" :src="generateAvatar(record.user.firstName)" size="small"></a-avatar>
+          <div> {{ record.user.firstName }} {{ record.user?.lastName }} </div>
+        </Flex>
       </template>
 
       <template v-else-if="column.key === 'username'">
@@ -209,12 +183,7 @@ onMounted(() => {
 
       <template v-else-if="column.key === 'teams'">
         <div>
-          <a-tag
-            :bordered="false"
-            v-for="team in record.user.teams"
-            :key="team.id"
-            >{{ team.name }}</a-tag
-          >
+          <a-tag :bordered="false" v-for="team in record.user.teams" :key="team.id">{{ team.name }}</a-tag>
         </div>
       </template>
 
@@ -235,11 +204,7 @@ onMounted(() => {
     </template>
   </a-table>
 
-  <a-modal
-    v-model:open="memberInviteModalOpen"
-    title="Member Invite"
-    :footer="null"
-  >
+  <a-modal v-model:open="memberInviteModalOpen" title="Member Invite" :footer="null">
     <MemberInvite :workspaceId="props.workspace.id" @invited="updateInvites" />
   </a-modal>
 </template>

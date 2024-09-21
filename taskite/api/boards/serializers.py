@@ -13,24 +13,13 @@ class BoardCreateSerializer(serializers.Serializer):
 class BoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
-        fields = [
-            "id",
-            "name",
-            "description",
-            "workspace_id",
-            "created_at"
-        ]
+        fields = ["id", "name", "slug", "description", "created_at"]
 
 
 class BoardMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = BoardMembership
-        fields = [
-            "id",
-            "board_id",
-            "role",
-            "created_at"
-        ]
+        fields = ["id", "board_id", "role", "created_at"]
 
 
 class BoardMemberSeralizer(serializers.ModelSerializer):

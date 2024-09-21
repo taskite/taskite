@@ -42,3 +42,33 @@ class WorkspaceInviteNotFoundException(APIException):
     status_code = HTTP_400_BAD_REQUEST
     default_detail = "No workspace invite found."
     default_code = "no_workspace_invite_found"
+
+
+class TeamNotFoundException(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No team found."
+    default_code = "no_team_found"
+
+
+class MemberNotFoundException(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No member found"
+    default_code = "no_member_found"
+
+
+class TeamMembershipNotFoundEception(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No team membership found"
+    default_code = "no_team_membership_found"
+
+
+class UserNotFoundException(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No user found."
+    default_code = "no_user_found"
+
+
+class BoardMembershipNotFoundException(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No board membership found."
+    default_code = "no_board_membership_found"

@@ -56,3 +56,11 @@ sentry_sdk.init(
     # of transactions for tracing.
     traces_sample_rate=1.0,
 )
+
+DJANGO_VITE = {
+  "default": {
+    "dev_mode": False,
+    "static_url_prefix": "dist",
+    "manifest_path": BASE_DIR / "taskite" / "static" / "dist" / "manifest.json"
+  }
+}

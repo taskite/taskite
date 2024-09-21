@@ -7,13 +7,12 @@ from sentry_sdk import capture_exception
 
 from taskite.models.user import User
 
-
 @shared_task
-def verification_email(email):
+def send_verification_email(email):
     user = User.objects.filter(email=email).first()
-
-    html_content = render_to_string("emails/accounts/verification.html", {"user": user})
+    html_content = render_to_string("accounts/verification_email.html", {"user": user})
     text_content = strip_tags(html_content)
+
     try:
         send_mail(
             subject="Email verification",
@@ -24,10 +23,4 @@ def verification_email(email):
             fail_silently=False,
         )
     except Exception as e:
-        print(e)
         capture_exception(e)
-
-
-def welcome_email(user_id):
-    user = User.objects.filter(id=user_id).first()
-    pass

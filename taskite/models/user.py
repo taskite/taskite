@@ -34,6 +34,9 @@ class ActiveUserManager(models.Manager):
 
 
 class User(UUIDTimestampModel, AbstractBaseUser):
+    current_workspace = models.ForeignKey(
+        "Workspace", on_delete=models.SET_NULL, null=True, blank=True
+    )
     username = models.CharField(max_length=124, unique=True, blank=True)
     email = models.CharField(max_length=124, unique=True)
     first_name = models.CharField(max_length=124)
@@ -95,6 +98,11 @@ class User(UUIDTimestampModel, AbstractBaseUser):
         self.verification_id = None
         self.save(update_fields=["verified_at", "verification_id"])
 
+    def verify_confirm(self):
+        self.verified_at = timezone.now()
+        self.verification_id = None
+        self.save(update_fields=["verified_at", "verification_id"])
+
     @property
     def verification_link(self):
         if not self.verification_id:
@@ -102,5 +110,5 @@ class User(UUIDTimestampModel, AbstractBaseUser):
             self.save(update_fields=["verification_id"])
 
         return settings.BASE_URL + reverse(
-            "account-verification", args=[self.verification_id]
+            "accounts-verify-confirm", args=[self.verification_id]
         )

@@ -294,3 +294,5 @@ dist
 
 taskite/static/dashboard/
 taskite/templates/dashboard/
+
+media/

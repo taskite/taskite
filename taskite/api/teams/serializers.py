@@ -24,6 +24,14 @@ class TeamSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "avatar",
             "members",
             "created_at",
         ]
+
+
+class TeamCreateSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    description = serializers.CharField(
+        required=False, allow_blank=True
+    )

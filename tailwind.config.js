@@ -1,11 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './ui/**/*.{vue,js,ts,jsx,tsx}'],
+  content: ['./taskite/static/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#8B5CF6'
+      }
+    },
   },
   plugins: [],
   corePlugins: {
     preflight: false
-  }
+  },
 }

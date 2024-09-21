@@ -8,9 +8,11 @@ class Team(UUIDTimestampModel):
         "Workspace", related_name="teams", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=124)
+    description = models.TextField(blank=True, null=True)
     members = models.ManyToManyField(
         "User", through="TeamMembership", related_name="teams"
     )
+    avatar = models.ImageField(blank=True, null=True, upload_to="teams/avatars/")
 
     class Meta:
         db_table = "teams"

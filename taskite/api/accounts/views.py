@@ -15,7 +15,7 @@ from taskite.api.accounts.serializers import (
 )
 from taskite.models import User, Workspace, WorkspaceInvite, WorkspaceMembership
 from taskite.exceptions import InvalidInputException
-from taskite.tasks import verification_email
+from taskite.tasks import send_verification_email
 
 
 class ResendEmailThrottle(UserRateThrottle):
@@ -83,12 +83,11 @@ class AccountsViewSet(ViewSet):
     def register(self, request):
         register_serializer = RegisterSerializer(data=request.data)
         if not register_serializer.is_valid():
-            print(register_serializer.errors)
             raise InvalidInputException
 
         data = register_serializer.validated_data
-        existing_user = User.objects.filter(email=data.get("email")).first()
-        if existing_user:
+        existing_user_queryset = User.objects.filter(email=data.get("email"))
+        if existing_user_queryset.exists():
             return Response(
                 data={
                     "detail": "An account already exists with the given email address."
@@ -96,55 +95,10 @@ class AccountsViewSet(ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         password = data.pop("password")
-        invite_id = request.query_params.get("invite_id", None)
-        company = data.pop("company", None)
-
-        if invite_id:
-            workspace_invite = WorkspaceInvite.objects.filter(
-                id=invite_id, accepted=False
-            ).first()
-            if not workspace_invite:
-                return Response(
-                    data={"detail": "Invalid or expired workspace invitation"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            try:
-                with transaction.atomic():
-                    workspace = workspace_invite.workspace
-                    new_user = User(**data)
-                    new_user.set_password(password)
-                    new_user.save()
-                    new_user.verify()
-                    WorkspaceMembership.objects.create(
-                        workspace=workspace,
-                        user=new_user,
-                        role=WorkspaceMembership.Role.COLLABORATOR,
-                    )
-                    workspace_invite.accepted = True
-                    workspace_invite.save(update_fields=["accepted"])
-            except Exception as e:
-                print(e)
-                return Response(
-                    data={"detail": "Failed to create an account"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-        else:
-            try:
-                with transaction.atomic():
-                    new_user = User(**data)
-                    new_user.set_password(password)
-                    new_user.save()
-                    if not company:
-                        company = f"{new_user.first_name}'s space"
-                    workspace = Workspace(name=company, created_by=new_user)
-                    workspace.save()
-                    verification_email.delay(new_user.email)
-            except Exception as e:
-                print(e)
-                return Response(
-                    data={"detail": "Failed to create an account"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+        new_user = User(**data)
+        new_user.set_password(password)
+        new_user.save()
+        send_verification_email.delay(new_user.email)
 
         login(request, new_user)
         user_serializer = UserSerializer(new_user)
@@ -165,11 +119,11 @@ class AccountsViewSet(ViewSet):
         detail=False,
         permission_classes=[IsAuthenticated],
         url_path="resend-verification",
-        throttle_classes=[ResendEmailThrottle],
+        # throttle_classes=[ResendEmailThrottle],
     )
     def resend_verification(self, request):
         user = request.user
-        verification_email.delay(user.email)
+        send_verification_email.delay(user.email)
         return Response(
             data={"detail": "Verification link has been send to your email address."},
             status=status.HTTP_200_OK,

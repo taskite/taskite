@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.utils.text import slugify
 
 from taskite.models.base import UUIDTimestampModel
 
@@ -10,10 +11,12 @@ class Workspace(UUIDTimestampModel):
         max_length=124,
         help_text="This is the name of your company, team or organization.",
     )
+    slug = models.SlugField(max_length=124, blank=True, unique=True)
     description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(
         "User", on_delete=models.SET_NULL, null=True, related_name="created_workspaces"
     )
+    logo = models.ImageField(blank=True, null=True, upload_to="workspaces/logos")
 
     members = models.ManyToManyField(
         "User", through="WorkspaceMembership", related_name="workspaces"
@@ -24,6 +27,12 @@ class Workspace(UUIDTimestampModel):
 
     def __str__(self) -> str:
         return self.name
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            if not self.slug:
+                self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
 
 class WorkspaceMembership(UUIDTimestampModel):
@@ -69,8 +78,10 @@ class WorkspaceInvite(UUIDTimestampModel):
 
     @property
     def confirmation_link(self):
-        return settings.BASE_URL + reverse("invite-workspace-confirm", args=[self.id])
+        # return settings.BASE_URL + reverse("invite-workspace-confirm", args=[self.id])
+        return ''
 
     @property
     def rejection_link(self):
-        return settings.BASE_URL + reverse("invite-workspace-reject", args=[self.id])
+        # return settings.BASE_URL + reverse("invite-workspace-reject", args=[self.id])
+        return ''
