@@ -24,6 +24,7 @@ class TeamSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "avatar",
             "members",
             "created_at",
         ]

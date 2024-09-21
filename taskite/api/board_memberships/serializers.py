@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ["id", "name", "created_at"]
+        fields = ["id", "name", "avatar", "created_at"]
 
 
 class BoardMembershipSerializer(serializers.ModelSerializer):
@@ -28,3 +28,12 @@ class BoardMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = BoardMembership
         fields = ["id", "user", "team", "role", "created_at"]
+
+
+class BoardMembershipCreateSerializer(serializers.Serializer):
+    resource_id = serializers.UUIDField()
+    role = serializers.ChoiceField(choices=BoardMembership.Role.choices)
+
+
+class BoardMembershipUpdateSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(choices=BoardMembership.Role.choices)

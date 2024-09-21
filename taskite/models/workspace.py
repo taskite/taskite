@@ -16,6 +16,7 @@ class Workspace(UUIDTimestampModel):
     created_by = models.ForeignKey(
         "User", on_delete=models.SET_NULL, null=True, related_name="created_workspaces"
     )
+    logo = models.ImageField(blank=True, null=True, upload_to="workspaces/logos")
 
     members = models.ManyToManyField(
         "User", through="WorkspaceMembership", related_name="workspaces"
@@ -26,7 +27,7 @@ class Workspace(UUIDTimestampModel):
 
     def __str__(self) -> str:
         return self.name
-    
+
     def save(self, *args, **kwargs):
         if self._state.adding:
             if not self.slug:
@@ -77,8 +78,10 @@ class WorkspaceInvite(UUIDTimestampModel):
 
     @property
     def confirmation_link(self):
-        return settings.BASE_URL + reverse("invite-workspace-confirm", args=[self.id])
+        # return settings.BASE_URL + reverse("invite-workspace-confirm", args=[self.id])
+        return ''
 
     @property
     def rejection_link(self):
-        return settings.BASE_URL + reverse("invite-workspace-reject", args=[self.id])
+        # return settings.BASE_URL + reverse("invite-workspace-reject", args=[self.id])
+        return ''

@@ -10,12 +10,25 @@ from taskite.api.workspaces.serializers import (
     WorkspaceSerializer,
     WorkspaceMembershipSerializer,
     MemberSerializer,
+    WorkspaceCreateSerializer,
 )
-from taskite.exceptions import WorkspaceNotFoundException
+from taskite.exceptions import WorkspaceNotFoundException, InvalidInputException
 
 
 class WorkspaceViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        create_serializer = WorkspaceCreateSerializer(data=request.data)
+        if not create_serializer.is_valid():
+            raise InvalidInputException()
+
+        workspace = Workspace(**create_serializer.validated_data)
+        workspace.created_by = request.user
+        workspace.save()
+
+        serializer = WorkspaceSerializer(workspace)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         workspaces = Workspace.objects.filter(memberships__user=request.user)
@@ -58,6 +71,6 @@ class WorkspaceViewSet(ViewSet):
             | Q(username__icontains=query)
             | Q(first_name__icontains=query)
             | Q(last_name__icontains=query)
-        )
+        ).distinct()
         serializer = MemberSerializer(members, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)

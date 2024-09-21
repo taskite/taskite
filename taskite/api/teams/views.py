@@ -2,6 +2,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 
 from taskite.api.teams.serializers import TeamSerializer, TeamCreateSerializer
 from taskite.exceptions import InvalidInputException, TeamNotFoundException
@@ -54,3 +55,15 @@ class TeamsViewSet(WorkspaceMixin, ViewSet):
             data={"detail": "Team deleted successfully"},
             status=status.HTTP_204_NO_CONTENT,
         )
+
+    @action(methods=["GET"], detail=False)
+    def search(self, request, *args, **kwargs):
+        query = request.query_params.get("q")
+        if not query:
+            return Response(
+                data={"detail": "Please enter search query."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        teams = request.workspace.teams.filter(name__icontains=query)
+        serializer = TeamSerializer(teams, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

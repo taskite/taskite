@@ -1,7 +1,7 @@
 <script setup>
 import { Button, Layout, Menu, Typography, Flex, Avatar, Select, Dropdown, Card, Divider } from 'ant-design-vue'
 import { h, ref } from 'vue';
-import { DashboardOutlined, LogoutOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { DashboardOutlined, LogoutOutlined, ProjectOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons-vue';
 
 import BaseLayout from '@/components/base/base-layout.vue';
 import { generateAvatar } from '@/utils/helpers';
@@ -56,14 +56,9 @@ const logoutUser = () => {
                         <span>Dashboard</span>
                     </Menu.Item>
 
-                    <Menu.Item key="members">
-                        <UserOutlined />
-                        <span>Members</span>
-                    </Menu.Item>
-
-                    <Menu.Item key="teams">
-                        <TeamOutlined />
-                        <span>Teams</span>
+                    <Menu.Item key="boards">
+                        <ProjectOutlined />
+                        <span>Boards</span>
                     </Menu.Item>
 
                     <Menu.Item key="settings">

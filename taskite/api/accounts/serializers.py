@@ -32,8 +32,6 @@ class RegisterSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField(required=False, allow_blank=True)
     password = serializers.CharField()
-    invite_id = serializers.UUIDField(required=False)
-    company = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 
 class WorkspaceInviteSerializer(serializers.ModelSerializer):

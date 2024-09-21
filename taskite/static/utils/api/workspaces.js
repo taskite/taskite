@@ -1,5 +1,7 @@
 import { client } from './client'
 
+export const workspaceCreareAPI = (data) => client.post(`/workspaces`, data)
+
 export const workspaceMemberSearchAPI = (workspaceId, searchQuery) =>
   client.get(`/workspaces/${workspaceId}/members/search`, {
     params: {
@@ -15,6 +17,13 @@ export const workspaceTeamsAPI = (workspaceId) =>
 
 export const workspaceTeamCreateAPI = (workspaceId, data) =>
   client.post(`/workspaces/${workspaceId}/teams`, data)
+
+export const workspaceTeamSearchAPI = (workspaceId, query) =>
+  client.get(`/workspaces/${workspaceId}/teams/search`, {
+    params: {
+      q: query,
+    },
+  })
 
 export const workspaceTeamDeleteAPI = (workspaceId, teamId) =>
   client.delete(`/workspaces/${workspaceId}/teams/${teamId}`)

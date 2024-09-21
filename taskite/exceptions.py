@@ -59,4 +59,16 @@ class MemberNotFoundException(APIException):
 class TeamMembershipNotFoundEception(APIException):
     status_code = HTTP_400_BAD_REQUEST
     default_detail = "No team membership found"
-    default_code = "no_team_membershio_found"
+    default_code = "no_team_membership_found"
+
+
+class UserNotFoundException(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No user found."
+    default_code = "no_user_found"
+
+
+class BoardMembershipNotFoundException(APIException):
+    status_code = HTTP_400_BAD_REQUEST
+    default_detail = "No board membership found."
+    default_code = "no_board_membership_found"
