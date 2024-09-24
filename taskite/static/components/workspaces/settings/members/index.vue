@@ -1,12 +1,15 @@
 <script setup>
-import { h, onMounted, ref } from 'vue';
-import { Table, Select, Avatar, Flex, Button, Tag, SelectOption } from 'ant-design-vue'
+import { computed, h, onMounted, ref } from 'vue';
+import { Button, Modal, TabPane, Tabs } from 'ant-design-vue'
 
 import WorkspaceSettingsLayout from '@/components/base/workspace-settings-layout.vue';
+import ActiveMembers from '@/components/workspaces/settings/members/active-members.vue';
+import PendingInvites from '@/components/workspaces/settings/members/pending-invites.vue'
 import { workspaceMembershipsAPI } from '@/utils/api/workspaces';
-import { generateAvatar } from '@/utils/helpers';
-import dayjs from 'dayjs';
-import { CloseOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined } from '@ant-design/icons-vue';
+import InviteMemberModal from '@/components/workspaces/settings/members/invite-member-modal.vue';
+
+const activeTab = ref('active_members')
 
 const props = defineProps(['workspace', 'membershipRole', 'pageTitle', 'currentUser'])
 
@@ -25,36 +28,13 @@ const fetchMemberships = async () => {
     }
 }
 
-const columns = [
-    {
-        title: 'Name',
-        key: 'name'
-    },
-    {
-        title: 'Email',
-        key: 'email'
-    },
-    {
-        title: 'Role',
-        key: 'role'
-    },
-    {
-        title: 'Teams',
-        key: 'teams'
-    },
-    {
-        title: 'Joined',
-        key: 'joined'
-    },
-    {
-        title: 'Actions',
-        key: 'actions'
-    }
-]
+const notAdmin = computed(() => {
+    return props.membershipRole !== 'admin'
+})
 
-const handleRoleChange = (membershipId, newRole) => {
-    console.log(membershipId)
-    console.log(newRole)
+const openInviteMemberModal = ref(false)
+const showOpenInviteMemberModal = () => {
+    openInviteMemberModal.value = true
 }
 
 onMounted(() => {
@@ -64,72 +44,28 @@ onMounted(() => {
 
 <template>
     <WorkspaceSettingsLayout :workspace="props.workspace" page="members" :currentUser="props.currentUser">
-        <Flex justify="space-between" class="header">
-            <div class="text-2xl">Members</div>
+        <Tabs type="card" v-model:activeKey="activeTab">
+            <TabPane tab="Active members" key="active_members">
+                <ActiveMembers :memberships="memberships" :notAdmin="notAdmin" :workspaceId="props.workspace.id" />
+            </TabPane>
+            <TabPane tab="Pending invites" key="pending_invites">
+                <PendingInvites :workspaceId="props.workspace.id" :notAdmin="notAdmin"></PendingInvites>
+            </TabPane>
 
-            <div class="flex gap-3">
-                <Button>View pending members</Button>
-                <Button type="primary" :icon="h(PlusOutlined)">Invite member</Button>
-            </div>
-        </Flex>
-        <Table :columns="columns" :dataSource="memberships" size="small">
-            <template #bodyCell="{ column, record }">
-                <template v-if="column.key === 'name'">
-                    <Flex align="center" gap="middle">
-                        <Avatar :src="generateAvatar(record.user.firstName)" />
-                        <Flex vertical>
-                            <div>
-                                {{ record.user.firstName }} {{ record.user?.lastName }}
-                            </div>
-                            <div class="member-username">@{{ record.user.username }}</div>
-                        </Flex>
-                    </Flex>
-                </template>
-
-                <template v-else-if="column.key === 'email'">
-                    {{ record.user.email }}
-                </template>
-
-                <template v-else-if="column.key === 'role'">
-                    <Select v-model:value="record.role" style="width: 140px"
-                        @change="(role) => handleRoleChange(record.id, role)"
-                        :disabled="props.membershipRole !== 'admin'">
-                        <SelectOption value="collaborator">Collaborator</SelectOption>
-                        <SelectOption value="admin">Admin</SelectOption>
-                    </Select>
-                </template>
-
-                <template v-else-if="column.key === 'teams'">
-                    <div v-if="record.user.teams.length === 0">-</div>
-                    <div v-else>
-                        <Tag :bordered="false" v-for="team in record.user.teams" :key="team.id">{{ team.name }}</Tag>
-                    </div>
-                </template>
-
-                <template v-else-if="column.key === 'joined'">
-                    {{ dayjs(record.createdAt).format('D MMM YY') }}
-                </template>
-
-                <template v-else-if="column.key === 'actions'">
-                    <Flex gap="middle">
-                        <Button type="text" :icon="h(CloseOutlined)" :disabled="props.membershipRole !== 'admin'"
-                            class="text-gray-500">
-                            Remove
-                        </Button>
-                    </Flex>
-                </template>
+            <template #rightExtra>
+                <Button type="primary" :icon="h(PlusOutlined)" class="mb-1" :notAdmin="notAdmin"
+                    @click="showOpenInviteMemberModal">Invite members</Button>
             </template>
-        </Table>
+        </Tabs>
     </WorkspaceSettingsLayout>
+
+    <Modal v-model:open="openInviteMemberModal" title="Invite members">
+        <InviteMemberModal :workspaceId="props.workspace.id" />
+
+        <template #footer>
+            <Button @click="openInviteMemberModal = false">Cancel</Button>
+        </template>
+    </Modal>
 </template>
 
-<style scoped>
-.header {
-    margin-bottom: 15px;
-}
-
-.member-username {
-    font-size: small;
-    color: gray;
-}
-</style>
+<style scoped></style>

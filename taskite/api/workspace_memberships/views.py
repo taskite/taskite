@@ -11,8 +11,9 @@ from taskite.permissions import (
 from taskite.models.workspace import WorkspaceMembership
 from taskite.exceptions import (
     WorkspaceMembershipNotFoundException,
+    InvalidInputException
 )
-from taskite.api.workspace_memberships.serializers import WorkspaceMembershipSerializer
+from taskite.api.workspace_memberships.serializers import WorkspaceMembershipSerializer, WorkspaceMembershipUpdateSerializer
 
 
 class WorkspaceMembershipsViewset(WorkspaceMixin, ViewSet):
@@ -22,6 +23,8 @@ class WorkspaceMembershipsViewset(WorkspaceMixin, ViewSet):
         if self.action == "list":
             return [IsAuthenticated(), WorkspaceCollaboratorPermission()]
         elif self.action == "destroy":
+            return [IsAuthenticated(), WorkspaceAdminPermission()]
+        elif self.action == "partial_update":
             return [IsAuthenticated(), WorkspaceAdminPermission()]
 
         return super().get_permissions()
@@ -48,3 +51,20 @@ class WorkspaceMembershipsViewset(WorkspaceMixin, ViewSet):
             data={"detail": "Workspace membership got deleted"},
             status=status.HTTP_204_NO_CONTENT,
         )
+
+    def partial_update(self, request, *args, **kwargs):
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=request.workspace, id=kwargs.get("pk")
+        ).first()
+
+        update_serializer = WorkspaceMembershipUpdateSerializer(data=request.data)
+        if not update_serializer.is_valid():
+            raise InvalidInputException
+        
+        data = update_serializer.validated_data
+        for key, value in data.items():
+            setattr(workspace_membership, key, value)
+
+        workspace_membership.save(update_fields=data.keys())
+        serializer = WorkspaceMembershipSerializer(workspace_membership)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

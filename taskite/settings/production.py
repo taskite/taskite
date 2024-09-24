@@ -7,10 +7,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = False
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
-CSRF_TRUSTED_ORIGINS = ["https://taskite.in"]
+CSRF_TRUSTED_ORIGINS = ["https://app.taskite.in"]
 
-BASE_URL = os.environ.get("BASE_URL", "https://taskite.in")
-APP_URL = os.environ.get("APP_URL", "https://taskite.in")
+BASE_URL = os.environ.get("BASE_URL", "https://app.taskite.in")
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL")
 CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL")

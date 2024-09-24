@@ -2,6 +2,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 from taskite.permissions import (
     WorkspaceAdminPermission,
@@ -12,8 +13,13 @@ from taskite.models.workspace import WorkspaceInvite
 from taskite.exceptions import (
     WorkspaceInviteNotFoundException,
 )
-from taskite.tasks.workspace import workspace_invite_confirm
-from taskite.api.workspace_invites.serializers import WorkspaceInviteSerializer
+from taskite.tasks import send_member_invitation_email
+from taskite.api.workspace_invites.serializers import (
+    WorkspaceInviteSerializer,
+    WorkspaceInviteCreateSerializer,
+)
+from taskite.throttles import ResendEmailThrottle
+from taskite.exceptions import InvalidInputException
 
 
 class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
@@ -31,7 +37,9 @@ class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
 
     def list(self, request, *args, **kwargs):
         workspace_invites = (
-            WorkspaceInvite.objects.filter(workspace=request.workspace, accepted=False)
+            WorkspaceInvite.objects.filter(
+                workspace=request.workspace, confirmed_at__isnull=True
+            )
             .select_related("invited_by")
             .order_by("-created_at")
         )
@@ -39,26 +47,33 @@ class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
+        create_serializer = WorkspaceInviteCreateSerializer(data=request.data)
+        if not create_serializer.is_valid():
+            raise InvalidInputException
+
+        data = create_serializer.validated_data
         emails = request.data.get("emails")
-        if not emails:
-            return Response(
-                data={"detail": "No emails found"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        # if not emails:
+        #     return Response(
+        #         data={"detail": "No emails found"}, status=status.HTTP_400_BAD_REQUEST
+        #     )
 
-        invites = []
-        for email in emails:
-            invite = WorkspaceInvite.objects.create(
-                workspace=request.workspace, email=email, invited_by=request.user
-            )
-            workspace_invite_confirm.delay(invite.id)
-            invites.append(invite)
+        # invites = []
+        # for email in emails:
+        #     invite = WorkspaceInvite.objects.create(
+        #         workspace=request.workspace, email=email, invited_by=request.user
+        #     )
+        #     send_member_invitation_email.delay(invite.id)
+        #     invites.append(invite)
 
-        serializer = WorkspaceInviteSerializer(invites, many=True)
+        # serializer = WorkspaceInviteSerializer(invites, many=True)
 
-        return Response(
-            data=serializer.data,
-            status=status.HTTP_200_OK,
-        )
+        # return Response(
+        #     data=serializer.data,
+        #     status=status.HTTP_200_OK,
+        # )
+
+        return Response(data={"detail": "Ok"})
 
     def destroy(self, request, *args, **kwargs):
         workspace_invite = WorkspaceInvite.objects.filter(
@@ -71,3 +86,21 @@ class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
         return Response(
             data={"detail": "Workspace invite deleted"}, status=status.HTTP_200_OK
         )
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="resend-invitation",
+        permission_classes=[IsAuthenticated, WorkspaceAdminPermission],
+        throttle_classes=[ResendEmailThrottle],
+    )
+    def resend_invitation(self, request, *args, **kwargs):
+        workspace_invite = WorkspaceInvite.objects.filter(
+            workspace=request.workspace, id=kwargs.get("pk"), confirmed_at__isnull=True
+        ).first()
+        if not workspace_invite:
+            raise WorkspaceInviteNotFoundException
+
+        send_member_invitation_email.delay(workspace_invite.id)
+        message = f"Workspace invite has been sent to {workspace_invite.email}."
+        return Response(data={"detail": message}, status=status.HTTP_200_OK)

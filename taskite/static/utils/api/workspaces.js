@@ -12,6 +12,16 @@ export const workspaceMemberSearchAPI = (workspaceId, searchQuery) =>
 export const workspaceMembershipsAPI = (workspaceId) =>
   client.get(`/workspaces/${workspaceId}/memberships`)
 
+export const workspaceMembershipsUpdateAPI = (
+  workspaceId,
+  membershipId,
+  updateData
+) =>
+  client.patch(
+    `/workspaces/${workspaceId}/memberships/${membershipId}`,
+    updateData
+  )
+
 export const workspaceTeamsAPI = (workspaceId) =>
   client.get(`/workspaces/${workspaceId}/teams`)
 
@@ -40,3 +50,12 @@ export const workspaceTeamMembershipsCreateAPI = (workspaceId, data) =>
 
 export const workspaceTeamMembershipsDeleteAPI = (workspaceId, membershipId) =>
   client.delete(`/workspaces/${workspaceId}/team_memberships/${membershipId}`)
+
+export const workspaceInvitesAPI = (workspaceId) =>
+  client.get(`/workspaces/${workspaceId}/invites`)
+export const workspaceResendInviteAPI = (workspaceId, inviteId) =>
+  client.post(
+    `/workspaces/${workspaceId}/invites/${inviteId}/resend-invitation`
+  )
+export const workspaceMembersInviteAPI = (workspaceId, data) =>
+  client.post(`/workspaces/${workspaceId}/invites`, data)

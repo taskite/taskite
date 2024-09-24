@@ -5,6 +5,8 @@ import { Button, Form, FormItem, Input, InputPassword, message } from 'ant-desig
 import { GithubOutlined, GoogleOutlined } from '@ant-design/icons-vue';
 import { accountsRegisterAPI } from '../../utils/api';
 
+const props = defineProps(['invitationId'])
+
 const registerForm = ref({
     email: '',
     firstName: '',
@@ -17,6 +19,11 @@ const loading = ref(false)
 const onFinish = async (values) => {
     try {
         loading.value = true
+
+        if(!!props.invitationId) {
+            values['invitationId'] = props.invitationId
+        }
+        
         await accountsRegisterAPI(values)
         window.location.href = `/`
     } catch (error) {
@@ -50,6 +57,7 @@ const onFinish = async (values) => {
                     <Form layout="vertical" :model="registerForm" name="registerForm" @finish="onFinish"
                         hide-required-mark>
                         <FormItem label="Email" name="email"
+                            v-if="!!!props.invitationId"
                             :rules="[{ required: true, message: 'Please input your email!' }]">
                             <Input v-model:value="registerForm.email" placeholder="alison@company.com" />
                         </FormItem>
@@ -80,7 +88,7 @@ const onFinish = async (values) => {
                         <a href="/accounts/login" class="font-medium text-primary">Log in</a>
                     </p>
 
-                    <div class="mt-6">
+                    <div class="mt-6" v-if="!!!props.invitationId">
                         <div class="relative">
                             <div class="absolute inset-0 flex items-center">
                                 <div class="w-full border-t border-gray-300"></div>

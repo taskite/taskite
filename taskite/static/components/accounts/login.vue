@@ -3,7 +3,7 @@ import { h, ref } from 'vue';
 import BaseLayout from '@/components/base/base-layout.vue';
 import { Button, Form, FormItem, Input, InputPassword, message } from 'ant-design-vue';
 import { GithubOutlined, GoogleOutlined } from '@ant-design/icons-vue';
-import { accountsRegisterAPI } from '../../utils/api';
+import { accountsLoginAPI } from '@/utils/api';
 
 const loginForm = ref({
     email: '',
@@ -15,7 +15,7 @@ const loading = ref(false)
 const onFinish = async (values) => {
     try {
         loading.value = true
-        await accountsRegisterAPI(values)
+        await accountsLoginAPI(values)
         window.location.href = `/`
     } catch (error) {
         message.info(error?.response.data?.detail)

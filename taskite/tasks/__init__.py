@@ -1,2 +1,2 @@
-from taskite.tasks.workspace import workspace_invite_confirm
+from taskite.tasks.workspace import send_member_invitation_email
 from taskite.tasks.accounts import send_verification_email

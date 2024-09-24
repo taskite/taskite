@@ -1,9 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
 from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
+from django.contrib.auth import login
 
-from taskite.models import WorkspaceMembership, Workspace, Team
+from taskite.models import WorkspaceMembership, Workspace, Team, WorkspaceInvite, User
 from taskite.serializers import WorkspaceSerializer, ProfileSerializer, TeamSerializer
 
 
@@ -141,3 +144,35 @@ class WorkspaceSettingsBillingView(LoginRequiredMixin, View):
             }
         }
         return render(request, "workspaces/settings/billing.html", context)
+
+
+class WorkspaceMemberConfirmationView(View):
+    def get(self, request, *args, **kwargs):
+        invite = WorkspaceInvite.objects.filter(
+            workspace__slug=kwargs.get("workspace_slug"),
+            invitation_id=kwargs.get("invitation_id"),
+            confirmed_at__isnull=True,
+        ).first()
+
+        if not invite:
+            raise Http404
+        
+        # Check for existing user with the invite email
+        user = User.objects.filter(email=invite.email).first()
+        if not user:
+            # Redirect to register page along with invitation ID
+            return redirect(reverse('accounts-register') + f"?invitation_id={invite.invitation_id}")
+        
+        try:
+            if not user.is_verified:
+                user.verify()
+
+            with transaction.atomic():
+                WorkspaceMembership.objects.create(user=user, workspace=invite.workspace)
+                invite.confirm_invitation()
+        
+        except Exception as e:
+            print(e)
+
+        login(request, user)
+        return redirect('workspaces-dashboard', workspace_slug=invite.workspace.slug)
