@@ -22,6 +22,9 @@ export const workspaceMembershipsUpdateAPI = (
     updateData
   )
 
+export const workspaceMembershipsDeleteAPI = (workspaceId, membershipId) =>
+  client.delete(`/workspaces/${workspaceId}/memberships/${membershipId}`)
+
 export const workspaceTeamsAPI = (workspaceId) =>
   client.get(`/workspaces/${workspaceId}/teams`)
 
@@ -59,3 +62,5 @@ export const workspaceResendInviteAPI = (workspaceId, inviteId) =>
   )
 export const workspaceMembersInviteAPI = (workspaceId, data) =>
   client.post(`/workspaces/${workspaceId}/invites`, data)
+export const workspaceInvitesDeleteAPI = (workspaceId, inviteId) =>
+  client.delete(`/workspaces/${workspaceId}/invites/${inviteId}`)

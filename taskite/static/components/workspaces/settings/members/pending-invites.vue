@@ -1,27 +1,12 @@
 <script setup>
-import { h, onMounted, ref } from 'vue';
-import { workspaceInvitesAPI } from '@/utils/api';
+import { h } from 'vue';
 import { Button, Table } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { DeleteOutlined, SendOutlined } from '@ant-design/icons-vue';
-import { workspaceResendInviteAPI } from '../../../../utils/api';
+import { workspaceResendInviteAPI } from '@/utils/api';
 
-const props = defineProps(['workspaceId', 'notAdmin'])
-
-const invites = ref([])
-const loadWorkspaceInvites = async () => {
-    try {
-        const { data } = await workspaceInvitesAPI(props.workspaceId)
-        invites.value = data.map((i) => {
-            return {
-                key: i.id,
-                ...i
-            }
-        })
-    } catch (error) {
-        console.log(error)
-    }
-}
+const props = defineProps(['workspaceId', 'notAdmin', 'invites'])
+const emit = defineEmits(['remove'])
 
 const resendInvitation = async (inviteId) => {
     try {
@@ -30,10 +15,6 @@ const resendInvitation = async (inviteId) => {
         console.log(error)
     }
 }
-
-onMounted(() => {
-    loadWorkspaceInvites()
-})
 
 const columns = [
     {
@@ -52,7 +33,7 @@ const columns = [
 </script>
 
 <template>
-    <Table :columns="columns" :dataSource="invites">
+    <Table :columns="columns" :dataSource="props.invites">
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'email'">
                 <div>{{ record.email }}</div>
@@ -66,7 +47,8 @@ const columns = [
                 <div class="flex gap-1">
                     <Button type="text" :icon="h(SendOutlined)" :disabled="notAdmin"
                         @click="resendInvitation(record.id)">Resend invitation</Button>
-                    <Button type="text" :icon="h(DeleteOutlined)" danger :disabled="notAdmin">Delete invitation</Button>
+                    <Button type="text" :icon="h(DeleteOutlined)" danger :disabled="notAdmin"
+                        @click="emit('remove', record.id)">Delete invitation</Button>
                 </div>
             </template>
         </template>

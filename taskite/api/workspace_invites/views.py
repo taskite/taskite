@@ -1,3 +1,5 @@
+from django.db import transaction
+from django.utils.crypto import get_random_string
 from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.response import Response
@@ -9,7 +11,7 @@ from taskite.permissions import (
     WorkspaceCollaboratorPermission,
 )
 from taskite.mixins import WorkspaceMixin
-from taskite.models.workspace import WorkspaceInvite
+from taskite.models import WorkspaceInvite, User
 from taskite.exceptions import (
     WorkspaceInviteNotFoundException,
 )
@@ -52,28 +54,36 @@ class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
             raise InvalidInputException
 
         data = create_serializer.validated_data
-        emails = request.data.get("emails")
-        # if not emails:
-        #     return Response(
-        #         data={"detail": "No emails found"}, status=status.HTTP_400_BAD_REQUEST
-        #     )
+        emails = data.get("emails")
 
-        # invites = []
-        # for email in emails:
-        #     invite = WorkspaceInvite.objects.create(
-        #         workspace=request.workspace, email=email, invited_by=request.user
-        #     )
-        #     send_member_invitation_email.delay(invite.id)
-        #     invites.append(invite)
+        existing_workspace_emails = User.objects.filter(
+            workspace_memberships__workspace=request.workspace
+        ).values_list("email", flat=True)
+        emails = [email for email in emails if email not in existing_workspace_emails]
 
-        # serializer = WorkspaceInviteSerializer(invites, many=True)
+        with transaction.atomic():
+            workspace_invites = []
+            for email in emails:
+                workspace_invites.append(
+                    WorkspaceInvite(
+                        workspace=request.workspace,
+                        email=email,
+                        invitation_id=get_random_string(64),
+                        invited_by=request.user,
+                    )
+                )
 
-        # return Response(
-        #     data=serializer.data,
-        #     status=status.HTTP_200_OK,
-        # )
+            created_invites = WorkspaceInvite.objects.bulk_create(workspace_invites)
 
-        return Response(data={"detail": "Ok"})
+        for invite in created_invites:
+            send_member_invitation_email.delay(invite.id)
+
+        serializer = WorkspaceInviteSerializer(created_invites, many=True)
+
+        return Response(
+            data=serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
 
     def destroy(self, request, *args, **kwargs):
         workspace_invite = WorkspaceInvite.objects.filter(

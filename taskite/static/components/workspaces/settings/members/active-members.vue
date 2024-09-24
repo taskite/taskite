@@ -7,6 +7,8 @@ import { h, ref } from 'vue';
 import { CloseOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps(['memberships', 'notAdmin', 'workspaceId'])
+const emit = defineEmits(['remove'])
+
 const columns = [
     {
         title: 'Name',
@@ -74,7 +76,8 @@ const handleRoleChange = async (membershipId, newRole) => {
 
             <template v-else-if="column.key === 'role'">
                 <Select v-model:value="record.role" style="width: 140px"
-                    @change="(role) => handleRoleChange(record.id, role)" :disabled="props.notAdmin" :loading="loading === record.id">
+                    @change="(role) => handleRoleChange(record.id, role)" :disabled="props.notAdmin"
+                    :loading="loading === record.id">
                     <SelectOption value="collaborator">Collaborator</SelectOption>
                     <SelectOption value="admin">Admin</SelectOption>
                 </Select>
@@ -94,8 +97,8 @@ const handleRoleChange = async (membershipId, newRole) => {
 
             <template v-else-if="column.key === 'actions'">
                 <div class="flex gap-2">
-                    <Button type="text" :icon="h(CloseOutlined)" :disabled="props.notAdmin"
-                        class="text-gray-500">
+                    <Button type="text" :icon="h(CloseOutlined)" :disabled="props.notAdmin" class="text-gray-500"
+                        @click="emit('remove', record.id)">
                         Remove
                     </Button>
                 </div>

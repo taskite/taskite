@@ -1,6 +1,6 @@
 <script setup>
 import { UserAddOutlined } from '@ant-design/icons-vue';
-import { Button, Form, FormItem, Select, SelectOption, Textarea } from 'ant-design-vue';
+import { Button, Form, FormItem, Textarea } from 'ant-design-vue';
 import isEmail from 'validator/lib/isEmail';
 import { h, ref } from 'vue';
 import { workspaceMembersInviteAPI } from '@/utils/api';
@@ -9,10 +9,10 @@ const inviteForm = ref({
     emails: '',
     role: 'collaborator'
 })
+const formRef = ref();
 
 const props = defineProps(['workspaceId'])
-
-console.log(props)
+const emit = defineEmits(['invited'])
 
 const onFinish = async (values) => {
     const emails = values['emails'].split(',').map(email => email.trim()).filter(email => {
@@ -26,7 +26,17 @@ const onFinish = async (values) => {
         }
 
         const { data } = await workspaceMembersInviteAPI(props.workspaceId, postData)
-        console.log(data)
+        const newInvites = data.map(i => {
+            return {
+                key: i.id,
+                ...i
+            }
+        })
+
+        // Reset the form
+        formRef.value.resetFields()
+
+        emit('invited', newInvites)
     } catch (error) {
         console.log(error)
     }
@@ -34,7 +44,7 @@ const onFinish = async (values) => {
 </script>
 
 <template>
-    <Form layout="vertical" :model="inviteForm" name="inviteForm" hide-required-mark @finish="onFinish">
+    <Form layout="vertical" :model="inviteForm" name="inviteForm" hide-required-mark @finish="onFinish" ref="formRef">
         <FormItem label="Emails" :rules="[{ required: true, message: 'Please enter emails' }]" name="emails">
             <Textarea v-model:value="inviteForm.emails" :rows="3" />
             <div class="text-xs text-gray-400">You can enter multiple email addresses, separated by commas.</div>
