@@ -25,3 +25,7 @@ class WorkspaceMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkspaceMembership
         fields = ["id", "role", "user", "created_at"]
+
+
+class WorkspaceMembershipUpdateSerializer(serializers.Serializer):
+    role = serializers.CharField()

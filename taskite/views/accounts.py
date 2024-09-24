@@ -28,7 +28,12 @@ class LoginView(View):
 
 class RegisterView(View):
     def get(self, request):
-        return render(request, "accounts/register.html")
+        context = {
+            "props": {
+                "invitation_id": request.GET.get("invitation_id", None)
+            }
+        }
+        return render(request, "accounts/register.html", context)
 
 
 class LogoutView(View):
@@ -39,6 +44,8 @@ class LogoutView(View):
 
 class VerifyView(LoginRequiredMixin, View):
     def get(self, request):
+        if request.user.is_verified:
+            return redirect("accounts-login")
         return render(request, "accounts/verify.html")
 
 

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from taskite.models import User, WorkspaceInvite, Workspace
+from rest_framework.exceptions import ValidationError
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
@@ -28,10 +29,16 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.EmailField(required=False)
     first_name = serializers.CharField()
     last_name = serializers.CharField(required=False, allow_blank=True)
     password = serializers.CharField()
+    invitation_id = serializers.CharField(required=False)
+
+    def validate(self, data):
+        if not data.get("invitation_id") and not data.get("email"):
+            raise ValidationError("Either 'invitation_id' or 'email' must be provided.")
+        return data
 
 
 class WorkspaceInviteSerializer(serializers.ModelSerializer):

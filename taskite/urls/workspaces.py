@@ -6,6 +6,7 @@ from taskite.views.workspaces import (
     WorkspaceTeamsEditView,
     WorkspaceSettingsGeneralView,
     WorkspaceSettingsBillingView,
+    WorkspaceMemberConfirmationView
 )
 
 # fmt: off
@@ -16,4 +17,5 @@ urlpatterns = [
     path("settings/members/", WorkspaceMembersView.as_view(), name="workspaces-members"),
     path("settings/teams/", WorkspaceTeamsView.as_view(), name="workspaces-teams"),
     path("settings/teams/<uuid:team_id>/edit/", WorkspaceTeamsEditView.as_view(), name="workspaces-teams-edit"),
+    path("members/<str:invitation_id>/confirm/", WorkspaceMemberConfirmationView.as_view(), name="workspaces-member-confirmation")
 ]

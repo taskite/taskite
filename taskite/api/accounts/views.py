@@ -3,9 +3,8 @@ from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from rest_framework.decorators import action, throttle_classes
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.throttling import UserRateThrottle
 
 from taskite.api.accounts.serializers import (
     UserSerializer,
@@ -13,13 +12,10 @@ from taskite.api.accounts.serializers import (
     RegisterSerializer,
     WorkspaceInviteSerializer,
 )
-from taskite.models import User, Workspace, WorkspaceInvite, WorkspaceMembership
+from taskite.models import User, WorkspaceInvite, WorkspaceMembership
 from taskite.exceptions import InvalidInputException
 from taskite.tasks import send_verification_email
-
-
-class ResendEmailThrottle(UserRateThrottle):
-    rate = "1/minute"
+from taskite.throttles import ResendEmailThrottle
 
 
 class AccountsViewSet(ViewSet):
@@ -86,19 +82,46 @@ class AccountsViewSet(ViewSet):
             raise InvalidInputException
 
         data = register_serializer.validated_data
-        existing_user_queryset = User.objects.filter(email=data.get("email"))
-        if existing_user_queryset.exists():
-            return Response(
-                data={
-                    "detail": "An account already exists with the given email address."
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        invitation_id = data.pop("invitation_id", None)
+        if invitation_id:
+            # Handle Memberinvites along with register
+            invitation = WorkspaceInvite.objects.filter(
+                invitation_id=invitation_id
+            ).first()
+            if not invitation:
+                return Response(
+                    data={
+                        "detail": "No invitation found, seems like invitation has been expired, or deleted."
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            data["email"] = invitation.email
+        else:
+            existing_user_queryset = User.objects.filter(email=data.get("email"))
+            if existing_user_queryset.exists():
+                return Response(
+                    data={
+                        "detail": "An account already exists with the given email address."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         password = data.pop("password")
         new_user = User(**data)
         new_user.set_password(password)
         new_user.save()
-        send_verification_email.delay(new_user.email)
+
+        if invitation_id:
+            WorkspaceMembership.objects.create(
+                workspace=invitation.workspace,
+                user=new_user,
+                role=WorkspaceMembership.Role.COLLABORATOR,
+            )
+            invitation.confirm_invitation()
+            new_user.verify()
+        else:
+            send_verification_email.delay(new_user.email)
 
         login(request, new_user)
         user_serializer = UserSerializer(new_user)
@@ -119,7 +142,7 @@ class AccountsViewSet(ViewSet):
         detail=False,
         permission_classes=[IsAuthenticated],
         url_path="resend-verification",
-        # throttle_classes=[ResendEmailThrottle],
+        throttle_classes=[ResendEmailThrottle],
     )
     def resend_verification(self, request):
         user = request.user

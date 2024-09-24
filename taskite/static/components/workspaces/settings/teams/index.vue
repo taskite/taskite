@@ -1,7 +1,7 @@
 <script setup>
 import WorkspaceSettingsLayout from '@/components/base/workspace-settings-layout.vue';
 import { message, Table, Avatar, AvatarGroup, Button, Modal, Dropdown, Menu, MenuItem } from 'ant-design-vue';
-import { h, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 import { generateAvatar } from '@/utils/helpers';
 import { CloseOutlined, DownOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
@@ -10,6 +10,8 @@ import { workspaceTeamDeleteAPI, workspaceTeamsAPI } from '@/utils/api';
 
 
 const props = defineProps(['workspace', 'currentUser', 'membershipRole'])
+
+console.log(props)
 
 const teams = ref([])
 const error = ref('')
@@ -69,6 +71,10 @@ const removeTeam = async (team) => {
     }
 }
 
+const notAdmin = computed(() => {
+    return props.membershipRole !== 'admin'
+})
+
 onMounted(() => {
     fetchTeams()
 })
@@ -80,7 +86,7 @@ onMounted(() => {
             <div class="text-2xl">Teams</div>
 
             <div>
-                <Button :icon="h(PlusOutlined)" type="primary" @click="showTeamAddModal">Create team</Button>
+                <Button :icon="h(PlusOutlined)" type="primary" @click="showTeamAddModal" :disabled="notAdmin">Create team</Button>
             </div>
         </div>
         <Table :dataSource="teams" :columns="columns">
@@ -122,9 +128,9 @@ onMounted(() => {
 
                 <template v-else-if="column.key === 'actions'">
                     <div class="flex gap-2">
-                        <Button :icon="h(EditOutlined)" type="text" @click="redirectToEditPage(record)">Edit</Button>
+                        <Button :icon="h(EditOutlined)" type="text" @click="redirectToEditPage(record)" :disabled="notAdmin">Edit</Button>
                         <Button :icon="h(CloseOutlined)" type="text" class="text-gray-500"
-                            @click="removeTeam(record)">Remove</Button>
+                            @click="removeTeam(record)" :disabled="notAdmin">Remove</Button>
                     </div>
                 </template>
             </template>

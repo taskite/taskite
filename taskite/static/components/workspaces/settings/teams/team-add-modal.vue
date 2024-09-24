@@ -25,7 +25,7 @@ const onSubmit = async (values) => {
 </script>
 
 <template>
-    <Form name="addForm" :model="addForm" @finish="onSubmit" layout="vertical" ref="formRef">
+    <Form name="addForm" :model="addForm" @finish="onSubmit" layout="vertical" ref="formRef" hide-required-mark>
         <FormItem label="Name" name="name" :rules="[{ required: true, message: 'Please enter team name' }]">
             <Input v-model:value="addForm.name" />
         </FormItem>

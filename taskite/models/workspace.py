@@ -1,7 +1,9 @@
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.utils.crypto import get_random_string
 from django.utils.text import slugify
+from django.utils import timezone
 
 from taskite.models.base import UUIDTimestampModel
 
@@ -53,6 +55,11 @@ class WorkspaceMembership(UUIDTimestampModel):
 
     class Meta:
         db_table = "workspace_memberships"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["workspace", "user"], name="unqiue_user_per_workspace"
+            )
+        ]
 
     def __str__(self) -> str:
         return str(self.id)
@@ -66,7 +73,8 @@ class WorkspaceInvite(UUIDTimestampModel):
     invited_by = models.ForeignKey(
         "User", on_delete=models.SET_NULL, null=True, related_name="sent_invites"
     )
-    accepted = models.BooleanField(default=False)
+    confirmed_at = models.DateTimeField(blank=True, null=True)
+    invitation_id = models.CharField(max_length=64, blank=True, null=True, unique=True)
 
     class Meta:
         db_table = "workspace_invites"
@@ -76,12 +84,24 @@ class WorkspaceInvite(UUIDTimestampModel):
     def __str__(self) -> str:
         return self.email
 
-    @property
-    def confirmation_link(self):
-        # return settings.BASE_URL + reverse("invite-workspace-confirm", args=[self.id])
-        return ''
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            if not self.invitation_id:
+                self.invitation_id = get_random_string(64)
+        return super().save(*args, **kwargs)
+
+    def confirm_invitation(self):
+        self.confirmed_at = timezone.now()
+        self.invitation_id = None
+        self.save(update_fields=["confirmed_at", "invitation_id"])
 
     @property
-    def rejection_link(self):
-        # return settings.BASE_URL + reverse("invite-workspace-reject", args=[self.id])
-        return ''
+    def confirmation_link(self):
+        if not self.invitation_id:
+            self.invitation_id = get_random_string(64)
+            self.save(update_fields=["invitation_id"])
+
+        return settings.BASE_URL + reverse(
+            "workspaces-member-confirmation",
+            args=[self.workspace.slug, self.invitation_id],
+        )

@@ -8,10 +8,10 @@ from taskite.models.workspace import WorkspaceInvite
 
 
 @shared_task
-def workspace_invite_confirm(invite_id):
+def send_member_invitation_email(invite_id):
     invite = WorkspaceInvite.objects.filter(id=invite_id).first()
     html_content = render_to_string(
-        "emails/workspaces/invite_confirm.html", {"invite": invite}
+        "emails/workspaces/member_invitation.html", {"invite": invite}
     )
     text_content = strip_tags(html_content)
     try:
@@ -23,7 +23,5 @@ def workspace_invite_confirm(invite_id):
             html_message=html_content,
             fail_silently=False,
         )
-        print('success')
     except Exception as e:
         print(e)
-
