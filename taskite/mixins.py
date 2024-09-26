@@ -2,6 +2,12 @@ from taskite.models import Board, Workspace
 from taskite.exceptions import BoardNotFoundException, WorkspaceNotFoundException
 
 
+class FileUploadMixin:
+    def save(self, *args, **kwargs):
+        # Call the original save() method to actually save the instance
+        super().save(*args, **kwargs)
+
+
 class BoardMixin:
     def initialize_request(self, request, *args, **kwargs):
         request = super().initialize_request(request, *args, **kwargs)

@@ -8,6 +8,7 @@ from django.utils.crypto import get_random_string
 from django.utils.text import slugify
 
 from taskite.models.base import UUIDTimestampModel
+from taskite.callbacks import FileUploadCallback
 
 
 class UserManager(BaseUserManager):
@@ -33,7 +34,7 @@ class ActiveUserManager(models.Manager):
         )
 
 
-class User(UUIDTimestampModel, AbstractBaseUser):
+class User(UUIDTimestampModel, FileUploadCallback, AbstractBaseUser):
     current_workspace = models.ForeignKey(
         "Workspace", on_delete=models.SET_NULL, null=True, blank=True
     )

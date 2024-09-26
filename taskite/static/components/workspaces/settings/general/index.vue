@@ -1,8 +1,9 @@
 <script setup>
 import WorkspaceSettingsLayout from '@/components/base/workspace-settings-layout.vue';
 import { DeleteOutlined, LogoutOutlined } from '@ant-design/icons-vue';
-import { Form, FormItem, Input, Textarea, Button, Divider, Collapse, CollapsePanel } from 'ant-design-vue';
+import { Form, FormItem, Input, Textarea, Button, Divider, Collapse, CollapsePanel, Modal } from 'ant-design-vue';
 import { computed, h, ref } from 'vue';
+import LeaveConfirmationModal from '@/components/workspaces/settings/general/leave-confirmation-modal.vue';
 
 const props = defineProps(['workspace', 'currentUser', 'membershipRole'])
 const activeKey = ref([''])
@@ -19,6 +20,11 @@ const onSubmit = async (values) => {
 const isAdmin = computed(() => {
     return props.membershipRole === 'admin'
 })
+
+const openLeaveConfirmationModal = ref(false)
+const showLeaveConfirmationModal = () => {
+    openLeaveConfirmationModal.value = true
+}
 </script>
 
 <template>
@@ -52,10 +58,10 @@ const isAdmin = computed(() => {
                         associated data, projects, and pages. If you wish to rejoin in the future, you will need to be
                         re-invited by an existing member. Ensure you are certain of this decision before proceeding.
                     </div>
-                    <Button danger class="mt-2" :icon="h(LogoutOutlined)">Leave workspace</Button>
+                    <Button danger class="mt-2" :icon="h(LogoutOutlined)" @click="showLeaveConfirmationModal">Leave workspace</Button>
                 </CollapsePanel>
 
-                <CollapsePanel key="delete" header="Delete workspace" :collapsible="isAdmin? 'header' : 'disabled'">
+                <CollapsePanel key="delete" header="Delete workspace" :collapsible="isAdmin ? 'header' : 'disabled'">
                     <div class="text-gray-500">Please proceed with extreme caution. Deleting this workspace will
                         permanently erase all
                         associated data, boards, and pages. Members will lose access immediately, and the workspace
@@ -66,4 +72,12 @@ const isAdmin = computed(() => {
             </Collapse>
         </div>
     </WorkspaceSettingsLayout>
+
+    <Modal v-model:open="openLeaveConfirmationModal" title="Leave confirmation" centered>
+        <LeaveConfirmationModal :workspaceSlug="props.workspace.slug" />
+
+        <template #footer>
+            <!-- <Button @click="openLeaveConfirmationModal = false">Cancel</Button> -->
+        </template>
+    </Modal>
 </template>

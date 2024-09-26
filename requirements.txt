@@ -13,3 +13,5 @@ sentry-sdk[django]==2.13.0
 dj-database-url==2.2.0
 django-vite==3.0.4
 pytest-playwright==0.5.2
+django-storages==1.14.4
+boto3==1.35.27
