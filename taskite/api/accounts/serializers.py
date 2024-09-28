@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from taskite.mixins import FileNameAndSourceSerializerMixin
 from taskite.models import User, WorkspaceInvite, Workspace
 from rest_framework.exceptions import ValidationError
 
@@ -9,7 +10,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "created_at"]
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(FileNameAndSourceSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
@@ -18,9 +19,17 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            "avatar",
             "created_at",
             "is_verified",
         ]
+
+
+class UserUpdateSerializer(serializers.Serializer):
+    username = serializers.CharField(required=False)
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False, allow_null=True)
+    avatar = serializers.CharField(required=False, allow_null=True)
 
 
 class LoginSerializer(serializers.Serializer):

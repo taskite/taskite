@@ -1,10 +1,12 @@
 import os
 from taskite.settings.base import *
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 DEBUG = True
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
-APP_URL = os.environ.get("APP_URL", "http://localhost:5173")
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL", "redis://localhost:6379/1")
@@ -21,6 +23,30 @@ DJANGO_VITE = {
     "dev_mode": True
   }
 }
+
+
+# AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+# AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
+# AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+
+# STORAGES = {
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+#     },
+#     "default": {
+#         "BACKEND": "storages.backends.s3.S3Storage",
+#         "OPTIONS": {
+#           "bucket_name": AWS_STORAGE_BUCKET_NAME,
+#           "region_name": AWS_S3_REGION_NAME,
+#           "access_key": AWS_ACCESS_KEY_ID,
+#           "secret_key": AWS_SECRET_ACCESS_KEY,
+#           "querystring_auth": False
+#         },
+#     },
+# }
+
+# CORS_ALLOW_ALL_ORIGINS = True
 
 # LOGGING = {
 #     'version': 1,

@@ -34,7 +34,7 @@ class ActiveUserManager(models.Manager):
         )
 
 
-class User(UUIDTimestampModel, FileUploadCallback, AbstractBaseUser):
+class User(UUIDTimestampModel, AbstractBaseUser):
     current_workspace = models.ForeignKey(
         "Workspace", on_delete=models.SET_NULL, null=True, blank=True
     )

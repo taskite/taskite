@@ -1,15 +1,16 @@
 from rest_framework import serializers
 
+from taskite.mixins import NameAndSourceSerializerMixin
 from taskite.models import Workspace, User, Team, Board
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(NameAndSourceSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name"]
+        fields = ["id", "username", "email", "first_name", "last_name", "avatar"]
 
 
-class WorkspaceSerializer(serializers.ModelSerializer):
+class WorkspaceSerializer(NameAndSourceSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Workspace
         fields = [

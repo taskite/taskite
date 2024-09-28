@@ -15,3 +15,4 @@ django-vite==3.0.4
 pytest-playwright==0.5.2
 django-storages==1.14.4
 boto3==1.35.27
+django-cors-headers==4.4.0
