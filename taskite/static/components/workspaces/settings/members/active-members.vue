@@ -60,7 +60,7 @@ const handleRoleChange = async (membershipId, newRole) => {
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'name'">
                 <div class="flex items-center gap-2">
-                    <Avatar :src="generateAvatar(record.user.firstName)" />
+                    <Avatar :src="record.user.avatar ? record.user.avatar : generateAvatar(record.user.firstName)" />
                     <div class="flex flex-col">
                         <div>
                             {{ record.user.firstName }} {{ record.user?.lastName }}

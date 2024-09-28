@@ -16,7 +16,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "email", "username", "first_name", "last_name", "teams"]
+        fields = [
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+            "avatar",
+            "teams",
+        ]
 
 
 class WorkspaceMembershipSerializer(serializers.ModelSerializer):
