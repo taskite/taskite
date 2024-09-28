@@ -84,3 +84,5 @@ STORAGES = {
         },
     },
 }
+
+USE_S3 = True
