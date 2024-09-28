@@ -1,6 +1,8 @@
 import { client } from './client'
 
 export const workspaceCreareAPI = (data) => client.post(`/workspaces`, data)
+export const workspaceUpdateAPI = (workspaceId, data) =>
+  client.patch(`/workspaces/${workspaceId}`, data)
 
 export const workspaceMemberSearchAPI = (workspaceId, searchQuery) =>
   client.get(`/workspaces/${workspaceId}/members/search`, {

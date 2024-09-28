@@ -58,3 +58,8 @@ class VerifyConfirmView(View):
         user.verify_confirm()
         login(request, user)
         return redirect("home-index")
+    
+
+class ProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, "accounts/profile.html")

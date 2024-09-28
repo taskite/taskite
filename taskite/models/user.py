@@ -8,6 +8,7 @@ from django.utils.crypto import get_random_string
 from django.utils.text import slugify
 
 from taskite.models.base import UUIDTimestampModel
+from taskite.callbacks import FileUploadCallback
 
 
 class UserManager(BaseUserManager):

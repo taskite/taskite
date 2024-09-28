@@ -11,10 +11,13 @@ from taskite.api.teams.views import TeamsViewSet
 from taskite.api.workspace_invites.views import WorkspaceInvitesViewSet
 from taskite.api.board_memberships.views import BoardMembershipsViewset
 from taskite.api.team_memberships.views import TeamMembershipsViewSet
+from taskite.api.uploads.views import UploadsViewSet
 
 router = SimpleRouter(trailing_slash=False, use_regex_path=False)
 
 # fmt: off
+# Uploads
+router.register("uploads", UploadsViewSet, basename="upload")
 
 # Accounts
 router.register("accounts", AccountsViewSet, basename="accounts")

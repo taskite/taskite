@@ -22,6 +22,10 @@ const changePage = (event) => {
 const logoutUser = () => {
     window.location.href = "/accounts/logout"
 }
+
+const redirecToProfilePage = () => {
+    window.location.href = "/accounts/profile"
+}
 </script>
 
 <template>
@@ -32,18 +36,20 @@ const logoutUser = () => {
                     <Flex gap="small" justify="space-between" align="center">
                         <div>{{ props.workspace.name }}</div>
                         <Dropdown :trigger="['click']">
-                            <Avatar :src="generateAvatar(props.currentUser.firstName, 20)" shape="square" />
+                            <Avatar
+                                :src="!!currentUser.avatar ? currentUser.avatarSrc : generateAvatar(props.currentUser.firstName, 50)"
+                                shape="square" />
 
                             <template #overlay>
                                 <Card size="small" class="w-72">
                                     <div class="mb-4">
                                         <div class="font-semibold">
-                                            {{ props.currentUser.firstName }} 
+                                            {{ props.currentUser.firstName }}
                                             {{ props.currentUser?.lastName }}
                                         </div>
                                         <div class="text-xs text-gray-600">@{{ props.currentUser.username }}</div>
                                     </div>
-                                    <div class="mt-2 cursor-pointer">Edit profile</div>
+                                    <div class="mt-2 cursor-pointer" @click="redirecToProfilePage">Edit profile</div>
                                     <div class="mt-2 cursor-pointer" @click="logoutUser">Logout</div>
                                 </Card>
                             </template>

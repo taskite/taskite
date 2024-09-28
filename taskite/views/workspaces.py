@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.views import View
 from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from django.db import transaction
 from django.contrib.auth import login
 
@@ -156,23 +157,48 @@ class WorkspaceMemberConfirmationView(View):
 
         if not invite:
             raise Http404
-        
+
         # Check for existing user with the invite email
         user = User.objects.filter(email=invite.email).first()
         if not user:
             # Redirect to register page along with invitation ID
-            return redirect(reverse('accounts-register') + f"?invitation_id={invite.invitation_id}")
-        
+            return redirect(
+                reverse("accounts-register") + f"?invitation_id={invite.invitation_id}"
+            )
+
         try:
             if not user.is_verified:
                 user.verify()
 
             with transaction.atomic():
-                WorkspaceMembership.objects.create(user=user, workspace=invite.workspace)
+                WorkspaceMembership.objects.create(
+                    user=user, workspace=invite.workspace
+                )
                 invite.confirm_invitation()
-        
+
         except Exception as e:
             print(e)
 
         login(request, user)
-        return redirect('workspaces-dashboard', workspace_slug=invite.workspace.slug)
+        return redirect("workspaces-dashboard", workspace_slug=invite.workspace.slug)
+
+
+class WorkspaceLeaveView(LoginRequiredMixin, View):
+    def get(self, request, workspace_slug):
+        workspace = Workspace.objects.filter(slug=workspace_slug).first()
+        if not workspace:
+            raise Http404
+
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=request.user
+        ).first()
+        if not workspace_membership:
+            raise Http404
+
+        if workspace.created_by == request.user:
+            # Don't allow to leave org to workspace owners
+            messages.warning(request, "Workspace owners can't leave workspace.")
+            return redirect("workspaces-dashboard", workspace_slug=workspace.slug)
+
+        workspace_membership.delete()
+        return redirect("home-index")

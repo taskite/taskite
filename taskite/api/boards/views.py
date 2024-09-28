@@ -1,4 +1,3 @@
-import time
 from django.db.models import Q
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -92,11 +91,21 @@ class BoardViewSet(ViewSet):
 
         workspace = Workspace.objects.filter(id=workspace_id).first()
         if not workspace:
+            raise WorkspaceNotFoundException
+
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=request.user
+        ).first()
+        if not workspace_membership:
             raise WorkspaceInvalidPermission
 
-        self.check_for_workspace_collaborator_membership(request.user, workspace)
-
-        boards = Board.objects.filter(workspace=workspace)
+        if workspace_membership.role == WorkspaceMembership.Role.ADMIN:
+            boards = Board.objects.filter(workspace=workspace)
+        else:
+            boards = Board.objects.filter(workspace=workspace).filter(
+                Q(memberships__user=request.user)
+                | Q(memberships__team__memberships__user=request.user)
+            ).distinct()
         serializer = BoardSerializer(boards, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 

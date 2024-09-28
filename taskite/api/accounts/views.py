@@ -11,6 +11,7 @@ from taskite.api.accounts.serializers import (
     LoginSerializer,
     RegisterSerializer,
     WorkspaceInviteSerializer,
+    UserUpdateSerializer,
 )
 from taskite.models import User, WorkspaceInvite, WorkspaceMembership
 from taskite.exceptions import InvalidInputException
@@ -166,3 +167,23 @@ class AccountsViewSet(ViewSet):
         )
         serializer = WorkspaceInviteSerializer(workspace_invites, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        methods=["GET", "PATCH"], detail=False, permission_classes=[IsAuthenticated]
+    )
+    def profile(self, request, *args, **kwargs):
+        if request.method == "GET":
+            serializer = UserSerializer(request.user)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        elif request.method == "PATCH":
+            update_serializer = UserUpdateSerializer(data=request.data)
+            if not update_serializer.is_valid():
+                raise InvalidInputException
+
+            data = update_serializer.validated_data
+            for key, value in data.items():
+                setattr(request.user, key, value)
+
+            request.user.save(update_fields=data.keys())
+            serializer = UserSerializer(request.user)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)

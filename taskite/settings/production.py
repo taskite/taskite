@@ -63,3 +63,24 @@ DJANGO_VITE = {
     "manifest_path": BASE_DIR / "taskite" / "static" / "dist" / "manifest.json"
   }
 }
+
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+          "bucket_name": AWS_STORAGE_BUCKET_NAME,
+          "region_name": AWS_S3_REGION_NAME,
+          "access_key": AWS_ACCESS_KEY_ID,
+          "secret_key": AWS_SECRET_ACCESS_KEY,
+          "querystring_auth": False
+        },
+    },
+}

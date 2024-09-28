@@ -17,7 +17,8 @@ from taskite.models import (
     WorkspaceMembership,
     Team,
     TeamMembership,
-    WorkspaceInvite
+    WorkspaceInvite,
+    Upload,
 )
 
 
@@ -32,7 +33,10 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["email", "username",]
+        fields = [
+            "email",
+            "username",
+        ]
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -76,7 +80,10 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ["is_admin"]
     fieldsets = [
         (None, {"fields": ["email", "password"]}),
-        ("Personal info", {"fields": ["username", "first_name", "last_name"]}),
+        (
+            "Personal info",
+            {"fields": ["username", "first_name", "last_name", "avatar"]},
+        ),
         ("Permissions", {"fields": ["is_admin", "verified_at", "verification_id"]}),
     ]
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -86,7 +93,14 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ["wide"],
-                "fields": ["email", "username", "first_name", "last_name", "password1", "password2"],
+                "fields": [
+                    "email",
+                    "username",
+                    "first_name",
+                    "last_name",
+                    "password1",
+                    "password2",
+                ],
             },
         ),
     ]
@@ -154,6 +168,12 @@ class TaskAssigneeInlineAdmin(admin.StackedInline):
 class TaskAdmin(admin.ModelAdmin):
     list_display = ["name", "summary", "created_at"]
     inlines = [TaskAssigneeInlineAdmin]
+
+
+@admin.register(Upload)
+class UploadAdmin(admin.ModelAdmin):
+    list_display = ["id", "key", "filename", "confirmed_at", "deleted_at", "created_at"]
+
 
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)

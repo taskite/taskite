@@ -7,3 +7,4 @@ from .priority import Priority
 from .task import Task, TaskAssignee
 from .sprint import Sprint
 from .team import Team, TeamMembership
+from .upload import Upload
