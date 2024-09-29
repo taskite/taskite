@@ -45,7 +45,7 @@ const createBoardMembership = async (teamId) => {
     <Card size="small w-full mb-1" v-for="member in searchTeams" :key="member.id">
         <div class="flex justify-between items-center">
             <div class="flex gap-2 items-center">
-                <Avatar :src="generateAvatar(member.name, 10)" shape="square" />
+                <Avatar :src="!!member.avatar ? member.avatar : generateAvatar(member.name, 10)" shape="square" />
                 <div>{{ member.name }}</div>
             </div>
 

@@ -32,4 +32,4 @@ class TeamSerializer(serializers.ModelSerializer):
 class BoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
-        fields = ["id", "name", "slug", "description", "created_at"]
+        fields = ["id", "name", "slug", "cover", "description", "created_at"]

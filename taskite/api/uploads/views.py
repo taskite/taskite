@@ -12,7 +12,7 @@ from rest_framework import status
 
 from taskite.api.uploads.serializers import PreSignedSerializer
 from taskite.exceptions import InvalidInputException
-from taskite.models import Upload
+from taskite.models import Upload, UnusedAsset
 
 
 class UploadsViewSet(ViewSet):
@@ -82,6 +82,9 @@ class UploadsViewSet(ViewSet):
                 bucket=settings.AWS_STORAGE_BUCKET_NAME,
                 uploaded_by_email=request.user.email,
             )
+            UnusedAsset.objects.create(
+                key=file_key, bucket=settings.AWS_STORAGE_BUCKET_NAME
+            )
 
             data = {
                 "file_key": file_key,
@@ -94,6 +97,9 @@ class UploadsViewSet(ViewSet):
                 key=file_key,
                 filename=data.get("file_name"),
                 uploaded_by_email=request.user.email,
+            )
+            UnusedAsset.objects.create(
+                key=file_key
             )
 
             data = {

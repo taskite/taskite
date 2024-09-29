@@ -6,8 +6,9 @@ export const boardListAPI = (workspaceId) =>
       workspaceId,
     },
   })
-
 export const boardCreateAPI = (data) => client.post(`/boards`, data)
+export const boardDetailAPI = (boardId) => client.get(`/boards/${boardId}`)
+export const boardUpdateAPI = (boardId, data) => client.patch(`/boards/${boardId}`, data)
 
 export const stateListAPI = (boardId) => client.get(`/boards/${boardId}/states`)
 
