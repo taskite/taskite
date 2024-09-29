@@ -31,7 +31,7 @@ const createBoardMembership = async (userId) => {
         }
 
         const { data } = await boardMembershipsCreateAPI(props.boardId, postData, 'user')
-        
+
         emit('userAdded', data)
     } catch (error) {
         console.log(error)
@@ -45,7 +45,7 @@ const createBoardMembership = async (userId) => {
     <Card size="small w-full mb-1" v-for="member in searchMembers" :key="member.id">
         <div class="flex justify-between items-center">
             <div class="flex gap-2 items-center">
-                <Avatar :src="generateAvatar(member.firstName, 10)" shape="square" />
+                <Avatar :src="!!member.avatar ? member.avatar : generateAvatar(member.firstName, 10)" shape="square" />
                 <div class="flex flex-col">
                     <div>{{ member.firstName }} {{ member?.lastName }}</div>
                     <div class="text-xs">{{ member.email }}</div>

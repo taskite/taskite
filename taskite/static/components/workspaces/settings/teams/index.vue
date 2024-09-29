@@ -86,13 +86,17 @@ onMounted(() => {
             <div class="text-2xl">Teams</div>
 
             <div>
-                <Button :icon="h(PlusOutlined)" type="primary" @click="showTeamAddModal" :disabled="notAdmin">Create team</Button>
+                <Button :icon="h(PlusOutlined)" type="primary" @click="showTeamAddModal" :disabled="notAdmin">Create
+                    team</Button>
             </div>
         </div>
         <Table :dataSource="teams" :columns="columns">
             <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'name'">
-                    <div>{{ record.name }}</div>
+                    <div class="flex gap-2 items-center">
+                        <Avatar :src="record.avatar ? record.avatar : generateAvatar(record.name)" />
+                        <div>{{ record.name }}</div>
+                    </div>
                 </template>
 
                 <template v-else-if="column.key === 'members'">
@@ -128,9 +132,10 @@ onMounted(() => {
 
                 <template v-else-if="column.key === 'actions'">
                     <div class="flex gap-2">
-                        <Button :icon="h(EditOutlined)" type="text" @click="redirectToEditPage(record)" :disabled="notAdmin">Edit</Button>
-                        <Button :icon="h(CloseOutlined)" type="text" class="text-gray-500"
-                            @click="removeTeam(record)" :disabled="notAdmin">Remove</Button>
+                        <Button :icon="h(EditOutlined)" type="text" @click="redirectToEditPage(record)"
+                            :disabled="notAdmin">Edit</Button>
+                        <Button :icon="h(CloseOutlined)" type="text" class="text-gray-500" @click="removeTeam(record)"
+                            :disabled="notAdmin">Remove</Button>
                     </div>
                 </template>
             </template>

@@ -1,6 +1,6 @@
 <script setup>
 import BoardLayout from '@/components/base/board-layout.vue';
-import { BarsOutlined, ProjectOutlined, TeamOutlined } from '@ant-design/icons-vue';
+import { BarsOutlined, HddOutlined, NodeExpandOutlined, ProjectOutlined, TagsOutlined, TeamOutlined } from '@ant-design/icons-vue';
 import { Layout, LayoutContent, LayoutSider, Menu, MenuItem } from 'ant-design-vue';
 import { ref } from 'vue';
 
@@ -31,6 +31,21 @@ const changePage = (event) => {
                         <MenuItem key="collaborators">
                             <TeamOutlined />
                             <span>Collaborators</span>
+                        </MenuItem>
+
+                        <MenuItem key="states">
+                            <HddOutlined />
+                            <span>States</span>
+                        </MenuItem>
+
+                        <MenuItem key="priorities">
+                            <NodeExpandOutlined />
+                            <span>Priorities</span>
+                        </MenuItem>
+
+                        <MenuItem key="labels">
+                            <TagsOutlined />
+                            <span>Labels</span>
                         </MenuItem>
                     </Menu>
                 </LayoutSider>

@@ -1,16 +1,15 @@
 <script setup>
 import BoardSettingsLayout from '@/components/base/board-settings-layout.vue';
 import { computed, h, onMounted, ref } from 'vue';
-import { boardMembershipsAPI, boardMembershipsDeleteAPI } from '@/utils/api';
+import { boardMembershipsAPI, boardMembershipsDeleteAPI, boardMembershipsUpdateAPI } from '@/utils/api';
 import { Avatar, Button, message, Modal, Select, SelectOption, Table, Tag } from 'ant-design-vue';
 import { CloseOutlined, TeamOutlined, UserAddOutlined, UsergroupAddOutlined, UserOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import { generateAvatar } from '@/utils/helpers';
 import AddUserModal from './add-user-modal.vue';
 import AddTeamModal from './add-team-modal.vue';
-import { boardMembershipsUpdateAPI } from '../../../../../utils/api';
 
-const props = defineProps(['workspace', 'board'])
+const props = defineProps(['workspace', 'board', 'hasEditPermission'])
 
 const memberships = ref([])
 const loading = ref(false)
@@ -109,8 +108,10 @@ onMounted(() => {
             <div class="text-xl">Collaborators</div>
 
             <div class="flex gap-3">
-                <Button type="primary" :icon="h(UserAddOutlined)" @click="showUserAddModal">Add user</Button>
-                <Button type="primary" :icon="h(UsergroupAddOutlined)" @click="showTeamAddModal">Add team</Button>
+                <Button type="primary" :icon="h(UserAddOutlined)" @click="showUserAddModal"
+                    :disabled="!hasEditPermission">Add user</Button>
+                <Button type="primary" :icon="h(UsergroupAddOutlined)" @click="showTeamAddModal"
+                    :disabled="!hasEditPermission">Add team</Button>
             </div>
         </div>
 
@@ -119,14 +120,17 @@ onMounted(() => {
                 <template v-if="column.key === 'user_team'">
                     <div v-if="record.team">
                         <div class="flex items-center gap-2">
-                            <Avatar :src="generateAvatar(record.team.name, 20)" shape="square" />
+                            <Avatar
+                                :src="!!record.team.avatar ? record.team.avatar : generateAvatar(record.team.name, 10)"
+                                shape="square" />
                             <div>{{ record.team.name }}</div>
                         </div>
                     </div>
 
                     <div v-else="record.user">
                         <div class="flex items-center gap-2">
-                            <Avatar :src="generateAvatar(record.user.firstName)" />
+                            <Avatar
+                                :src="!!record.user.avatar ? record.user.avatar : generateAvatar(record.user.firstName)" />
                             <div class="flex flex-col">
                                 <div>{{ record.user.firstName }} {{ record.user?.lastName }}</div>
                                 <div class="text-xs">@{{ record.user.username }}</div>
@@ -145,7 +149,7 @@ onMounted(() => {
                 </template>
 
                 <template v-else-if="column.key === 'role'">
-                    <Select v-model:value="record.role" style="width: 140px"
+                    <Select v-model:value="record.role" style="width: 140px" :disabled="!hasEditPermission"
                         @change="(role) => handleRoleChange(record.id, role)">
                         <SelectOption value="collaborator">Collaborator</SelectOption>
                         <SelectOption value="admin">Admin</SelectOption>

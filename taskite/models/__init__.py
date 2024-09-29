@@ -1,4 +1,4 @@
-from .base import UUIDTimestampModel
+from .base import UUIDTimestampModel, UUIDModel
 from .user import User
 from .workspace import Workspace, WorkspaceMembership, WorkspaceInvite
 from .board import Board, BoardMembership
@@ -8,3 +8,4 @@ from .task import Task, TaskAssignee
 from .sprint import Sprint
 from .team import Team, TeamMembership
 from .upload import Upload
+from .asset import PurgedAsset, UnusedAsset

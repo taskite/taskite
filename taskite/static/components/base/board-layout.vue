@@ -1,6 +1,6 @@
 <script setup>
 import { MenuOutlined, ProjectOutlined, TableOutlined, CalendarOutlined, CarryOutOutlined, SettingOutlined, LeftOutlined, AppstoreOutlined } from '@ant-design/icons-vue';
-import { Button, TabPane, Tabs } from 'ant-design-vue';
+import { Avatar, Button, TabPane, Tabs } from 'ant-design-vue';
 import { h, ref } from 'vue';
 import BaseLayout from '@/components/base/base-layout.vue';
 
@@ -25,7 +25,10 @@ const redirectToBoards = () => {
     <BaseLayout>
         <Tabs v-model:active-key="activeKey" class="pl-5" @change="switchTab">
             <template #leftExtra>
-                <Button type="text" class="mr-3">{{ props.board.name }}</Button>
+                <div class="flex items-center gap-2 me-5">
+                    <Avatar :src="props.board.cover" size="small" shape="square" />
+                    <div>{{ props.board.name }}</div>
+                </div>
             </template>
             <TabPane key="kanban">
                 <template #tab>

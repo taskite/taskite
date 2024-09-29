@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.core.files.storage import default_storage
 from django.db import models
 from django.utils import timezone
+from datetime import datetime
 
 from taskite.models import (
     Workspace,
@@ -12,7 +13,7 @@ from taskite.models import (
     Priority,
     BoardMembership,
 )
-from taskite.tasks import confirm_upload, mark_file_as_deleted
+from taskite.tasks import purge_asset, remove_unused_asset
 
 
 @receiver(post_save, sender=Workspace)
@@ -65,24 +66,31 @@ def get_file_fields(instance):
 
 
 @receiver(pre_save)
-def cache_original_file_fields(sender, instance, **kwargs):
-    if sender.__name__ == 'Upload':
+def cache_original_file_fields(sender, instance, update_fields=None, **kwargs):
+    if sender.__name__ == "PurgeAsset" or sender.__name__ == "UnusedAsset":
         return
-    
+
     if instance._state.adding:
         return
 
     # Only cache for existing instances
     instance._original_file_fields = {}
-    file_field_names = [field.name for field in get_file_fields(instance)]
+    file_fields = get_file_fields(instance)
 
-    if len(file_field_names) == 0:
+    if not file_fields:
         return
 
-    original_instance = sender.objects.only("pk", *file_field_names).get(
-        pk=instance.pk
-    )
-    for field in get_file_fields(instance):
+    # If update_fields is provided, only consider file fields that are being updated
+    if update_fields:
+        file_fields = [field for field in file_fields if field.name in update_fields]
+
+    if not file_fields:
+        return
+
+    file_field_names = [field.name for field in file_fields]
+
+    original_instance = sender.objects.only("pk", *file_field_names).get(pk=instance.pk)
+    for field in file_fields:
         original_file = getattr(original_instance, field.name)
         if original_file:
             instance._original_file_fields[field.name] = original_file.name
@@ -90,9 +98,9 @@ def cache_original_file_fields(sender, instance, **kwargs):
 
 @receiver(post_save)
 def handle_file_operations_on_save(sender, instance, created, **kwargs):
-    if sender.__name__ == 'Upload':
+    if sender.__name__ == "PurgeAsset" or sender.__name__ == "UnusedAsset":
         return
-    
+
     file_fields = get_file_fields(instance)
 
     if not file_fields:
@@ -103,7 +111,8 @@ def handle_file_operations_on_save(sender, instance, created, **kwargs):
             file_instance = getattr(instance, field.name)
             if file_instance:
                 # New record has file fields
-                confirm_upload.delay(file_instance.name)
+                # confirm_upload.delay(file_instance.name)
+                remove_unused_asset.delay(file_instance.name)
     else:
         # Instance being updated
         original_fields = getattr(instance, "_original_file_fields", {})
@@ -113,15 +122,17 @@ def handle_file_operations_on_save(sender, instance, created, **kwargs):
 
             if current_file and current_file.name != original_file_name:
                 # New file uploaded or changed
-                confirm_upload.delay(current_file.name)
+                # confirm_upload.delay(current_file.name)
+                remove_unused_asset.delay(current_file.name)
 
                 if original_file_name:
                     # Delete the old file
-                    mark_file_as_deleted.delay(original_file_name)
+                    # mark_file_as_deleted.delay(original_file_name)
+                    purge_asset.delay(original_file_name, datetime.now().isoformat())
             elif not current_file and original_file_name:
                 # File was removed
-                mark_file_as_deleted.delay(original_file_name)
-
+                # mark_file_as_deleted.delay(original_file_name)
+                purge_asset.delay(original_file_name, datetime.now().isoformat())
 
 
 @receiver(post_delete)
@@ -129,4 +140,5 @@ def handle_file_operations_on_delete(sender, instance, **kwargs):
     for field in get_file_fields(instance):
         file_instance = getattr(instance, field.name)
         if file_instance:
-            mark_file_as_deleted.delay(file_instance.name)
+            # mark_file_as_deleted.delay(file_instance.name)
+            purge_asset.delay(file_instance.name, datetime.now().isoformat())

@@ -18,7 +18,7 @@ class Workspace(UUIDTimestampModel):
     created_by = models.ForeignKey(
         "User", on_delete=models.SET_NULL, null=True, related_name="created_workspaces"
     )
-    logo = models.ImageField(blank=True, null=True, upload_to="workspaces/logos")
+    logo = models.ImageField(blank=True, null=True, upload_to="attachments/")
 
     members = models.ManyToManyField(
         "User", through="WorkspaceMembership", related_name="workspaces"
