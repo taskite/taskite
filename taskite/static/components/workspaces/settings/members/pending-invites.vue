@@ -4,6 +4,7 @@ import { Button, Table } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { DeleteOutlined, SendOutlined } from '@ant-design/icons-vue';
 import { workspaceResendInviteAPI } from '@/utils/api';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspaceId', 'notAdmin', 'invites'])
 const emit = defineEmits(['remove'])
@@ -12,7 +13,7 @@ const resendInvitation = async (inviteId) => {
     try {
         await workspaceResendInviteAPI(props.workspaceId, inviteId)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 

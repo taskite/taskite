@@ -1,9 +1,10 @@
 <script setup>
 import { Button, Layout, Menu, Typography, Flex, Avatar, Select, Dropdown, Card, Divider } from 'ant-design-vue'
 import { h, ref } from 'vue';
-import { DashboardOutlined, LogoutOutlined, ProjectOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { DashboardOutlined, LogoutOutlined, PlusCircleOutlined, ProjectOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons-vue';
 
 import BaseLayout from '@/components/base/base-layout.vue';
+import WorkspaceMenu from '@/components/base/workspace-menu.vue';
 import { generateAvatar } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'page', 'pageTitle', 'currentUser'])
@@ -26,6 +27,11 @@ const logoutUser = () => {
 const redirecToProfilePage = () => {
     window.location.href = "/accounts/profile"
 }
+
+const openWorkspaceMenu = ref(false)
+const showWorkspaceMenu = () => {
+    openWorkspaceMenu.value = true
+}
 </script>
 
 <template>
@@ -34,11 +40,23 @@ const redirecToProfilePage = () => {
             <Layout.Sider v-model:collapsed="collapsed" :trigger="null" collapsible>
                 <div class="p-2">
                     <Flex gap="small" justify="space-between" align="center">
-                        <div>{{ props.workspace.name }}</div>
+                        <div>
+                            <Dropdown :trigger="['click']" v-model:open="openWorkspaceMenu" destroyPopupOnHide>
+                                <div class="flex items-center gap-1 hover:bg-gray-100 cursor-pointer">
+                                    <Avatar shape="square"
+                                        :src="!!props.workspace.logo ? props.workspace.logoSrc : generateAvatar(props.workspace.name, 10)" />
+                                    <div>{{ props.workspace.name }}</div>
+                                </div>
+
+                                <template #overlay>
+                                    <WorkspaceMenu :workspace="props.workspace" />
+                                </template>
+                            </Dropdown>
+                        </div>
                         <Dropdown :trigger="['click']">
                             <Avatar
                                 :src="!!currentUser.avatar ? currentUser.avatarSrc : generateAvatar(props.currentUser.firstName, 50)"
-                                shape="square" />
+                                shape="square" size="small" />
 
                             <template #overlay>
                                 <Card size="small" class="w-72">
@@ -50,7 +68,7 @@ const redirecToProfilePage = () => {
                                         <div class="text-xs text-gray-600">@{{ props.currentUser.username }}</div>
                                     </div>
                                     <div class="mt-2 cursor-pointer" @click="redirecToProfilePage">Edit profile</div>
-                                    <div class="mt-2 cursor-pointer" @click="logoutUser">Logout</div>
+                                    <div class="mt-2 cursor-pointer text-red-300" @click="logoutUser">Logout</div>
                                 </Card>
                             </template>
                         </Dropdown>

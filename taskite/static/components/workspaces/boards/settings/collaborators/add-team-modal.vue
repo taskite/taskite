@@ -4,6 +4,7 @@ import { computed, h, ref } from 'vue';
 import { generateAvatar } from '@/utils/helpers';
 import { boardMembershipsCreateAPI, workspaceTeamSearchAPI } from '@/utils/api';
 import { PlusOutlined } from '@ant-design/icons-vue';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspaceId', 'teams', 'boardId'])
 const emit = defineEmits(['teamAdded'])
@@ -19,7 +20,7 @@ const onSearch = async (value) => {
         const { data } = await workspaceTeamSearchAPI(props.workspaceId, value)
         searchTeams.value = data
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -34,7 +35,7 @@ const createBoardMembership = async (teamId) => {
 
         emit('teamAdded', data)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 </script>

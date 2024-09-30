@@ -3,6 +3,7 @@ import { PlusOutlined } from '@ant-design/icons-vue';
 import { Form, FormItem, Input, Textarea, Button, message } from 'ant-design-vue';
 import { h, ref } from 'vue';
 import { boardCreateAPI } from '@/utils/api';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace'])
 
@@ -22,7 +23,7 @@ const onSubmit = async (values) => {
 
         window.location.href = `/${props.workspace.slug}/boards/${data.slug}`
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 </script>

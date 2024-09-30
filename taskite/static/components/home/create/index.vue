@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons-vue';
 import { Button, Form, FormItem, Input, Textarea } from 'ant-design-vue';
 import { h, ref } from 'vue';
 import { workspaceCreareAPI } from '@/utils/api';
+import { handleResponseError } from '@/utils/helpers';
 
 const createForm = ref({
     name: '',
@@ -15,7 +16,7 @@ const onFinish = async (values) => {
         const { data } = await workspaceCreareAPI(values)
         window.location.href = `/${data.slug}/boards`
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 </script>

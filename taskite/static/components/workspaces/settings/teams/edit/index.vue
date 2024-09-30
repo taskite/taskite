@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import { BackwardOutlined, CloseOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons-vue';
 
 import AddMemberModal from './add-member-modal.vue';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'team', 'currentUser'])
 
@@ -22,7 +23,7 @@ const loadTeamMemberships = async () => {
             }
         })
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -68,7 +69,7 @@ const removeMembership = async (membership) => {
         message.success(`${membership.user.firstName} ${membership.user?.lastName} has been removed from the team.`)
         memberships.value = memberships.value.filter(m => m.id !== membership.id)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 

@@ -6,6 +6,7 @@ import { boardListAPI } from '@/utils/api';
 import dayjs from 'dayjs';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import BoardNewModal from './board-new-modal.vue';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'currentUser'])
 
@@ -16,8 +17,7 @@ const fetchBoards = async () => {
         const { data } = await boardListAPI(props.workspace.id)
         boards.value = data
     } catch (err) {
-        error.value = err.response?.data?.message || 'Failed to fetch boards.'
-        message.error(error.value)
+        handleResponseError(err)
     } finally {
     }
 }

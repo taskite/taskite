@@ -4,6 +4,7 @@ import { Button, Form, FormItem, Textarea } from 'ant-design-vue';
 import isEmail from 'validator/lib/isEmail';
 import { h, ref } from 'vue';
 import { workspaceMembersInviteAPI } from '@/utils/api';
+import { handleResponseError } from '@/utils/helpers';
 
 const inviteForm = ref({
     emails: '',
@@ -38,7 +39,7 @@ const onFinish = async (values) => {
 
         emit('invited', newInvites)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 </script>

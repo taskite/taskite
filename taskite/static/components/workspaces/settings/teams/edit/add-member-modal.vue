@@ -4,6 +4,7 @@ import { computed, h, ref } from 'vue';
 import { workspaceMemberSearchAPI, workspaceTeamMembershipsCreateAPI } from '@/utils/api';
 import { generateAvatar } from '@/utils/helpers';
 import { PlusOutlined } from '@ant-design/icons-vue';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'team', 'members'])
 const emit = defineEmits(['membershipAdded'])
@@ -21,7 +22,7 @@ const onSearch = async (value) => {
         const { data } = await workspaceMemberSearchAPI(props.workspace.id, value)
         searchMembers.value = data
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -36,7 +37,7 @@ const createTeamMembership = async (memberId) => {
         message.success(`${data.user.firstName} ${data.user?.lastName} has been added to the team.`)
         emit('membershipAdded', data)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 </script>

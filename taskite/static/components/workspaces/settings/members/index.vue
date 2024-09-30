@@ -8,6 +8,7 @@ import PendingInvites from '@/components/workspaces/settings/members/pending-inv
 import { workspaceMembershipsAPI, workspaceInvitesAPI, workspaceMembershipsDeleteAPI, workspaceInvitesDeleteAPI } from '@/utils/api';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import InviteMemberModal from '@/components/workspaces/settings/members/invite-member-modal.vue';
+import { handleResponseError } from '@/utils/helpers';
 
 const activeTab = ref('active_members')
 
@@ -24,7 +25,7 @@ const fetchMemberships = async () => {
             }
         })
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -39,7 +40,7 @@ const loadWorkspaceInvites = async () => {
             }
         })
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -69,7 +70,7 @@ const removeMembership = async (membershipId) => {
 
         message.success('Membership got removed!')
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -80,7 +81,7 @@ const removeInvite = async (inviteId) => {
 
         message.success('Invite got removed!')
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 

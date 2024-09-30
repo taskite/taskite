@@ -5,6 +5,7 @@ import { Avatar, Form, FormItem, Input, Textarea, Upload, Button, message, Divid
 import { boardDetailAPI, boardUpdateAPI } from '@/utils/api';
 import { CloseOutlined, DeleteOutlined, LogoutOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons-vue';
 import { generateAvatar, uploadRequestHandler } from '@/utils/helpers';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'board', 'hasEditPermission'])
 const activeKey = ref([''])
@@ -23,7 +24,7 @@ const onFinish = async (values) => {
         await boardUpdateAPI(props.board.id, values)
         message.success('Board details updated successfully!')
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 

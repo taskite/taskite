@@ -1,4 +1,5 @@
 from django.db.models import Q
+import time
 from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -32,6 +33,7 @@ class WorkspaceViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
+        # time.sleep(3)
         workspaces = Workspace.objects.filter(memberships__user=request.user)
         serializer = WorkspaceSerializer(workspaces, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)

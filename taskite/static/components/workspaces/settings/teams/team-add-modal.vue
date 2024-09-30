@@ -3,6 +3,7 @@ import { PlusOutlined } from '@ant-design/icons-vue';
 import { Form, FormItem, Input, Textarea, Button, message } from 'ant-design-vue';
 import { h, ref } from 'vue';
 import { workspaceTeamCreateAPI } from '@/utils/api';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace'])
 const emit = defineEmits(['teamAdded'])
@@ -19,7 +20,7 @@ const onSubmit = async (values) => {
         formRef.value.resetFields()
         emit('teamAdded', data)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 </script>

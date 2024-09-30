@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import { generateAvatar } from '@/utils/helpers';
 import AddUserModal from './add-user-modal.vue';
 import AddTeamModal from './add-team-modal.vue';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'board', 'hasEditPermission'])
 
@@ -25,7 +26,7 @@ const loadMemberships = async () => {
             }
         })
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     } finally {
         loading.value = false
     }
@@ -39,7 +40,7 @@ const handleRoleChange = async (membershipId, role) => {
         await boardMembershipsUpdateAPI(props.board.id, membershipId, updateData)
         message.success('Membership got updated successfully.')
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -93,7 +94,7 @@ const deleteMembership = async (membershipId) => {
         await boardMembershipsDeleteAPI(props.board.id, membershipId)
         memberships.value = memberships.value.filter(membership => membership.id !== membershipId)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 

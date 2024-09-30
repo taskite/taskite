@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { workspaceMembershipsUpdateAPI } from '@/utils/api';
 import { h, ref } from 'vue';
 import { CloseOutlined } from '@ant-design/icons-vue';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['memberships', 'notAdmin', 'workspaceId'])
 const emit = defineEmits(['remove'])
@@ -47,7 +48,7 @@ const handleRoleChange = async (membershipId, newRole) => {
         await workspaceMembershipsUpdateAPI(props.workspaceId, membershipId, updateData)
         message.success('Member role has been updated.')
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     } finally {
         loading.value = ''
     }

@@ -1,3 +1,66 @@
+<script setup>
+import { onMounted, ref } from 'vue'
+import { Form, Input, Button, Avatar, FormItem, Upload, message } from 'ant-design-vue'
+import { UserOutlined, MailOutlined, CloseOutlined } from '@ant-design/icons-vue'
+import { generateAvatar } from '@/utils/helpers';
+import { uploadRequestHandler, handleResponseError } from '@/utils/helpers';
+import { accountsProfileAPI, accountsProfileUpdateAPI } from '@/utils/api';
+import BaseLayout from '@/components/base/base-layout.vue';
+
+const formState = ref({
+    username: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    avatar: null,
+    avatarSrc: null
+})
+
+const handleAvatarUpload = async (options) => {
+    const { fileKey, fileSrc } = await uploadRequestHandler(options)
+
+    formState.value.avatar = fileKey
+    formState.value.avatarSrc = fileSrc
+}
+
+const removeAvatar = () => {
+    formState.value.avatar = null
+    formState.value.avatarSrc = null
+}
+
+const onFinish = async (values) => {
+    try {
+        await accountsProfileUpdateAPI(values)
+        message.success('Profile updated successfully!')
+    } catch (error) {
+        handleResponseError(error)
+    }
+}
+
+const onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo)
+}
+
+const goToDashboard = () => {
+    window.location.href = `/`
+}
+
+const fetchUserProfile = async () => {
+    try {
+        const { data } = await accountsProfileAPI()
+        formState.value = {
+            ...data,
+        }
+    } catch (error) {
+        handleResponseError(error)
+    }
+}
+
+onMounted(() => {
+    fetchUserProfile()
+})
+</script>
+
 <template>
     <BaseLayout>
         <div class="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
@@ -75,71 +138,6 @@
         </div>
     </BaseLayout>
 </template>
-
-<script setup>
-import { onMounted, reactive, ref } from 'vue'
-import { Form, Input, Button, Avatar, FormItem, Upload, message } from 'ant-design-vue'
-import { UserOutlined, MailOutlined, CloseOutlined } from '@ant-design/icons-vue'
-import { generateAvatar } from '@/utils/helpers';
-import { uploadRequestHandler } from '@/utils/helpers';
-import { accountsProfileAPI, accountsProfileUpdateAPI } from '@/utils/api';
-import BaseLayout from '@/components/base/base-layout.vue';
-
-const formState = ref({
-    username: '',
-    email: '',
-    firstName: '',
-    lastName: '',
-    avatar: null,
-    avatarSrc: null
-})
-
-const handleAvatarUpload = async (options) => {
-    const { fileKey, fileSrc } = await uploadRequestHandler(options)
-
-    console.log(fileKey)
-
-    formState.value.avatar = fileKey
-    formState.value.avatarSrc = fileSrc
-}
-
-const removeAvatar = () => {
-    formState.value.avatar = null
-    formState.value.avatarSrc = null
-}
-
-const onFinish = async (values) => {
-    try {
-        await accountsProfileUpdateAPI(values)
-        message.success('Profile updated successfully!')
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo)
-}
-
-const goToDashboard = () => {
-    window.location.href = `/`
-}
-
-const fetchUserProfile = async () => {
-    try {
-        const { data } = await accountsProfileAPI()
-        formState.value = {
-            ...data,
-        }
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-onMounted(() => {
-    fetchUserProfile()
-})
-</script>
 
 <style>
 /* You may need to import Ant Design CSS or use a plugin to do so */

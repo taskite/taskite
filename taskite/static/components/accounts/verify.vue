@@ -5,12 +5,13 @@ import { Button } from 'ant-design-vue';
 import { h } from 'vue';
 import { MailCheckIcon } from 'lucide-vue-next';
 import { accountsResendVerificationEmailAPI } from '@/utils/api';
+import { handleResponseError } from '@/utils/helpers';
 
 const handleResend = async () => {
     try {
         await accountsResendVerificationEmailAPI()
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 </script>

@@ -41,3 +41,20 @@ export const uploadRequestHandler = async ({ file, onSuccess, onError }) => {
     onError(error)
   }
 }
+
+export const handleResponseError = (error) => {
+  // console.error('An error occurred:', error)
+
+  let errorMessage = 'An unexpected error occurred. Please try again.'
+
+  if (error.response && error.response.data) {
+    if (error.response.data.detail) {
+      errorMessage = error.response.data.detail
+    } else if (typeof error.response.data === 'string') {
+      errorMessage = error.response.data
+    }
+  }
+
+  message.error(errorMessage)
+  return errorMessage
+}

@@ -1,8 +1,8 @@
 <script setup>
 import { Avatar, Button, Card, InputSearch } from 'ant-design-vue';
 import { computed, h, ref } from 'vue';
-import { generateAvatar } from '../../../../../utils/helpers';
-import { boardMembershipsCreateAPI, workspaceMemberSearchAPI } from '../../../../../utils/api';
+import { generateAvatar, handleResponseError } from '@/utils/helpers';
+import { boardMembershipsCreateAPI, workspaceMemberSearchAPI } from '@/utils/api';
 import { PlusOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps(['workspaceId', 'users', 'boardId'])
@@ -19,7 +19,7 @@ const onSearch = async (value) => {
         const { data } = await workspaceMemberSearchAPI(props.workspaceId, value)
         searchMembers.value = data
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -34,7 +34,7 @@ const createBoardMembership = async (userId) => {
 
         emit('userAdded', data)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 </script>

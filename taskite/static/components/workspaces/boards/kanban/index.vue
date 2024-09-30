@@ -3,9 +3,9 @@ import BoardLayout from '@/components/base/board-layout.vue';
 import { useKanbanStore } from '@/stores/kanban';
 import { onMounted } from 'vue';
 import { taskListAPI, stateListAPI } from '@/utils/api';
-import { Card } from 'ant-design-vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import TaskCard from '@/components/workspaces/boards/kanban/task-card.vue';
+import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
@@ -15,7 +15,7 @@ const fetchStates = async () => {
         const { data } = await stateListAPI(props.board.id)
         store.setStates(data)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -24,7 +24,7 @@ const fetchTasks = async () => {
         const { data } = await taskListAPI(props.board.id)
         store.setTasks(data)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
@@ -34,7 +34,7 @@ const loadKanban = async () => {
         await fetchTasks()
         await store.setupKanban()
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 

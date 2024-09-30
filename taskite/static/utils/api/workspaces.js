@@ -1,5 +1,6 @@
 import { client } from './client'
 
+export const workspaceListAPI = () => client.get(`/workspaces`)
 export const workspaceCreareAPI = (data) => client.post(`/workspaces`, data)
 export const workspaceUpdateAPI = (workspaceId, data) =>
   client.patch(`/workspaces/${workspaceId}`, data)

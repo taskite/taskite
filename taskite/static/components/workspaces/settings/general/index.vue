@@ -6,7 +6,7 @@ import { computed, h, ref } from 'vue';
 import LeaveConfirmationModal from '@/components/workspaces/settings/general/leave-confirmation-modal.vue';
 import { workspaceUpdateAPI } from '@/utils/api';
 import { uploadRequestHandler } from '@/utils/helpers';
-import { generateAvatar } from '../../../../utils/helpers';
+import { generateAvatar, handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'currentUser', 'membershipRole'])
 const activeKey = ref([''])
@@ -23,7 +23,7 @@ const onSubmit = async (values) => {
         await workspaceUpdateAPI(props.workspace.id, values)
         message.success('Updated workspace profile successfully!')
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 

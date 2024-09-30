@@ -7,6 +7,7 @@ import { CloseOutlined, DownOutlined, EditOutlined, PlusOutlined } from '@ant-de
 import dayjs from 'dayjs';
 import TeamAddModal from './team-add-modal.vue';
 import { workspaceTeamDeleteAPI, workspaceTeamsAPI } from '@/utils/api';
+import { handleResponseError } from '@/utils/helpers';
 
 
 const props = defineProps(['workspace', 'currentUser', 'membershipRole'])
@@ -25,8 +26,7 @@ const fetchTeams = async () => {
             }
         })
     } catch (err) {
-        error.value = err.response?.data?.message || 'Failed to fetch teams.'
-        message.error(error.value)
+        handleResponseError(err)
     }
 }
 
@@ -67,7 +67,7 @@ const removeTeam = async (team) => {
         await workspaceTeamDeleteAPI(props.workspace.id, team.id)
         teams.value = teams.value.filter(t => t.id !== team.id)
     } catch (error) {
-        console.log(error)
+        handleResponseError(error)
     }
 }
 
