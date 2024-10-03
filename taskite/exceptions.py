@@ -1,5 +1,5 @@
 from rest_framework.exceptions import APIException
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 
 
 class InvalidInputException(APIException):
@@ -72,3 +72,21 @@ class BoardMembershipNotFoundException(APIException):
     status_code = HTTP_400_BAD_REQUEST
     default_detail = "No board membership found."
     default_code = "no_board_membership_found"
+
+
+class TaskNotFoundException(APIException):
+    status_code = HTTP_404_NOT_FOUND
+    default_detail = "No task found with the given task ID."
+    default_code = "no_task_found"
+
+
+class StateNotFoundException(APIException):
+    status_code = HTTP_404_NOT_FOUND
+    default_detail = "No state found with the given state ID."
+    default_code = "no_state_found"
+
+
+class PriorityNotFoundException(APIException):
+    status_code = HTTP_404_NOT_FOUND
+    default_detail = "No priority found with the given priority ID."
+    default_code = "no_priority_found"

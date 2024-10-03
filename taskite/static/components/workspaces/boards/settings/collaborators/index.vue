@@ -9,6 +9,7 @@ import { generateAvatar } from '@/utils/helpers';
 import AddUserModal from './add-user-modal.vue';
 import AddTeamModal from './add-team-modal.vue';
 import { handleResponseError } from '@/utils/helpers';
+import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 
 const props = defineProps(['workspace', 'board', 'hasEditPermission'])
 
@@ -104,86 +105,88 @@ onMounted(() => {
 </script>
 
 <template>
-    <BoardSettingsLayout :workspace="props.workspace" :board="props.board" page="collaborators">
-        <div class="flex justify-between items-center mb-3">
-            <div class="text-xl">Collaborators</div>
+    <WorkspaceLayout :workspace="props.workspace" page="boards">
+        <BoardSettingsLayout :workspace="props.workspace" :board="props.board" page="collaborators">
+            <div class="flex justify-between items-center mb-3">
+                <div class="text-xl">Collaborators</div>
 
-            <div class="flex gap-3">
-                <Button type="primary" :icon="h(UserAddOutlined)" @click="showUserAddModal"
-                    :disabled="!hasEditPermission">Add user</Button>
-                <Button type="primary" :icon="h(UsergroupAddOutlined)" @click="showTeamAddModal"
-                    :disabled="!hasEditPermission">Add team</Button>
+                <div class="flex gap-3">
+                    <Button type="primary" :icon="h(UserAddOutlined)" @click="showUserAddModal"
+                        :disabled="!hasEditPermission">Add user</Button>
+                    <Button type="primary" :icon="h(UsergroupAddOutlined)" @click="showTeamAddModal"
+                        :disabled="!hasEditPermission">Add team</Button>
+                </div>
             </div>
-        </div>
 
-        <Table :dataSource="memberships" :columns="columns" :loading="loading">
-            <template #bodyCell="{ column, record }">
-                <template v-if="column.key === 'user_team'">
-                    <div v-if="record.team">
-                        <div class="flex items-center gap-2">
-                            <Avatar
-                                :src="!!record.team.avatar ? record.team.avatar : generateAvatar(record.team.name, 10)"
-                                shape="square" />
-                            <div>{{ record.team.name }}</div>
-                        </div>
-                    </div>
-
-                    <div v-else="record.user">
-                        <div class="flex items-center gap-2">
-                            <Avatar
-                                :src="!!record.user.avatar ? record.user.avatar : generateAvatar(record.user.firstName)" />
-                            <div class="flex flex-col">
-                                <div>{{ record.user.firstName }} {{ record.user?.lastName }}</div>
-                                <div class="text-xs">@{{ record.user.username }}</div>
+            <Table :dataSource="memberships" :columns="columns" :loading="loading">
+                <template #bodyCell="{ column, record }">
+                    <template v-if="column.key === 'user_team'">
+                        <div v-if="record.team">
+                            <div class="flex items-center gap-2">
+                                <Avatar
+                                    :src="!!record.team.avatar ? record.team.avatar : generateAvatar(record.team.name, 10)"
+                                    shape="square" />
+                                <div>{{ record.team.name }}</div>
                             </div>
                         </div>
-                    </div>
-                </template>
 
-                <template v-else-if="column.key === 'type'">
-                    <div v-if="record.user">
-                        <div>User</div>
-                    </div>
-                    <div v-else>
-                        <div>Team</div>
-                    </div>
-                </template>
+                        <div v-else="record.user">
+                            <div class="flex items-center gap-2">
+                                <Avatar
+                                    :src="!!record.user.avatar ? record.user.avatar : generateAvatar(record.user.firstName)" />
+                                <div class="flex flex-col">
+                                    <div>{{ record.user.firstName }} {{ record.user?.lastName }}</div>
+                                    <div class="text-xs">@{{ record.user.username }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
 
-                <template v-else-if="column.key === 'role'">
-                    <Select v-model:value="record.role" style="width: 140px" :disabled="!hasEditPermission"
-                        @change="(role) => handleRoleChange(record.id, role)">
-                        <SelectOption value="collaborator">Collaborator</SelectOption>
-                        <SelectOption value="admin">Admin</SelectOption>
-                    </Select>
-                </template>
+                    <template v-else-if="column.key === 'type'">
+                        <div v-if="record.user">
+                            <div>User</div>
+                        </div>
+                        <div v-else>
+                            <div>Team</div>
+                        </div>
+                    </template>
 
-                <template v-else-if="column.key === 'joined'">
-                    {{ dayjs(record.createdAt).format('D MMM YY') }}
-                </template>
+                    <template v-else-if="column.key === 'role'">
+                        <Select v-model:value="record.role" style="width: 140px" :disabled="!hasEditPermission"
+                            @change="(role) => handleRoleChange(record.id, role)">
+                            <SelectOption value="collaborator">Collaborator</SelectOption>
+                            <SelectOption value="admin">Admin</SelectOption>
+                        </Select>
+                    </template>
 
-                <template v-else-if="column.key === 'action'">
-                    <Button type="text" :icon="h(CloseOutlined)" class="text-gray-500"
-                        @click="deleteMembership(record.id)">
-                        Remove
-                    </Button>
+                    <template v-else-if="column.key === 'joined'">
+                        {{ dayjs(record.createdAt).format('D MMM YY') }}
+                    </template>
+
+                    <template v-else-if="column.key === 'action'">
+                        <Button type="text" :icon="h(CloseOutlined)" class="text-gray-500"
+                            @click="deleteMembership(record.id)">
+                            Remove
+                        </Button>
+                    </template>
                 </template>
+            </Table>
+        </BoardSettingsLayout>
+
+        <Modal v-model:open="openUserAddModal" title="Add user" destroyOnClose>
+            <template #footer>
+                <Button @click="openUserAddModal = false">Cancel</Button>
             </template>
-        </Table>
-    </BoardSettingsLayout>
+            <AddUserModal :workspaceId="props.workspace.id" :users="users" :boardId="props.board.id"
+                @userAdded="addMembership" />
+        </Modal>
 
-    <Modal v-model:open="openUserAddModal" title="Add user" destroyOnClose>
-        <template #footer>
-            <Button @click="openUserAddModal = false">Cancel</Button>
-        </template>
-        <AddUserModal :workspaceId="props.workspace.id" :users="users" :boardId="props.board.id"
-            @userAdded="addMembership" />
-    </Modal>
-
-    <Modal v-model:open="openTeamAddModal" title="Add team" destroyOnClose>
-        <template #footer>
-            <Button @click="openTeamAddModal = false">Cancel</Button>
-        </template>
-        <AddTeamModal :workspaceId="props.workspace.id" :teams="teams" :boardId="props.board.id"
-            @teamAdded="addMembership" />
-    </Modal>
+        <Modal v-model:open="openTeamAddModal" title="Add team" destroyOnClose>
+            <template #footer>
+                <Button @click="openTeamAddModal = false">Cancel</Button>
+            </template>
+            <AddTeamModal :workspaceId="props.workspace.id" :teams="teams" :boardId="props.board.id"
+                @teamAdded="addMembership" />
+        </Modal>
+    </WorkspaceLayout>
 </template>

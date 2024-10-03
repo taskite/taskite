@@ -10,14 +10,14 @@ from taskite.models.user import User
 @shared_task
 def send_welcome_email(email_address):
     user = User.objects.filter(email=email_address).first()
-    html_content = render_to_string("accounts/verification_email.html", {"user": user})
+    html_content = render_to_string("accounts/home/welcome.html", {"user": user})
     text_content = strip_tags(html_content)
 
     try:
         send_mail(
             subject="Email verification",
             message=text_content,
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=settings.DEFAULT_ADMIN_EMAIL,
             recipient_list=[user.email],
             html_message=html_content,
             fail_silently=False,

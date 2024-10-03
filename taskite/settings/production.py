@@ -17,9 +17,6 @@ CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL")
 
 DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
-DEFAULT_FROM_EMAIL = os.environ.get(
-    "DEFAULT_FROM_EMAIL",
-)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.environ.get("EMAIL_HOST")
 EMAIL_PORT = os.environ.get("EMAIL_PORT")

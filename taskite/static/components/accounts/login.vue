@@ -15,7 +15,8 @@ const loading = ref(false)
 const onFinish = async (values) => {
     try {
         loading.value = true
-        await accountsLoginAPI(values)
+        const { data } = await accountsLoginAPI(values)
+        localStorage.setItem('currentUser', JSON.stringify(data.user))
         window.location.href = `/`
     } catch (error) {
         message.info(error?.response.data?.detail)

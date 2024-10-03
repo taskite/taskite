@@ -15,21 +15,11 @@ const switchTab = (key) => {
         window.location.href = `/${props.workspace.slug}/boards/${props.board.slug}/${key}/`
     }
 }
-
-const redirectToBoards = () => {
-    window.location.href = `/${props.workspace.slug}/boards/`
-}
 </script>
 
 <template>
     <BaseLayout>
         <Tabs v-model:active-key="activeKey" class="pl-5" @change="switchTab">
-            <template #leftExtra>
-                <div class="flex items-center gap-2 me-5">
-                    <Avatar :src="props.board.cover" size="small" shape="square" />
-                    <div>{{ props.board.name }}</div>
-                </div>
-            </template>
             <TabPane key="kanban">
                 <template #tab>
                     <span>
@@ -68,7 +58,7 @@ const redirectToBoards = () => {
             </TabPane>
 
             <template #rightExtra>
-                <Button type="link" :icon="h(LeftOutlined)" @click="redirectToBoards">Back to boards</Button>
+                <slot name="actions"></slot>
             </template>
         </Tabs>
         <div class="pl-5">

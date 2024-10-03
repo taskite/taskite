@@ -210,7 +210,7 @@ class BoardViewSet(ViewSet):
 
         members = User.objects.filter(
             Q(boards=board) | Q(teams__boards=board)
-        ).distinct()
+        ).distinct().order_by("first_name")
 
         serializer = BoardMemberSeralizer(members, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)

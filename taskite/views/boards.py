@@ -70,6 +70,7 @@ class BoardsKanbanView(LoginRequiredMixin, View):
             "props": {
                 "workspace": WorkspaceSerializer(workspace).data,
                 "board": BoardSerializer(board).data,
+                "current_user": ProfileSerializer(request.user).data
             }
         }
         return render(request, "workspaces/boards/kanban.html", context)

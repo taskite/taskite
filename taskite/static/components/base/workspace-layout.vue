@@ -1,13 +1,13 @@
 <script setup>
-import { Button, Layout, Menu, Typography, Flex, Avatar, Select, Dropdown, Card, Divider } from 'ant-design-vue'
-import { h, ref } from 'vue';
-import { DashboardOutlined, LogoutOutlined, PlusCircleOutlined, ProjectOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { Layout, Menu, Flex, Avatar, Dropdown, Card } from 'ant-design-vue'
+import { computed, ref } from 'vue';
+import { DashboardOutlined, ProjectOutlined, SettingOutlined } from '@ant-design/icons-vue';
 
 import BaseLayout from '@/components/base/base-layout.vue';
 import WorkspaceMenu from '@/components/base/workspace-menu.vue';
 import { generateAvatar } from '@/utils/helpers';
 
-const props = defineProps(['workspace', 'page', 'pageTitle', 'currentUser'])
+const props = defineProps(['workspace', 'page'])
 
 const collapsed = ref(false)
 const selectedKeys = ref([props.page])
@@ -32,6 +32,16 @@ const openWorkspaceMenu = ref(false)
 const showWorkspaceMenu = () => {
     openWorkspaceMenu.value = true
 }
+
+const currentUser = computed(() => {
+    const currentUserString = localStorage.getItem('currentUser')
+
+    if(!currentUserString) {
+        window.location.href = "/accounts/login"
+    }
+
+    return JSON.parse(currentUserString)
+})
 </script>
 
 <template>
@@ -62,10 +72,10 @@ const showWorkspaceMenu = () => {
                                 <Card size="small" class="w-72">
                                     <div class="mb-4">
                                         <div class="font-semibold">
-                                            {{ props.currentUser.firstName }}
-                                            {{ props.currentUser?.lastName }}
+                                            {{ currentUser.firstName }}
+                                            {{ currentUser?.lastName }}
                                         </div>
-                                        <div class="text-xs text-gray-600">@{{ props.currentUser.username }}</div>
+                                        <div class="text-xs text-gray-600">@{{ currentUser.username }}</div>
                                     </div>
                                     <div class="mt-2 cursor-pointer" @click="redirecToProfilePage">Edit profile</div>
                                     <div class="mt-2 cursor-pointer text-red-300" @click="logoutUser">Logout</div>
@@ -93,9 +103,6 @@ const showWorkspaceMenu = () => {
             </Layout.Sider>
 
             <Layout>
-                <!-- <Layout.Header>
-                    <Typography.Title :level="3">{{ props.pageTitle }}</Typography.Title>
-                </Layout.Header> -->
                 <Layout.Content>
                     <slot></slot>
                 </Layout.Content>
@@ -118,7 +125,6 @@ const showWorkspaceMenu = () => {
 }
 
 .ant-layout-content {
-    padding: 18px;
     background: #fff;
 }
 
