@@ -19,9 +19,12 @@ export const taskListAPI = (boardId, filters = {}) =>
   client.get(`/boards/${boardId}/tasks`, {
     params: filters,
   })
-export const taskCreateAPI = (boardId, data) => client.post(`/boards/${boardId}/tasks`, data)
+export const taskCreateAPI = (boardId, data) =>
+  client.post(`/boards/${boardId}/tasks`, data)
 export const taskUpdateSequence = (boardId, taskId, data) =>
   client.patch(`/boards/${boardId}/tasks/${taskId}/update-sequence`, data)
+export const taskUpdateAPI = (boardId, taskId, data) =>
+  client.patch(`/boards/${boardId}/tasks/${taskId}`, data)
 
 export const priorityListAPI = (boardId) =>
   client.get(`/boards/${boardId}/priorities`)

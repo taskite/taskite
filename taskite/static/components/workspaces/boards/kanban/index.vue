@@ -2,15 +2,16 @@
 import BoardLayout from '@/components/base/board-layout.vue';
 import { useKanbanStore } from '@/stores/kanban';
 import { h, onMounted, ref, watch } from 'vue';
-import { taskListAPI, stateListAPI, boardMembersListAPI, priorityListAPI, taskUpdateSequence } from '@/utils/api';
+import { taskListAPI, stateListAPI, boardMembersListAPI, priorityListAPI, taskUpdateSequence, taskCreateAPI } from '@/utils/api';
 import { VueDraggable } from 'vue-draggable-plus';
 import TaskCard from '@/components/workspaces/boards/kanban/task-card.vue';
 import { handleResponseError } from '@/utils/helpers';
-import { Button, Dropdown, Popover } from 'ant-design-vue';
+import { Button, Dropdown, Card, Input, Modal } from 'ant-design-vue';
 import { FilterOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import FilterList from '@/components/workspaces/boards/kanban/filters/filter-list.vue';
 import TaskAddForm from '@/components/workspaces/boards/kanban/task-add-form.vue';
+import TaskDetail from '@/components/workspaces/boards/kanban/task-detail.vue';
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
@@ -108,6 +109,37 @@ watch(() => [store.assigneeFilters, store.taskTypes, store.priorityFilters], asy
     await fetchTasks({ assignees: store.assigneeFilters, taskTypes: store.taskTypes, priorities: store.priorityFilters })
     await store.setupKanban()
 })
+
+const activeTaskAddCard = ref('')
+const activateAddCard = (stateId) => {
+    activeTaskAddCard.value = stateId
+}
+const closeActiveTaskCard = () => {
+    activeTaskAddCard.value = ''
+}
+const createNewTask = async (event, stateId) => {
+    const newTaskData = {
+        "summary": event.target.value,
+        "stateId": stateId,
+        "taskType": "issue",
+        "assignees": []
+    }
+
+    try {
+        const { data } = await taskCreateAPI(props.board.id, newTaskData)
+        store.addNewTask(data)
+        closeActiveTaskCard()
+    } catch (error) {
+        handleResponseError(error)
+    }
+}
+
+const openTaskAddModal = ref(false)
+const selectedTask = ref('')
+const showTaskAddModal = (task) => {
+    selectedTask.value = task
+    openTaskAddModal.value = true
+}
 </script>
 
 <template>
@@ -124,12 +156,22 @@ watch(() => [store.assigneeFilters, store.taskTypes, store.priorityFilters], asy
                                     <VueDraggable class="flex flex-col space-y-1" v-model="state.tasks" group="states"
                                         @update="(event) => updateTaskSequence(event, state.id)"
                                         @add="(event) => updateTaskSequence(event, state.id)">
-                                        <TaskCard v-for="task in state.tasks" :key="task.id" :task="task"
-                                            :boardId="props.board.id" />
+                                        <div v-for="task in state.tasks" :key="task.id"
+                                            @click="showTaskAddModal(task)">
+                                            <TaskCard :task="task" :boardId="props.board.id" />
+                                        </div>
                                     </VueDraggable>
                                 </div>
 
-                                <span class="text-sm mt-1">+ Add Task</span>
+                                <Card size="small mt-2" class="rounded" v-if="activeTaskAddCard === state.id">
+                                    <Input :bordered="false" placeholder="Summary"
+                                        @keyup.enter="(event) => createNewTask(event, state.id)" />
+                                    <div class="flex justify-end">
+                                        <Button type="text" size="small" @click="closeActiveTaskCard">Close</Button>
+                                    </div>
+                                </Card>
+
+                                <span class="text-sm mt-1" @click="activateAddCard(state.id)">+ Add Task</span>
                             </div>
                         </div>
                     </div>
@@ -153,6 +195,10 @@ watch(() => [store.assigneeFilters, store.taskTypes, store.priorityFilters], asy
                     </div>
                 </template>
             </BoardLayout>
+
+            <Modal centered v-model:open="openTaskAddModal" destroyOnClose style="width: 1000px;">
+                <TaskDetail :boardId="props.board.id" :task="selectedTask" />
+            </Modal>
         </WorkspaceLayout>
     </div>
 </template>
@@ -164,7 +210,7 @@ watch(() => [store.assigneeFilters, store.taskTypes, store.priorityFilters], asy
 
 .task-list {
     min-height: 50px;
-    max-height: calc(100vh - 130px);
+    max-height: calc(100vh - 115px);
     overflow-y: auto;
 }
 

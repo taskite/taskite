@@ -33,7 +33,9 @@ class TaskCreateSerializer(serializers.Serializer):
     task_type = serializers.ChoiceField(choices=Task.TaskType.choices)
     state_id = serializers.UUIDField()
     priority_id = serializers.UUIDField(required=False, allow_null=True)
-    assignees = serializers.ListField(child=serializers.UUIDField(), required=False, allow_empty=True)
+    assignees = serializers.ListField(
+        child=serializers.UUIDField(), required=False, allow_empty=True
+    )
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -65,3 +67,11 @@ class TaskSequenceUpdateSerializer(serializers.Serializer):
     previous_task = serializers.UUIDField(required=False)
     state_id = serializers.UUIDField()
     next_task = serializers.UUIDField(required=False)
+
+
+class TaskUpdateSerializer(serializers.Serializer):
+    summary = serializers.CharField(required=False)
+    description = serializers.CharField(required=False)
+    assignees = serializers.ListField(child=serializers.UUIDField(), allow_empty=True, required=False)
+    priority_id = serializers.UUIDField(required=False)
+    state_id = serializers.UUIDField(required=False)

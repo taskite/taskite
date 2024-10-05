@@ -12,6 +12,7 @@ from taskite.api.tasks.serializers import (
     TaskSerializer,
     TaskSequenceUpdateSerializer,
     TaskCreateSerializer,
+    TaskUpdateSerializer,
 )
 from taskite.permissions import BoardCollaboratorPermission, BoardAdminPermission
 from taskite.exceptions import (
@@ -29,6 +30,8 @@ class TasksViewSet(BoardMixin, ViewSet):
         if self.action == "list":
             return [IsAuthenticated(), BoardCollaboratorPermission()]
         elif self.action == "create":
+            return [IsAuthenticated(), BoardCollaboratorPermission()]
+        elif self.action == "partial_update":
             return [IsAuthenticated(), BoardCollaboratorPermission()]
         elif self.action == "update_sequence":
             return [IsAuthenticated(), BoardCollaboratorPermission()]
@@ -90,6 +93,29 @@ class TasksViewSet(BoardMixin, ViewSet):
         )
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def partial_update(self, request, *args, **kwargs):
+        update_serializer = TaskUpdateSerializer(data=request.data)
+        if not update_serializer.is_valid():
+            print(update_serializer.errors)
+            raise InvalidInputException
+
+        task = Task.objects.filter(board=request.board, id=kwargs.get("pk")).first()
+        if not task:
+            raise TaskNotFoundException
+
+        data = update_serializer.validated_data
+        
+        assignees = None
+        if data.get("assignees"):
+            assignees = data.pop("assignees")
+        for key, value in data.items():
+            setattr(task, key, value)
+        task.save(update_fields=data.keys())
+        if assignees:
+            task.assignees.set(assignees)
+        serializer = TaskSerializer(task)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=["PATCH"], detail=True, url_path="update-sequence")
     def update_sequence(self, request, *args, **kwargs):

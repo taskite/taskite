@@ -42,13 +42,50 @@ export const useKanbanStore = defineStore('kanban', () => {
   }
 
   const addNewTask = (newTask) => {
-    console.log(newTask)
     tasks.value.push(newTask)
 
     const state = kanban.value.find((state) => state.id === newTask.stateId)
     if (!state) return
 
     state.tasks.push(newTask)
+  }
+
+  const updateTask = (stateId, taskId, updatedTaskData) => {
+    if (updatedTaskData.stateId !== stateId) {
+      // stateId is changed
+
+      const oldState = kanban.value.find((state) => state.id === stateId)
+      const newState = kanban.value.find(
+        (state) => state.id === updatedTaskData.stateId
+      )
+
+      oldState.tasks = oldState.tasks.filter(
+        (task) => task.id !== updatedTaskData.id
+      )
+      newState.tasks.push(updatedTaskData)
+
+      // Sort tasks in the new state by sequence
+      newState.tasks.sort((a, b) => a.sequence - b.sequence)
+    } else {
+      // No stateId is changed
+      const state = kanban.value.find((state) => state.id === stateId)
+      if (!state) return false
+
+      const taskIndex = state.tasks.findIndex((task) => task.id === taskId)
+      if (taskIndex === -1) return false
+
+      // Update the task in the state
+      state.tasks[taskIndex] = { ...state.tasks[taskIndex], ...updatedTaskData }
+    }
+
+    // Also update the task in the tasks array
+    const globalTaskIndex = tasks.value.findIndex((task) => task.id === taskId)
+    if (globalTaskIndex !== -1) {
+      tasks.value[globalTaskIndex] = {
+        ...tasks.value[globalTaskIndex],
+        ...updatedTaskData,
+      }
+    }
   }
 
   return {
@@ -66,5 +103,6 @@ export const useKanbanStore = defineStore('kanban', () => {
     taskTypes,
     priorityFilters,
     addNewTask,
+    updateTask,
   }
 })
