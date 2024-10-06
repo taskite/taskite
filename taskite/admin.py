@@ -21,6 +21,7 @@ from taskite.models import (
     Upload,
     PurgedAsset,
     UnusedAsset,
+    TaskComment
 )
 
 
@@ -165,11 +166,15 @@ class TaskAssigneeInlineAdmin(admin.StackedInline):
     model = TaskAssignee
     extra = 1
 
+class TaskCommentInlineAdmin(admin.StackedInline):
+    model = TaskComment
+    extra = 1
+
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = ["name", "summary", "created_at"]
-    inlines = [TaskAssigneeInlineAdmin]
+    inlines = [TaskAssigneeInlineAdmin, TaskCommentInlineAdmin]
 
 
 @admin.register(Upload)

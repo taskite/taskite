@@ -106,3 +106,17 @@ class TaskAssignee(UUIDTimestampModel):
 
     def __str__(self) -> str:
         return str(self.id)
+
+
+class TaskComment(UUIDTimestampModel):
+    task = models.ForeignKey("Task", on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey("User", on_delete=models.SET_NULL, null=True)
+    content = models.TextField()
+
+    class Meta:
+        verbose_name = "Task Comment"
+        verbose_name_plural = "Task Comments"
+        db_table = "task_comments"
+
+    def __str__(self) -> str:
+        return str(self.id)

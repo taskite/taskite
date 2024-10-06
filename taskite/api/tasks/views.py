@@ -31,6 +31,8 @@ class TasksViewSet(BoardMixin, ViewSet):
             return [IsAuthenticated(), BoardCollaboratorPermission()]
         elif self.action == "create":
             return [IsAuthenticated(), BoardCollaboratorPermission()]
+        elif self.action == "retrieve":
+            return [IsAuthenticated(), BoardCollaboratorPermission()]
         elif self.action == "partial_update":
             return [IsAuthenticated(), BoardCollaboratorPermission()]
         elif self.action == "update_sequence":
@@ -67,6 +69,14 @@ class TasksViewSet(BoardMixin, ViewSet):
 
         serializer = TaskSerializer(task)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    
+    def retrieve(self, request, *args, **kwargs):
+        task = Task.objects.filter(board=request.board, id=kwargs.get("pk")).first()
+        if not task:
+            raise TaskNotFoundException
+        
+        serializer = TaskSerializer(task)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
         queryset = Task.objects.filter(board=request.board, archived_at__isnull=True)

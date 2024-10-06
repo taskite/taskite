@@ -30,7 +30,7 @@ const getWorkspaceLogo = computed(() => {
 
 <template>
     <WorkspaceLayout page="settings" :workspace="props.workspace" :currentUser="props.currentUser">
-        <div class="container mx-auto px-7">
+        <div class="container mx-auto p-2">
             <div class="text-xl font-semibold mb-2">{{ props.workspace.name }}'s settings</div>
             <Tabs v-model:activeKey="activeKey" @change="switchTab">
                 <TabPane key="general">

@@ -12,6 +12,13 @@ class IndexView(LoginRequiredMixin, View):
         if not request.user.is_verified:
             # Redirect them to email verification page
             return redirect("accounts-verify")
+
+        if request.user.current_workspace:
+            return redirect(
+                "workspaces-dashboard",
+                workspace_slug=request.user.current_workspace.slug,
+            )
+        
         workspace = request.user.workspaces.first()
         if not workspace:
             return redirect("home-create")
@@ -28,7 +35,7 @@ class FileUploadView(APIView):
     parser_classes = [FileUploadParser]
 
     def put(self, request, *args, **kwargs):
-        file = request.data['file']
+        file = request.data["file"]
         # Save the file using default storage
         default_storage.save(kwargs.get("file_key"), file)
         # ...

@@ -11,7 +11,7 @@ import { FilterOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import FilterList from '@/components/workspaces/boards/kanban/filters/filter-list.vue';
 import TaskAddForm from '@/components/workspaces/boards/kanban/task-add-form.vue';
-import TaskDetail from '@/components/workspaces/boards/kanban/task-detail.vue';
+import TaskView from '@/components/workspaces/boards/kanban/task-view.vue';
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
@@ -136,9 +136,13 @@ const createNewTask = async (event, stateId) => {
 
 const openTaskAddModal = ref(false)
 const selectedTask = ref('')
-const showTaskAddModal = (task) => {
-    selectedTask.value = task
+const showTaskAddModal = (taskId) => {
+    selectedTask.value = taskId
     openTaskAddModal.value = true
+}
+const closeTaskAddModal = () => {
+    selectedTask.value = ''
+    openTaskAddModal.value = false
 }
 </script>
 
@@ -157,7 +161,7 @@ const showTaskAddModal = (task) => {
                                         @update="(event) => updateTaskSequence(event, state.id)"
                                         @add="(event) => updateTaskSequence(event, state.id)">
                                         <div v-for="task in state.tasks" :key="task.id"
-                                            @click="showTaskAddModal(task)">
+                                            @click="showTaskAddModal(task.id)">
                                             <TaskCard :task="task" :boardId="props.board.id" />
                                         </div>
                                     </VueDraggable>
@@ -197,7 +201,9 @@ const showTaskAddModal = (task) => {
             </BoardLayout>
 
             <Modal centered v-model:open="openTaskAddModal" destroyOnClose style="width: 1000px;">
-                <TaskDetail :boardId="props.board.id" :task="selectedTask" />
+                <TaskView :board="props.board" :workspace="props.workspace" :taskId="selectedTask" />
+                <template #footer>
+                </template>
             </Modal>
         </WorkspaceLayout>
     </div>

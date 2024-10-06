@@ -1,70 +1,81 @@
 <script setup>
-import { Avatar, Input, Select, SelectOption, Textarea } from 'ant-design-vue';
+import { Avatar, Input, Select, SelectOption, Textarea, Skeleton } from 'ant-design-vue';
 import { onMounted, ref } from 'vue';
 import { useKanbanStore } from '@/stores/kanban';
 import { generateAvatar, handleResponseError } from '@/utils/helpers';
-import { taskUpdateAPI } from '@/utils/api';
+import { taskUpdateAPI, taskDetailAPI } from '@/utils/api';
 
-const props = defineProps(['boardId', 'task'])
+const props = defineProps(['boardId', 'taskId'])
 const store = useKanbanStore()
 
-const taskForm = ref({
-    summary: props.task.summary,
-    description: props.task.description,
-    priorityId: props.task.priorityId,
-    stateId: props.task.stateId,
-    assignees: props.task.assignees.map(assignee => assignee.id),
-})
+const task = ref(null)
 
 const updateTask = async (updatedData) => {
     try {
-        const { data } = await taskUpdateAPI(props.boardId, props.task.id, updatedData)
-        store.updateTask(props.task.stateId, props.task.id, data)
+        const { data } = await taskUpdateAPI(props.boardId, props.taskId, updatedData)
+        store.updateTask(data)
+        return data
     } catch (error) {
         handleResponseError(error)
     }
 }
 
-const updateSummary = (event) => {
-    if(event.target.value === props.task.summary) return
-
-    // Update the task
-    updateTask({ summary: event.target.value })
-}
-
 const updatePriority = (priorityId) => {
-    if(priorityId === props.task.priorityId) return
-
     // Update the task
     updateTask({ priorityId: priorityId })
 }
 
-const updateAssignees = (assignees) => {
-    
+const updateAssignees = async (assignees) => {
+
     // Update the task
     updateTask({ assignees })
 }
 
-const updateState = (stateId) => {
+const updateState = async (stateId) => {
     // Update the task
-    updateTask({ stateId })
-    taskForm.value.stateId = stateId
+    try {
+        const { data } = await taskUpdateAPI(props.boardId, props.taskId, { stateId })
+        store.updateTaskState(task.value.oldStateId, data)
+        task.value = {
+            ...data,
+            assigneeIds: data.assignees.map(assignee => assignee.id),
+            oldStateId: data.stateId
+        }
+    } catch (error) {
+        handleResponseError(error)
+    }
+}
+
+const fetchTask = async () => {
+    try {
+        const { data } = await taskDetailAPI(props.boardId, props.taskId)
+        task.value = {
+            ...data,
+            assigneeIds: data.assignees.map(assignee => assignee.id),
+            oldStateId: data.stateId
+        }
+    } catch (error) {
+        handleResponseError(error)
+    }
 }
 
 onMounted(() => {
-
+    fetchTask()
 })
 </script>
 
 <template>
-    <div class="grid grid-cols-12 gap-6">
+    <div class="grid grid-cols-12 gap-6" v-if="!!task">
         <div class="col-span-8">
-            <div>{{ props.task.name }}</div>
-            <Input :bordered="false" v-model:value="taskForm.summary" @blur="updateSummary" />
+            <div>{{ task.name }}</div>
+            <Input :bordered="false" v-model:value="task.summary"
+                @keyup.enter="(event) => updateTask({ summary: event.target.value })" />
 
             <div class="mt-2">
                 <div>Description</div>
-                <Textarea v-model:value="taskForm.description" :rows="7" />
+                <!-- <DescriptionEditor v-model:value="task.description" /> -->
+                <Textarea v-model:value="task.description" :rows="15"
+                    @keyup.enter="(event) => updateTask({ description: event.target.value })" />
             </div>
         </div>
 
@@ -72,10 +83,10 @@ onMounted(() => {
             <div class="flex items-center gap-2 mb-2">
                 <div>Created by </div>
                 <Avatar size="small" shape="square"
-                    :src="!!props.task.createdBy.avatar ? props.task.createdBy.avatar : generateAvatar(props.task.createdBy.firstName)" />
-                <div>{{ props.task.createdBy.firstName }} {{ props.task.createdBy?.lastName }}</div>
+                    :src="!!task.createdBy.avatar ? task.createdBy.avatar : generateAvatar(task.createdBy.firstName)" />
+                <div>{{ task.createdBy.firstName }} {{ task.createdBy?.lastName }}</div>
             </div>
-            <Select v-model:value="taskForm.stateId" class="w-52 mb-2" @change="updateState">
+            <Select v-model:value="task.stateId" class="w-52 mb-2" @change="updateState">
                 <SelectOption :value="state.id" v-for="state in store.states" :key="state.id">{{ state.name }}
                 </SelectOption>
             </Select>
@@ -84,7 +95,7 @@ onMounted(() => {
                 <div class="font-semibold mb-1">Properties</div>
                 <div class="flex flex-col gap-2">
                     <div>Priority</div>
-                    <Select v-model:value="taskForm.priorityId" @change="updatePriority">
+                    <Select v-model:value="task.priorityId" @change="updatePriority">
                         <SelectOption :value="null">None</SelectOption>
                         <SelectOption :value="priority.id" v-for="priority in store.priorities" :key="priority.id">
                             {{ priority.name }}
@@ -94,8 +105,8 @@ onMounted(() => {
 
                 <div class="flex flex-col gap-2">
                     <div>Assignees</div>
-                    <Select v-model:value="taskForm.assignees" mode="multiple"
-                        optionFilterProp="label" @change="updateAssignees">
+                    <Select v-model:value="task.assigneeIds" mode="multiple" optionFilterProp="label"
+                        @change="updateAssignees">
                         <SelectOption v-for="member in store.members" :key="member.id" :label="member.firstName">
                             <div class="flex items-center gap-2">
                                 <Avatar size="small"
@@ -107,5 +118,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+    </div>
+    <div v-else>
+        <Skeleton />
     </div>
 </template>

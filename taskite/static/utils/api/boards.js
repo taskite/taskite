@@ -25,6 +25,8 @@ export const taskUpdateSequence = (boardId, taskId, data) =>
   client.patch(`/boards/${boardId}/tasks/${taskId}/update-sequence`, data)
 export const taskUpdateAPI = (boardId, taskId, data) =>
   client.patch(`/boards/${boardId}/tasks/${taskId}`, data)
+export const taskDetailAPI = (boardId, taskId) =>
+  client.get(`/boards/${boardId}/tasks/${taskId}`)
 
 export const priorityListAPI = (boardId) =>
   client.get(`/boards/${boardId}/priorities`)

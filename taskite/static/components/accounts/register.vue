@@ -24,7 +24,8 @@ const onFinish = async (values) => {
             values['invitationId'] = props.invitationId
         }
         
-        await accountsRegisterAPI(values)
+        const { data } = await accountsRegisterAPI(values)
+        localStorage.setItem('currentUser', JSON.stringify(data.user))
         window.location.href = `/`
     } catch (error) {
         message.info(error?.response.data?.detail)

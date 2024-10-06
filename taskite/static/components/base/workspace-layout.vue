@@ -65,7 +65,7 @@ const currentUser = computed(() => {
                         </div>
                         <Dropdown :trigger="['click']">
                             <Avatar
-                                :src="!!currentUser.avatar ? currentUser.avatarSrc : generateAvatar(props.currentUser.firstName, 50)"
+                                :src="!!currentUser.avatar ? currentUser.avatarSrc : generateAvatar(currentUser.firstName, 50)"
                                 shape="square" size="small" />
 
                             <template #overlay>

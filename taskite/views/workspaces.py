@@ -23,6 +23,14 @@ class WorkspaceDashboardView(LoginRequiredMixin, View):
         if not workspace_membership:
             raise Http404
 
+        # Update current workspace
+        if (
+            not request.user.current_workspace
+            or request.user.current_workspace != workspace
+        ):
+            request.user.current_workspace = workspace
+            request.user.save(update_fields=["current_workspace"])
+
         context = {
             "props": {
                 "workspace": WorkspaceSerializer(workspace).data,

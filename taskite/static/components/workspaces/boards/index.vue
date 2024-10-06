@@ -41,23 +41,24 @@ onMounted(() => {
 
 <template>
     <WorkspaceLayout :workspace="props.workspace" :currentUser="props.currentUser" page="boards">
-        <div class="flex justify-between items-center">
-            <div class="text-2xl font-semibold mb-3">Boards</div>
-            <Button class="" type="primary" :icon="h(PlusOutlined)" @click="showNewBoardModal">New board</Button>
+        <div class="p-4">
+            <div class="flex justify-between items-center">
+                <div class="text-2xl font-semibold mb-3">Boards</div>
+                <Button class="" type="primary" :icon="h(PlusOutlined)" @click="showNewBoardModal">New board</Button>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <Card v-for="board in boards" :key="board.id" size="small" @click="redirectToBoard(board)"
+                    class="cursor-pointer hover:border-solid hover:border-1 hover:border-primary">
+                    <div class="font-semibold">{{ board.name }}</div>
+                    <div class="text-xs">Created on {{ dayjs(board.createdAt).format('MMMM D, YYYY') }}</div>
+                </Card>
+            </div>
         </div>
-        <div class="grid grid-cols-3 gap-3">
-            <Card v-for="board in boards" :key="board.id" size="small" @click="redirectToBoard(board)"
-                class="cursor-pointer hover:border-solid hover:border-1 hover:border-primary">
-                <div class="font-semibold">{{ board.name }}</div>
-                <div class="text-xs">Created on {{ dayjs(board.createdAt).format('MMMM D, YYYY') }}</div>
-            </Card>
-        </div>
+        <Modal v-model:open="openNewBoardModal" title="New board">
+            <template #footer>
+                <Button @click="closeNewBoardModal">Cancel</Button>
+            </template>
+            <BoardNewModal :workspace="props.workspace"></BoardNewModal>
+        </Modal>
     </WorkspaceLayout>
-
-    <Modal v-model:open="openNewBoardModal" title="New board">
-        <template #footer>
-            <Button @click="closeNewBoardModal">Cancel</Button>
-        </template>
-        <BoardNewModal :workspace="props.workspace"></BoardNewModal>
-    </Modal>
 </template>

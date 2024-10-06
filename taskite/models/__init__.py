@@ -4,7 +4,7 @@ from .workspace import Workspace, WorkspaceMembership, WorkspaceInvite
 from .board import Board, BoardMembership
 from .state import State
 from .priority import Priority
-from .task import Task, TaskAssignee
+from .task import Task, TaskAssignee, TaskComment
 from .sprint import Sprint
 from .team import Team, TeamMembership
 from .upload import Upload

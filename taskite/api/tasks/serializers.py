@@ -72,6 +72,9 @@ class TaskSequenceUpdateSerializer(serializers.Serializer):
 class TaskUpdateSerializer(serializers.Serializer):
     summary = serializers.CharField(required=False)
     description = serializers.CharField(required=False)
-    assignees = serializers.ListField(child=serializers.UUIDField(), allow_empty=True, required=False)
+    assignees = serializers.ListField(
+        child=serializers.UUIDField(), allow_empty=True, required=False
+    )
     priority_id = serializers.UUIDField(required=False)
     state_id = serializers.UUIDField(required=False)
+    task_type = serializers.ChoiceField(choices=Task.TaskType, required=False)
