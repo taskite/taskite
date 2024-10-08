@@ -21,7 +21,9 @@ from taskite.models import (
     Upload,
     PurgedAsset,
     UnusedAsset,
-    TaskComment
+    TaskComment,
+    TaskLabel,
+    Label,
 )
 
 
@@ -157,6 +159,11 @@ class StateAdmin(admin.ModelAdmin):
     list_display = ["name", "created_at"]
 
 
+@admin.register(Label)
+class LabelAdmin(admin.ModelAdmin):
+    list_display = ["name", "color"]
+
+
 @admin.register(Priority)
 class PriorityAdmin(admin.ModelAdmin):
     list_display = ["name", "created_at"]
@@ -165,6 +172,7 @@ class PriorityAdmin(admin.ModelAdmin):
 class TaskAssigneeInlineAdmin(admin.StackedInline):
     model = TaskAssignee
     extra = 1
+
 
 class TaskCommentInlineAdmin(admin.StackedInline):
     model = TaskComment

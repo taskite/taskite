@@ -9,9 +9,6 @@ import {
     Tag,
     Skeleton,
     Avatar,
-    List,
-    ListItem,
-    Comment
 } from 'ant-design-vue';
 import {
     ShareAltOutlined,
@@ -19,6 +16,7 @@ import {
 import { handleResponseError, generateAvatar } from '@/utils/helpers';
 import { taskDetailAPI, taskUpdateAPI, taskCommentsAPI } from '@/utils/api';
 import { useKanbanStore } from '@/stores/kanban';
+import TaskCommentList from './task-comment-list.vue';
 
 const store = useKanbanStore()
 
@@ -38,6 +36,7 @@ const updateTask = async (updatedData) => {
     try {
         const { data } = await taskUpdateAPI(props.board.id, props.taskId, updatedData)
         store.updateTask(data)
+        task.value = data
         return data
     } catch (error) {
         handleResponseError(error)
@@ -50,24 +49,8 @@ const loadTask = async () => {
         const { data } = await taskDetailAPI(props.board.id, props.taskId)
         task.value = {
             ...data,
-            assigneeIds: data.assignees.map(assignee => assignee.id),
             oldStateId: data.stateId
         }
-    } catch (error) {
-        handleResponseError(error)
-    }
-}
-
-const comments = ref([])
-const loadComments = async () => {
-    try {
-        const { data } = await taskCommentsAPI(props.board.id, props.taskId)
-        comments.value = data.map((comment) => {
-            return {
-                ...comment,
-                key: comment.id
-            }
-        })
     } catch (error) {
         handleResponseError(error)
     }
@@ -85,7 +68,6 @@ const updateState = async (stateId) => {
         store.updateTaskState(task.value.oldStateId, data)
         task.value = {
             ...data,
-            assigneeIds: data.assignees.map(assignee => assignee.id),
             oldStateId: data.stateId
         }
     } catch (error) {
@@ -95,7 +77,6 @@ const updateState = async (stateId) => {
 
 onMounted(() => {
     loadTask()
-    loadComments()
 })
 </script>
 
@@ -115,7 +96,10 @@ onMounted(() => {
                             :src="!!props.board.cover ? props.board.cover : generateAvatar(props.board.name, 10)" />
                         <span class="ml-2">{{ props.board.name }}</span>
                     </BreadcrumbItem>
-                    <BreadcrumbItem>{{ task.name }}</BreadcrumbItem>
+                    <BreadcrumbItem>
+                        <span class="me-2">{{ task.name }}</span>
+                        <Tag :bordered="false" :color="getTypeColor(task.taskType)">{{ task.taskTypeDisplay }}</Tag>
+                    </BreadcrumbItem>
                 </Breadcrumb>
             </div>
             <div class="flex items-center space-x-2">
@@ -133,7 +117,11 @@ onMounted(() => {
             <!-- Main Content -->
             <div class="flex-grow overflow-y-auto pr-4">
                 <div class="mb-4">
-                    <Tag :bordered="false" :color="getTypeColor(task.taskType)">{{ task.taskType }}</Tag>
+                    <div class="flex gap-1">
+                        <Tag v-for="label in task.labels" :key="label.id" :bordered="false" :color="label.color">{{
+                            label.name
+                            }}</Tag>
+                    </div>
                     <div class="text-2xl font-semibold">{{ task.summary }}</div>
                     <div class="text-sm text-gray-500">
                         <div class="flex items-center gap-1">
@@ -153,17 +141,7 @@ onMounted(() => {
                 </div>
 
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-2">Comments</h3>
-                    <div v-for="comment in comments" :key="comment.id" class="mb-4 flex items-start space-x-3">
-                        <Avatar :src="comment.author.avatar" :size="28" :alt="`${comment.author.firstName}'s avatar`" />
-                        <div class="flex-grow">
-                            <div class="flex items-center space-x-2 mb-1">
-                                <span class="font-xs text-gray-450">{{ comment.author.firstName }}</span>
-                                <span class="text-sm text-gray-800">{{ comment.time }}</span>
-                            </div>
-                            <p class="text-gray-600 mb-2">{{ comment.content }}</p>
-                        </div>
-                    </div>
+                    <TaskCommentList :boardId="props.board.id" :taskId="props.taskId" />
                 </div>
             </div>
 
@@ -171,7 +149,7 @@ onMounted(() => {
             <div class="w-64 flex-shrink-0 border-l border-gray-200 pl-4">
                 <div class="mb-4">
                     <div class="text-sm font-semibold mb-2">Status</div>
-                    <Select v-model:value="task.stateId" class="w-52 mb-2" @change="updateState">
+                    <Select v-model:value="task.stateId" class="w-full mb-2" @change="updateState">
                         <SelectOption :value="state.id" v-for="state in store.states" :key="state.id">{{ state.name }}
                         </SelectOption>
                     </Select>
@@ -225,6 +203,11 @@ onMounted(() => {
                             Feature
                         </SelectOption>
                     </Select>
+                </div>
+
+                <div class="mb-4">
+                    <h3 class="text-sm font-semibold mb-2">Tags</h3>
+                    
                 </div>
             </div>
         </div>

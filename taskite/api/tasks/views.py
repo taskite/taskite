@@ -69,12 +69,12 @@ class TasksViewSet(BoardMixin, ViewSet):
 
         serializer = TaskSerializer(task)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-    
+
     def retrieve(self, request, *args, **kwargs):
         task = Task.objects.filter(board=request.board, id=kwargs.get("pk")).first()
         if not task:
             raise TaskNotFoundException
-        
+
         serializer = TaskSerializer(task)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -95,10 +95,14 @@ class TasksViewSet(BoardMixin, ViewSet):
             priorities = request.query_params.getlist("priorities[]")
             queryset = queryset.filter(priority__in=priorities)
 
+        if request.query_params.getlist("labels[]"):
+            # Filter for labels
+            labels = request.query_params.getlist("labels[]")
+            queryset = queryset.filter(labels__in=labels)
+
         tasks = (
-            queryset.prefetch_related("assignees")
-            .select_related("priority")
-            .select_related("created_by")
+            queryset.prefetch_related("assignees", "labels")
+            .select_related("priority", "created_by")
             .order_by("sequence")
         )
         serializer = TaskSerializer(tasks, many=True)
@@ -115,7 +119,7 @@ class TasksViewSet(BoardMixin, ViewSet):
             raise TaskNotFoundException
 
         data = update_serializer.validated_data
-        
+
         assignees = None
         if data.get("assignees"):
             assignees = data.pop("assignees")

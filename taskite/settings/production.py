@@ -83,6 +83,3 @@ STORAGES = {
 }
 
 USE_S3 = True
-
-STATIC_HOST = os.environ.get("DJANGO_STATIC_HOST", "")
-STATIC_URL = STATIC_HOST + "/static/"

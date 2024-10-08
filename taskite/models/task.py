@@ -48,6 +48,9 @@ class Task(UUIDTimestampModel):
     assignees = models.ManyToManyField(
         "User", through="TaskAssignee", related_name="assigned_tasks"
     )
+    labels = models.ManyToManyField(
+        "Label", through="TaskLabel", related_name="assigned_label_tasks"
+    )
 
     class Meta:
         db_table = "tasks"
@@ -120,3 +123,22 @@ class TaskComment(UUIDTimestampModel):
 
     def __str__(self) -> str:
         return str(self.id)
+
+
+class TaskLabel(UUIDTimestampModel):
+    task = models.ForeignKey(
+        "Task", on_delete=models.CASCADE, related_name="task_labels"
+    )
+    label = models.ForeignKey(
+        "Label", on_delete=models.CASCADE, related_name="label_task_labels"
+    )
+
+    class Meta:
+        verbose_name = "Task Label"
+        verbose_name_plural = "Task Labels"
+        db_table = "task_labels"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["task", "label"], name="unique_label_per_task"
+            )
+        ]

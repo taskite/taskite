@@ -24,9 +24,15 @@ export const useKanbanStore = defineStore('kanban', () => {
     priorities.value = prioritiesData
   }
 
+  const labels = ref([])
+  const setLabels = (labelsData) => {
+    labels.value = labelsData
+  }
+
   const assigneeFilters = ref([])
   const taskTypes = ref([])
   const priorityFilters = ref([])
+  const labelFilters = ref([])
 
   const setupKanban = async () => {
     kanban.value = states.value.map((state) => {
@@ -113,9 +119,12 @@ export const useKanbanStore = defineStore('kanban', () => {
     setMembers,
     priorities,
     setPriorities,
+    labels,
+    setLabels,
     assigneeFilters,
     taskTypes,
     priorityFilters,
+    labelFilters,
     addNewTask,
     updateTask,
     updateTaskState,

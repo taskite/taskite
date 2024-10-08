@@ -2,7 +2,7 @@
 import BoardLayout from '@/components/base/board-layout.vue';
 import { useKanbanStore } from '@/stores/kanban';
 import { h, onMounted, ref, watch } from 'vue';
-import { taskListAPI, stateListAPI, boardMembersListAPI, priorityListAPI, taskUpdateSequence, taskCreateAPI } from '@/utils/api';
+import { taskListAPI, stateListAPI, boardMembersListAPI, priorityListAPI, taskUpdateSequence, taskCreateAPI, labelListAPI } from '@/utils/api';
 import { VueDraggable } from 'vue-draggable-plus';
 import TaskCard from '@/components/workspaces/boards/kanban/task-card.vue';
 import { handleResponseError } from '@/utils/helpers';
@@ -11,7 +11,7 @@ import { FilterOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import FilterList from '@/components/workspaces/boards/kanban/filters/filter-list.vue';
 import TaskAddForm from '@/components/workspaces/boards/kanban/task-add-form.vue';
-import TaskView from '@/components/workspaces/boards/kanban/task-view.vue';
+import TaskView from '@/components/workspaces/boards/kanban/detail/task-view.vue';
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
@@ -52,6 +52,15 @@ const fetchPriorities = async () => {
     }
 }
 
+const fetchLabels = async () => {
+    try {
+        const { data } = await labelListAPI(props.board.id)
+        store.setLabels(data)
+    } catch (error) {
+        handleResponseError(error)
+    }
+}
+
 const loadKanban = async () => {
     try {
         await fetchStates()
@@ -60,6 +69,7 @@ const loadKanban = async () => {
 
         fetchMembers()
         fetchPriorities()
+        fetchLabels()
     } catch (error) {
         handleResponseError(error)
     }
@@ -105,8 +115,8 @@ onMounted(() => {
 
 const openFilterDropdown = ref(false)
 
-watch(() => [store.assigneeFilters, store.taskTypes, store.priorityFilters], async () => {
-    await fetchTasks({ assignees: store.assigneeFilters, taskTypes: store.taskTypes, priorities: store.priorityFilters })
+watch(() => [store.assigneeFilters, store.taskTypes, store.priorityFilters, store.labelFilters], async () => {
+    await fetchTasks({ assignees: store.assigneeFilters, taskTypes: store.taskTypes, priorities: store.priorityFilters, labels: store.labelFilters })
     await store.setupKanban()
 })
 

@@ -13,6 +13,7 @@ from taskite.api.board_memberships.views import BoardMembershipsViewset
 from taskite.api.team_memberships.views import TeamMembershipsViewSet
 from taskite.api.uploads.views import UploadsViewSet
 from taskite.api.task_comments.views import TaskCommentsViewSet
+from taskite.api.labels.views import LabelsViewSet
 
 router = SimpleRouter(trailing_slash=False, use_regex_path=False)
 
@@ -37,5 +38,6 @@ router.register("boards/<uuid:board_id>/tasks", TasksViewSet, basename="task")
 router.register("boards/<uuid:board_id>/tasks/<uuid:task_id>/comments", TaskCommentsViewSet, basename="task_comment")
 router.register("boards/<uuid:board_id>/priorities", PrioritiesViewSet, basename="priority")
 router.register("boards/<uuid:board_id>/memberships", BoardMembershipsViewset, basename="board-membership")
+router.register("boards/<uuid:board_id>/labels", LabelsViewSet, basename="label")
 
 urlpatterns = router.urls

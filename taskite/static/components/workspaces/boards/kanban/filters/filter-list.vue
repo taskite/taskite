@@ -4,6 +4,7 @@ import { Card, Divider } from 'ant-design-vue';
 import TaskTypeFilters from './task-type-filters.vue';
 import AssigneeFilters from './assignee-filters.vue';
 import PriorityFilters from './priority-filters.vue';
+import LabelFilters from './label-filters.vue';
 </script>
 
 <template>
@@ -25,6 +26,13 @@ import PriorityFilters from './priority-filters.vue';
         <div>
             <div class="font-semibold text-gray-600">Types</div>
             <TaskTypeFilters />
-        </div>        
+        </div>
+        
+        <Divider class="my-2 p-0" />
+
+        <div>
+            <div class="font-semibold text-gray-600">Labels</div>
+            <LabelFilters />
+        </div>
     </Card>
 </template>
