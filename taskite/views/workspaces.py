@@ -11,6 +11,30 @@ from taskite.models import WorkspaceMembership, Workspace, Team, WorkspaceInvite
 from taskite.serializers import WorkspaceSerializer, ProfileSerializer, TeamSerializer
 
 
+class WorkspaceCreateView(LoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, "workspaces/create.html")
+    
+
+class WorkspaceIndexView(LoginRequiredMixin, View):
+    def get(self, request):
+        if not request.user.is_verified:
+            # Redirect them to email verification page
+            return redirect("accounts-verify")
+
+        if request.user.current_workspace:
+            return redirect(
+                "workspaces-dashboard",
+                workspace_slug=request.user.current_workspace.slug,
+            )
+        
+        workspace = request.user.workspaces.first()
+        if not workspace:
+            return redirect("workspace-create")
+
+        return redirect("workspaces-dashboard", workspace_slug=workspace.slug)
+
+
 class WorkspaceDashboardView(LoginRequiredMixin, View):
     def get(self, request, workspace_slug):
         workspace = Workspace.objects.filter(slug=workspace_slug).first()

@@ -51,7 +51,7 @@ const columns = [
 ]
 
 const redirectToTeamsPage = () => {
-    window.location.href = `/${props.workspace.slug}/settings/teams/`
+    window.location.href = `/w/${props.workspace.slug}/settings/teams/`
 }
 
 const openMemberModal = ref(false)

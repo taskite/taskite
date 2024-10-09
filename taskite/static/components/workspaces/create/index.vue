@@ -14,7 +14,7 @@ const createForm = ref({
 const onFinish = async (values) => {
     try {
         const { data } = await workspaceCreareAPI(values)
-        window.location.href = `/${data.slug}/boards`
+        window.location.href = `/w/${data.slug}/b`
     } catch (error) {
         handleResponseError(error)
     }

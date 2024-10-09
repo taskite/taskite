@@ -23,7 +23,7 @@ const fetchBoards = async () => {
 }
 
 const redirectToBoard = (board) => {
-    window.location.href = `/${props.workspace.slug}/boards/${board.slug}/`
+    window.location.href = `/w/${props.workspace.slug}/b/${board.slug}/`
 }
 
 const openNewBoardModal = ref(false)

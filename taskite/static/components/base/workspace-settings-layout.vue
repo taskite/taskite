@@ -9,10 +9,10 @@ const props = defineProps(['workspace', 'currentUser', 'page'])
 const activeKey = ref(props.page)
 
 const switchTab = (key) => {
-    var redirectUrl = `/${props.workspace.slug}/settings/${key}/`
+    var redirectUrl = `/w/${props.workspace.slug}/settings/${key}/`
 
     if (key === 'general') {
-        redirectUrl = `/${props.workspace.slug}/settings/`
+        redirectUrl = `/w/${props.workspace.slug}/settings/`
     }
 
     window.location.href = redirectUrl
