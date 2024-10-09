@@ -8,7 +8,7 @@ import LabelFilters from './label-filters.vue';
 </script>
 
 <template>
-    <Card class="w-80" title="Filters" size="small">
+    <Card class="w-80 max-h-[45rem] overflow-y-auto" title="Filters" size="small">
         <div>
             <div class="font-semibold text-gray-600">Priorities</div>
             <PriorityFilters />
@@ -27,7 +27,7 @@ import LabelFilters from './label-filters.vue';
             <div class="font-semibold text-gray-600">Types</div>
             <TaskTypeFilters />
         </div>
-        
+
         <Divider class="my-2 p-0" />
 
         <div>

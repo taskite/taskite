@@ -6,12 +6,13 @@ import { taskListAPI, stateListAPI, boardMembersListAPI, priorityListAPI, taskUp
 import { VueDraggable } from 'vue-draggable-plus';
 import TaskCard from '@/components/workspaces/boards/kanban/task-card.vue';
 import { handleResponseError } from '@/utils/helpers';
-import { Button, Dropdown, Card, Input, Modal } from 'ant-design-vue';
-import { FilterOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { Button, Dropdown, Card, Input, Modal, AvatarGroup, Avatar } from 'ant-design-vue';
+import { FilterOutlined, PlusOutlined, ReloadOutlined, ShareAltOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import FilterList from '@/components/workspaces/boards/kanban/filters/filter-list.vue';
 import TaskAddForm from '@/components/workspaces/boards/kanban/task-add-form.vue';
 import TaskView from '@/components/workspaces/boards/kanban/detail/task-view.vue';
+import { generateAvatar } from '../../../../utils/helpers';
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
@@ -192,7 +193,19 @@ const closeTaskAddModal = () => {
                 </template>
 
                 <template #actions>
-                    <div class="flex me-2 gap-3">
+                    <div class="flex me-2 gap-3 items-center">
+                        <Button type="text" :icon="h(ShareAltOutlined)">Share</Button>
+                        <Button type="text" :icon="h(ReloadOutlined)">Refresh board</Button>
+                        <Dropdown :trigger="['click']" placement="bottomRight">
+                            <AvatarGroup size="small" :max-count="5">
+                                <Avatar v-for="member in store.members" :key="member.id"
+                                    :src="!!member.avatar ? member.avatar : generateAvatar(member.firstName)" />
+                            </AvatarGroup>
+                            <template #overlay>
+
+                            </template>
+                        </Dropdown>
+
                         <Dropdown :trigger="['click']" v-model:open="openFilterDropdown" placement="bottomRight">
                             <Button :icon="h(FilterOutlined)">Filters</Button>
                             <template #overlay>

@@ -12,6 +12,7 @@ import {
 } from 'ant-design-vue';
 import {
     ShareAltOutlined,
+    TagTwoTone,
 } from '@ant-design/icons-vue';
 import { handleResponseError, generateAvatar } from '@/utils/helpers';
 import { taskDetailAPI, taskUpdateAPI, taskCommentsAPI } from '@/utils/api';
@@ -203,11 +204,6 @@ onMounted(() => {
                             Feature
                         </SelectOption>
                     </Select>
-                </div>
-
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold mb-2">Tags</h3>
-                    
                 </div>
             </div>
         </div>
