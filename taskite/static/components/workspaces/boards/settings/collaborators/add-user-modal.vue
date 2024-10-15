@@ -2,8 +2,8 @@
 import { Avatar, Button, Card, InputSearch } from 'ant-design-vue';
 import { computed, h, ref } from 'vue';
 import { generateAvatar, handleResponseError } from '@/utils/helpers';
-import { boardMembershipsCreateAPI, workspaceMemberSearchAPI } from '@/utils/api';
 import { PlusOutlined } from '@ant-design/icons-vue';
+import { boardPermissionCreateAPI, workspaceMemberSearchAPI } from '@/utils/api';
 
 const props = defineProps(['workspaceId', 'users', 'boardId'])
 const emit = defineEmits(['userAdded'])
@@ -23,14 +23,14 @@ const onSearch = async (value) => {
     }
 }
 
-const createBoardMembership = async (userId) => {
+const createBoardPermission = async (userId) => {
     try {
         const postData = {
-            resourceId: userId,
+            userId: userId,
             role: 'collaborator'
         }
 
-        const { data } = await boardMembershipsCreateAPI(props.boardId, postData, 'user')
+        const { data } = await boardPermissionCreateAPI(props.boardId, postData)
 
         emit('userAdded', data)
     } catch (error) {
@@ -55,7 +55,7 @@ const createBoardMembership = async (userId) => {
             <div>
                 <Button v-if="existingUserIds.includes(member.id)" disabled type="text">Already present</Button>
                 <Button v-else type="text" :icon="h(PlusOutlined)"
-                    @click="createBoardMembership(member.id)">Add</Button>
+                    @click="createBoardPermission(member.id)">Add</Button>
             </div>
         </div>
     </Card>

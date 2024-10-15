@@ -4,7 +4,12 @@ from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 
-from taskite.models import Workspace, WorkspaceMembership, Board, BoardMembership
+from taskite.models import (
+    Workspace,
+    WorkspaceMembership,
+    Board,
+    BoardPermission,
+)
 from taskite.serializers import WorkspaceSerializer, ProfileSerializer, BoardSerializer
 
 
@@ -46,22 +51,8 @@ class BoardsKanbanView(LoginRequiredMixin, View):
         if not board:
             raise Http404
 
-        # Check for board collaborative permission
-        board_permission_queryset = BoardMembership.objects.filter(board=board).filter(
-            Q(
-                user=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
-            | Q(
-                team__members=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
+        board_permission_queryset = BoardPermission.objects.filter(
+            board=board, user=request.user, role__in=["admin", "collaborator"]
         )
         if not board_permission_queryset.exists():
             raise Http404
@@ -70,7 +61,7 @@ class BoardsKanbanView(LoginRequiredMixin, View):
             "props": {
                 "workspace": WorkspaceSerializer(workspace).data,
                 "board": BoardSerializer(board).data,
-                "current_user": ProfileSerializer(request.user).data
+                "current_user": ProfileSerializer(request.user).data,
             }
         }
         return render(request, "workspaces/boards/kanban.html", context)
@@ -93,21 +84,8 @@ class BoardsTableView(LoginRequiredMixin, View):
             raise Http404
 
         # Check for board collaborative permission
-        board_permission_queryset = BoardMembership.objects.filter(board=board).filter(
-            Q(
-                user=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
-            | Q(
-                team__members=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
+        board_permission_queryset = BoardPermission.objects.filter(
+            board=board, user=request.user
         )
         if not board_permission_queryset.exists():
             raise Http404
@@ -138,29 +116,15 @@ class BoardsSettingsGeneralView(LoginRequiredMixin, View):
             raise Http404
 
         # Check for board collaborative permission
-        board_permission_queryset = BoardMembership.objects.filter(board=board).filter(
-            Q(
-                user=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
-            | Q(
-                team__members=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
+        board_permission_queryset = BoardPermission.objects.filter(
+            board=board, user=request.user
         )
         if not board_permission_queryset.exists():
             raise Http404
-        
+
         has_edit_permission = False
-        is_board_admin_queryset = BoardMembership.objects.filter(board=board).filter(
-            Q(user=request.user, role=BoardMembership.Role.ADMIN)
-            | Q(team__members=request.user, role=BoardMembership.Role.ADMIN)
+        is_board_admin_queryset = BoardPermission.objects.filter(
+            board=board, user=request.user, role="admin"
         )
 
         if workspace_membership.role == WorkspaceMembership.Role.ADMIN:
@@ -194,30 +158,15 @@ class BoardsSettingsCollaboratorsView(LoginRequiredMixin, View):
         if not board:
             raise Http404
 
-        # Check for board collaborative permission
-        board_permission_queryset = BoardMembership.objects.filter(board=board).filter(
-            Q(
-                user=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
-            | Q(
-                team__members=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
+        board_permission_queryset = BoardPermission.objects.filter(
+            board=board, user=request.user
         )
         if not board_permission_queryset.exists():
             raise Http404
-        
+
         has_edit_permission = False
-        is_board_admin_queryset = BoardMembership.objects.filter(board=board).filter(
-            Q(user=request.user, role=BoardMembership.Role.ADMIN)
-            | Q(team__members=request.user, role=BoardMembership.Role.ADMIN)
+        is_board_admin_queryset = BoardPermission.objects.filter(
+            board=board, user=request.user, role="admin"
         )
 
         if workspace_membership.role == WorkspaceMembership.Role.ADMIN:
@@ -229,7 +178,7 @@ class BoardsSettingsCollaboratorsView(LoginRequiredMixin, View):
             "props": {
                 "workspace": WorkspaceSerializer(workspace).data,
                 "board": BoardSerializer(board).data,
-                "has_edit_permission": has_edit_permission
+                "has_edit_permission": has_edit_permission,
             }
         }
         return render(request, "workspaces/boards/settings/collaborators.html", context)

@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -6,6 +6,11 @@ from django.utils.text import slugify
 from django.utils import timezone
 
 from taskite.models.base import UUIDTimestampModel
+
+
+class ActiveWorkspaceManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(deleted_at__isnull=True)
 
 
 class Workspace(UUIDTimestampModel):
@@ -19,13 +24,19 @@ class Workspace(UUIDTimestampModel):
         "User", on_delete=models.SET_NULL, null=True, related_name="created_workspaces"
     )
     logo = models.ImageField(blank=True, null=True, upload_to="attachments/")
+    org_size = models.CharField(max_length=20, default="1")
 
     members = models.ManyToManyField(
         "User", through="WorkspaceMembership", related_name="workspaces"
     )
 
+    deleted_at = models.DateTimeField(blank=True, null=True)
+
     class Meta:
         db_table = "workspaces"
+
+    objects = ActiveWorkspaceManager()
+    all_objects = models.Manager()
 
     def __str__(self) -> str:
         return self.name
@@ -35,6 +46,12 @@ class Workspace(UUIDTimestampModel):
             if not self.slug:
                 self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
+
+    @transaction.atomic
+    def soft_delete(self):
+        self.slug = f"{self.slug}-deleted-{get_random_string(12)}"
+        self.deleted_at = timezone.now()
+        self.save(update_fields=["slug", "deleted_at"])
 
 
 class WorkspaceMembership(UUIDTimestampModel):

@@ -1,9 +1,10 @@
 <script setup>
 import WorkspaceSettingsLayout from '@/components/base/workspace-settings-layout.vue';
-import { CloseOutlined, DeleteOutlined, LogoutOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons-vue';
+import { CloseOutlined, DeleteOutlined, LogoutOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import { Form, FormItem, Input, Textarea, Button, Divider, Collapse, CollapsePanel, Modal, Upload, Avatar, message } from 'ant-design-vue';
 import { computed, h, ref } from 'vue';
 import LeaveConfirmationModal from '@/components/workspaces/settings/general/leave-confirmation-modal.vue';
+import DeleteConfirmationModal from '@/components/workspaces/settings/general/delete-confirmation-modal.vue';
 import { workspaceUpdateAPI } from '@/utils/api';
 import { uploadRequestHandler } from '@/utils/helpers';
 import { generateAvatar, handleResponseError } from '@/utils/helpers';
@@ -34,6 +35,11 @@ const isAdmin = computed(() => {
 const openLeaveConfirmationModal = ref(false)
 const showLeaveConfirmationModal = () => {
     openLeaveConfirmationModal.value = true
+}
+
+const openDeleteConfirmationModal = ref(false)
+const showDeleteConfirmationModal = () => {
+    openDeleteConfirmationModal.value = true
 }
 
 const handleLogoUpload = async (options) => {
@@ -108,7 +114,8 @@ const removeLogo = () => {
                         associated data, boards, and pages. Members will lose access immediately, and the workspace
                         cannot be recovered. If you are certain of this decision, please confirm before proceeding.
                     </div>
-                    <Button danger class="mt-2" :icon="h(DeleteOutlined)" type="primary">Delete workspace</Button>
+                    <Button danger class="mt-2" :icon="h(DeleteOutlined)" type="primary"
+                        @click="showDeleteConfirmationModal">Delete workspace</Button>
                 </CollapsePanel>
             </Collapse>
         </div>
@@ -116,6 +123,14 @@ const removeLogo = () => {
 
     <Modal v-model:open="openLeaveConfirmationModal" title="Leave confirmation" centered>
         <LeaveConfirmationModal :workspaceSlug="props.workspace.slug" />
+
+        <template #footer>
+            <!-- <Button @click="openLeaveConfirmationModal = false">Cancel</Button> -->
+        </template>
+    </Modal>
+
+    <Modal v-model:open="openDeleteConfirmationModal" title="Delete confirmation" centered>
+        <DeleteConfirmationModal :workspaceSlug="props.workspace.slug" />
 
         <template #footer>
             <!-- <Button @click="openLeaveConfirmationModal = false">Cancel</Button> -->

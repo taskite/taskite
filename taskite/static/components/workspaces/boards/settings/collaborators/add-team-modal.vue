@@ -1,10 +1,9 @@
 <script setup>
 import { Avatar, Button, Card, InputSearch } from 'ant-design-vue';
 import { computed, h, ref } from 'vue';
-import { generateAvatar } from '@/utils/helpers';
-import { boardMembershipsCreateAPI, workspaceTeamSearchAPI } from '@/utils/api';
+import { generateAvatar, handleResponseError } from '@/utils/helpers';
+import { boardTeamPermissionCreateAPI, workspaceTeamSearchAPI } from '@/utils/api';
 import { PlusOutlined } from '@ant-design/icons-vue';
-import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspaceId', 'teams', 'boardId'])
 const emit = defineEmits(['teamAdded'])
@@ -24,14 +23,14 @@ const onSearch = async (value) => {
     }
 }
 
-const createBoardMembership = async (teamId) => {
+const createBoardTeamPermission = async (teamId) => {
     try {
         const postData = {
-            resourceId: teamId,
+            teamId: teamId,
             role: 'collaborator'
         }
 
-        const { data } = await boardMembershipsCreateAPI(props.boardId, postData, 'team')
+        const { data } = await boardTeamPermissionCreateAPI(props.boardId, postData)
 
         emit('teamAdded', data)
     } catch (error) {
@@ -53,7 +52,7 @@ const createBoardMembership = async (teamId) => {
             <div>
                 <Button v-if="existingTeamIds.includes(member.id)" disabled type="text">Already present</Button>
                 <Button v-else type="text" :icon="h(PlusOutlined)"
-                    @click="createBoardMembership(member.id)">Add</Button>
+                    @click="createBoardTeamPermission(member.id)">Add</Button>
             </div>
         </div>
     </Card>

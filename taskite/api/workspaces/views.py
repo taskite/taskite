@@ -6,13 +6,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from taskite.models.workspace import Workspace, WorkspaceMembership
+from taskite.models import Workspace, WorkspaceMembership
 from taskite.api.workspaces.serializers import (
     WorkspaceSerializer,
     WorkspaceMembershipSerializer,
     MemberSerializer,
     WorkspaceCreateSerializer,
-    WorkspaceUpdateSerializer
+    WorkspaceUpdateSerializer,
 )
 from taskite.exceptions import WorkspaceNotFoundException, InvalidInputException
 
@@ -33,7 +33,6 @@ class WorkspaceViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        # time.sleep(3)
         workspaces = Workspace.objects.filter(memberships__user=request.user)
         serializer = WorkspaceSerializer(workspaces, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -47,18 +46,18 @@ class WorkspaceViewSet(ViewSet):
 
         serializer = WorkspaceSerializer(workspace)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-    
+
     def partial_update(self, request, *args, **kwargs):
         workspace = Workspace.objects.filter(
             memberships__user=request.user, id=kwargs.get("pk")
         ).first()
         if not workspace:
             raise WorkspaceNotFoundException
-        
+
         update_serializer = WorkspaceUpdateSerializer(data=request.data)
         if not update_serializer.is_valid():
             raise InvalidInputException
-        
+
         data = update_serializer.validated_data
         for key, value in data.items():
             setattr(workspace, key, value)
@@ -66,7 +65,6 @@ class WorkspaceViewSet(ViewSet):
         workspace.save(update_fields=data.keys())
         serializer = WorkspaceSerializer(workspace)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
 
     @action(methods=["GET"], detail=False)
     def memberships(self, request, *args, **kwargs):

@@ -48,7 +48,7 @@ export const handleResponseError = (error) => {
   let errorMessage = 'An unexpected error occurred. Please try again.'
 
   if (error.response && error.response.data) {
-    if (error.response.data.detail) {
+    if (error.response.data?.detail) {
       errorMessage = error.response.data.detail
     } else if (typeof error.response.data === 'string') {
       errorMessage = error.response.data
@@ -57,4 +57,15 @@ export const handleResponseError = (error) => {
 
   message.error(errorMessage)
   return errorMessage
+}
+
+export const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/^-+/, '') // Trim - from start of text
+    .replace(/-+$/, '') // Trim - from end of text
 }

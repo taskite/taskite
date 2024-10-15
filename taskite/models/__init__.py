@@ -1,7 +1,7 @@
 from .base import UUIDTimestampModel, UUIDModel
 from .user import User
 from .workspace import Workspace, WorkspaceMembership, WorkspaceInvite
-from .board import Board, BoardMembership
+from .board import Board, BoardTeamPermission, BoardPermission
 from .state import State
 from .priority import Priority
 from .task import Task, TaskAssignee, TaskComment, TaskLabel

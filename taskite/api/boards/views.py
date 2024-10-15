@@ -9,18 +9,19 @@ from rest_framework.decorators import action
 from taskite.models import (
     Board,
     Workspace,
-    BoardMembership,
+    BoardPermission,
     WorkspaceMembership,
     User,
     Task,
+    BoardPermission,
 )
 from taskite.api.boards.serializers import (
     BoardSerializer,
-    BoardMembershipSerializer,
     BoardCreateSerializer,
     BoardMemberSeralizer,
     BoardDetailSerializer,
     BoardUpdateSerializer,
+    TaskSerializer,
 )
 from taskite.exceptions import (
     InvalidInputException,
@@ -65,9 +66,9 @@ class BoardViewSet(ViewSet):
             raise WorkspaceInvalidPermission
 
         if workspace_membership.role == WorkspaceMembership.Role.COLLABORATOR:
-            board_membership_queryset = BoardMembership.objects.filter(
-                board=board
-            ).filter(Q(user=user) | Q(team__members=user))
+            board_membership_queryset = BoardPermission.objects.filter(
+                user=user, board=board
+            )
             if not board_membership_queryset.exists():
                 raise BoardInvalidPermission
 
@@ -78,10 +79,10 @@ class BoardViewSet(ViewSet):
             raise WorkspaceInvalidPermission
 
         if workspace_membership.role == WorkspaceMembership.Role.COLLABORATOR:
-            board_admin_membership_queryset = BoardMembership.objects.filter(
-                board=board, role=BoardMembership.Role.ADMIN
-            ).filter(Q(user=user) | Q(team__members=user))
-            if not board_admin_membership_queryset.exists():
+            board_admin_permission_queryset = BoardPermission.objects.filter(
+                user=user, board=board, role="admin"
+            )
+            if not board_admin_permission_queryset.exists():
                 raise BoardInvalidPermission
 
     def create(self, request, *args, **kwargs):
@@ -96,8 +97,8 @@ class BoardViewSet(ViewSet):
         if not workspace:
             raise WorkspaceNotFoundException
 
-        # Check for workspace membership permission
-        self.check_for_workspace_admin_membership(request.user, workspace)
+        # # Check for workspace membership permission
+        # self.check_for_workspace_admin_membership(request.user, workspace)
 
         board = Board(**data)
         board.workspace = workspace
@@ -127,10 +128,7 @@ class BoardViewSet(ViewSet):
         else:
             boards = (
                 Board.objects.filter(workspace=workspace)
-                .filter(
-                    Q(memberships__user=request.user)
-                    | Q(memberships__team__memberships__user=request.user)
-                )
+                .filter(permissions__user=request.user)
                 .distinct()
             )
         serializer = BoardSerializer(boards, many=True)
@@ -178,29 +176,6 @@ class BoardViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=["GET"], detail=True)
-    def membership(self, request, *args, **kwargs):
-        board = Board.objects.filter(id=kwargs.get("pk")).first()
-        if not board:
-            raise BoardNotFoundException
-
-        # Check for workspace permission
-        workspace = board.workspace
-        workspace_membership = WorkspaceMembership.objects.filter(
-            user=request.user, workspace=workspace
-        ).first()
-        if not workspace_membership:
-            raise WorkspaceInvalidPermission
-
-        board_membership = BoardMembership.objects.filter(
-            board=board, user=request.user
-        ).first()
-        if not board_membership:
-            raise BoardInvalidPermission
-
-        serializer = BoardMembershipSerializer(board_membership)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    @action(methods=["GET"], detail=True)
     def members(self, request, *args, **kwargs):
         board = Board.objects.filter(id=kwargs.get("pk")).first()
         if not board:
@@ -208,9 +183,63 @@ class BoardViewSet(ViewSet):
 
         self.check_for_board_permission(request.user, board)
 
-        members = User.objects.filter(
-            Q(boards=board) | Q(teams__boards=board)
-        ).distinct().order_by("first_name")
+        members = (
+            User.objects.filter(user_board_permissions__board=board)
+            .distinct()
+            .order_by("first_name")
+        )
 
         serializer = BoardMemberSeralizer(members, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=["GET"], detail=False)
+    def stats(self, request, *args, **kwargs):
+        workspace_id = request.query_params.get("workspace_id")
+        if not workspace_id:
+            raise InvalidInputException
+
+        workspace = Workspace.objects.filter(id=workspace_id).first()
+        if not workspace:
+            raise WorkspaceNotFoundException
+
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=request.user
+        ).first()
+        if not workspace_membership:
+            raise WorkspaceInvalidPermission
+
+        if workspace_membership.role == WorkspaceMembership.Role.ADMIN:
+            boards = Board.objects.filter(workspace=workspace)
+        else:
+            boards = (
+                Board.objects.filter(workspace=workspace)
+                .filter(permissions__user=request.user)
+                .distinct()
+            )
+
+        created_tasks_count = Task.objects.filter(
+            board__in=boards, created_by=request.user
+        ).count()
+
+        assigned_tasks_count = Task.objects.filter(
+            board__in=boards, task_assignees__user=request.user
+        ).count()
+
+        recent_tasks_created = Task.objects.filter(
+            board__in=boards, created_by=request.user
+        ).select_related("board")[:5]
+        recent_tasks_assigned = Task.objects.filter(
+            board__in=boards, task_assignees__user=request.user
+        ).select_related("board")[:5]
+
+        data = {
+            "created_tasks_count": created_tasks_count,
+            "assigned_tasks_count": assigned_tasks_count,
+            "recent_tasks_created": TaskSerializer(
+                recent_tasks_created, many=True
+            ).data,
+            "recent_tasks_assigned": TaskSerializer(
+                recent_tasks_assigned, many=True
+            ).data,
+        }
+        return Response(data=data, status=status.HTTP_200_OK)

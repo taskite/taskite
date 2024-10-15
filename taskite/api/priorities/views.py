@@ -4,14 +4,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from taskite.models.priority import Priority
-from taskite.permissions import BoardPermission
 from taskite.mixins import BoardMixin
 from taskite.api.priorities.serializers import PrioritySerializer
 from taskite.permissions import BoardCollaboratorPermission, BoardAdminPermission
 
 
 class PrioritiesViewSet(BoardMixin, ViewSet):
-    permission_classes = [IsAuthenticated, BoardPermission]
+    permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
         if self.action == 'list':

@@ -24,11 +24,8 @@ class Board(UUIDTimestampModel):
 
     users = models.ManyToManyField(
         "User",
-        through="BoardMembership",
+        through="BoardPermission",
         related_name="boards",
-    )
-    teams = models.ManyToManyField(
-        "Team", through="BoardMembership", related_name="boards"
     )
 
     def __str__(self) -> str:
@@ -49,7 +46,7 @@ class Board(UUIDTimestampModel):
         if self._state.adding:
             if not self.slug:
                 self.slug = slugify(self.name)
-                
+
             # Generate task prefix if not given
             if not self.task_prefix:
                 self.task_prefix = self.generate_acronym(self.name)
@@ -67,39 +64,80 @@ class Board(UUIDTimestampModel):
             return "".join(word[0].upper() for word in words[:2])
 
 
-class BoardMembership(UUIDTimestampModel):
-    class Role(models.TextChoices):
-        ADMIN = ("admin", "Admin")
-        COLLABORATOR = ("collaborator", "Collaborator")
+class BoardTeamPermission(UUIDTimestampModel):
+    ROLE_CHOICES = [("admin", "Admin"), ("collaborator", "Collaborator")]
 
     board = models.ForeignKey(
-        "Board", on_delete=models.CASCADE, related_name="memberships"
-    )
-    user = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="board_memberships",
-        blank=True,
-        null=True,
+        "Board", on_delete=models.CASCADE, related_name="team_memberships"
     )
     team = models.ForeignKey(
-        "Team",
+        "Team", on_delete=models.CASCADE, related_name="team_board_team_memberships"
+    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="collaborator")
+
+    class Meta:
+        db_table = "board_team_permissions"
+
+    def __str__(self) -> str:
+        return str(self.id)
+
+
+class BoardPermission(UUIDTimestampModel):
+    class UserBoardPermissionManager(models.Manager):
+        def get_queryset(self):
+            return (
+                super()
+                .get_queryset()
+                .filter(team_permission__isnull=True, team_membership__isnull=True)
+                .filter(workspace_membership__isnull=False)
+            )
+
+    class TeamBoardPermissionManager(models.Manager):
+        def get_queryset(self):
+            return (
+                super()
+                .get_queryset()
+                .filter(workspace_membership__isnull=True)
+                .filter(team_permission__isnull=False, team_membership__isnull=False)
+            )
+
+    ROLE_CHOICES = [("admin", "Admin"), ("collaborator", "Collaborator")]
+
+    board = models.ForeignKey(
+        "Board", on_delete=models.CASCADE, related_name="permissions"
+    )
+    user = models.ForeignKey(
+        "User", on_delete=models.CASCADE, related_name="user_board_permissions"
+    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="collaborator")
+    team_permission = models.ForeignKey(
+        "BoardTeamPermission",
+        related_name="+",
         on_delete=models.CASCADE,
-        related_name="team_board_memberships",
         blank=True,
         null=True,
     )
-    role = models.CharField(
-        max_length=20, choices=Role.choices, default=Role.COLLABORATOR
+    workspace_membership = models.ForeignKey(
+        "WorkspaceMembership",
+        related_name="+",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    team_membership = models.ForeignKey(
+        "TeamMembership",
+        related_name="+",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
 
     class Meta:
-        db_table = "board_memberships"
-        constraints = [
-            # models.UniqueConstraint(
-            #     fields=["board", "user"], name="unique_member_per_board"
-            # )
-        ]
+        db_table = "board_permissions"
 
-    def __str__(self) -> str:
+    objects = models.Manager()
+    user_objects = UserBoardPermissionManager()
+    team_objects = TeamBoardPermissionManager()
+
+    def __str__(self):
         return str(self.id)

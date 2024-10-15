@@ -7,7 +7,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import TaskCard from '@/components/workspaces/boards/kanban/task-card.vue';
 import { handleResponseError } from '@/utils/helpers';
 import { Button, Dropdown, Card, Input, Modal, AvatarGroup, Avatar } from 'ant-design-vue';
-import { FilterOutlined, PlusOutlined, ReloadOutlined, ShareAltOutlined } from '@ant-design/icons-vue';
+import { FilterOutlined, GroupOutlined, PlusOutlined, ReloadOutlined, ShareAltOutlined, UnorderedListOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import FilterList from '@/components/workspaces/boards/kanban/filters/filter-list.vue';
 import TaskAddForm from '@/components/workspaces/boards/kanban/task-add-form.vue';
@@ -168,12 +168,16 @@ const closeTaskAddModal = () => {
                                 class="column p-1 rounded-lg w-80 flex-shrink-0">
                                 <div class="font-semibold mb-2">{{ state.name }}</div>
                                 <div class="task-list">
-                                    <VueDraggable class="flex flex-col space-y-1" v-model="state.tasks" group="states"
+                                    <VueDraggable class="flex flex-col space-y-2" v-model="state.tasks" group="states"
                                         @update="(event) => updateTaskSequence(event, state.id)"
                                         @add="(event) => updateTaskSequence(event, state.id)">
-                                        <div v-for="task in state.tasks" :key="task.id"
+                                        <div v-for="task in state.tasks" :key="task.id" class="cursor-pointer"
                                             @click="showTaskAddModal(task.id)">
-                                            <TaskCard :task="task" :boardId="props.board.id" />
+                                            <Card size="small"
+                                                class="rounded hover:border-1 hover:border-primary transition duration-300"
+                                                :class="{ 'border-1 border-primary': selectedTask === task.id }">
+                                                <TaskCard :task="task" :boardId="props.board.id" />
+                                            </Card>
                                         </div>
                                     </VueDraggable>
                                 </div>
@@ -186,7 +190,9 @@ const closeTaskAddModal = () => {
                                     </div>
                                 </Card>
 
-                                <span class="text-sm mt-1" @click="activateAddCard(state.id)">+ Add Task</span>
+                                <div class="mt-2">
+                                    <span class="text-sm" @click="activateAddCard(state.id)">+ Add Task</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -194,7 +200,6 @@ const closeTaskAddModal = () => {
 
                 <template #actions>
                     <div class="flex me-2 gap-3 items-center">
-                        <Button type="text" :icon="h(ShareAltOutlined)">Share</Button>
                         <Button type="text" :icon="h(ReloadOutlined)">Refresh board</Button>
                         <Dropdown :trigger="['click']" placement="bottomRight">
                             <AvatarGroup size="small" :max-count="5">
@@ -205,6 +210,8 @@ const closeTaskAddModal = () => {
 
                             </template>
                         </Dropdown>
+
+                        <Button type="text" :icon="h(UnorderedListOutlined)">Group by</Button>
 
                         <Dropdown :trigger="['click']" v-model:open="openFilterDropdown" placement="bottomRight">
                             <Button :icon="h(FilterOutlined)">Filters</Button>
@@ -223,7 +230,7 @@ const closeTaskAddModal = () => {
                 </template>
             </BoardLayout>
 
-            <Modal centered v-model:open="openTaskAddModal" destroyOnClose style="width: 1000px;">
+            <Modal centered v-model:open="openTaskAddModal" destroyOnClose style="width: 1000px;" :afterClose="closeTaskAddModal">
                 <TaskView :board="props.board" :workspace="props.workspace" :taskId="selectedTask" />
                 <template #footer>
                 </template>

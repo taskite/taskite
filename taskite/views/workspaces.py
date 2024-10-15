@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import transaction
 from django.contrib.auth import login
+from django.conf import settings
 
 from taskite.models import WorkspaceMembership, Workspace, Team, WorkspaceInvite, User
 from taskite.serializers import WorkspaceSerializer, ProfileSerializer, TeamSerializer
@@ -13,7 +14,12 @@ from taskite.serializers import WorkspaceSerializer, ProfileSerializer, TeamSeri
 
 class WorkspaceCreateView(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, "workspaces/create.html")
+        context = {
+            "props": {
+                "base_url": settings.BASE_URL
+            }
+        }
+        return render(request, "workspaces/create.html", context)
     
 
 class WorkspaceIndexView(LoginRequiredMixin, View):
@@ -22,7 +28,7 @@ class WorkspaceIndexView(LoginRequiredMixin, View):
             # Redirect them to email verification page
             return redirect("accounts-verify")
 
-        if request.user.current_workspace:
+        if request.user.current_workspace and request.user.current_workspace.deleted_at == None:
             return redirect(
                 "workspaces-dashboard",
                 workspace_slug=request.user.current_workspace.slug,
@@ -233,4 +239,24 @@ class WorkspaceLeaveView(LoginRequiredMixin, View):
             return redirect("workspaces-dashboard", workspace_slug=workspace.slug)
 
         workspace_membership.delete()
-        return redirect("home-index")
+        return redirect("workspace-index")
+
+
+class WorkspaceDeleteView(LoginRequiredMixin, View):
+    def get(self, request, workspace_slug):
+        workspace = Workspace.objects.filter(slug=workspace_slug).first()
+        if not workspace:
+            raise Http404
+        
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=request.user, role=WorkspaceMembership.Role.ADMIN
+        ).first()
+        if not workspace_membership:
+            raise Http404
+        
+        # Mark the workspace as deleted.
+        workspace.soft_delete()
+
+        # Remove current workspace from all users
+        User.objects.filter(current_workspace=workspace).update(current_workspace=None)
+        return redirect("workspace-index")

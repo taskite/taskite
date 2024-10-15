@@ -68,12 +68,6 @@ class UserNotFoundException(APIException):
     default_code = "no_user_found"
 
 
-class BoardMembershipNotFoundException(APIException):
-    status_code = HTTP_400_BAD_REQUEST
-    default_detail = "No board membership found."
-    default_code = "no_board_membership_found"
-
-
 class TaskNotFoundException(APIException):
     status_code = HTTP_404_NOT_FOUND
     default_detail = "No task found with the given task ID."
@@ -90,3 +84,15 @@ class PriorityNotFoundException(APIException):
     status_code = HTTP_404_NOT_FOUND
     default_detail = "No priority found with the given priority ID."
     default_code = "no_priority_found"
+
+
+class BoardPermissionNotFoundException(APIException):
+    status_code = HTTP_404_NOT_FOUND
+    default_detail = "No board permission found with the given permission ID."
+    default_code = "no_board_permission_found"
+
+
+class BoardTeamPermissionNotFoundException(APIException):
+    status_code = HTTP_404_NOT_FOUND
+    default_detail = "No board team permission found with the given permission ID."
+    default_code = "no_board_team_permission_found"

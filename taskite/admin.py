@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from taskite.models import (
     User,
     Board,
-    BoardMembership,
     State,
     Task,
     TaskAssignee,
@@ -24,6 +23,8 @@ from taskite.models import (
     TaskComment,
     TaskLabel,
     Label,
+    BoardPermission,
+    BoardTeamPermission,
 )
 
 
@@ -131,16 +132,21 @@ class WorkspaceAdmin(admin.ModelAdmin):
     inlines = [WorkspaceMembershipAdmin, WorkspaceInviteInlineAdmin]
 
 
-class BoardMembershipAdmin(admin.StackedInline):
-    model = BoardMembership
-    extra = 1
+class BoardPermissionInlineAdmin(admin.StackedInline):
+    model = BoardPermission
+    extra = 0
+
+
+class BoardTeamPermissionInlineAdmin(admin.StackedInline):
+    model = BoardTeamPermission
+    extra = 0
 
 
 @admin.register(Board)
 class BoardAdmin(admin.ModelAdmin):
     list_display = ["name", "created_by"]
     raw_id_fields = ["created_by"]
-    inlines = [BoardMembershipAdmin]
+    inlines = [BoardTeamPermissionInlineAdmin, BoardPermissionInlineAdmin]
 
 
 class TeamMembershipInline(admin.StackedInline):

@@ -31,17 +31,9 @@ export const taskDetailAPI = (boardId, taskId) =>
 export const priorityListAPI = (boardId) =>
   client.get(`/boards/${boardId}/priorities`)
 
-export const boardMembershipsAPI = (boardId) =>
-  client.get(`/boards/${boardId}/memberships`)
-export const boardMembershipsCreateAPI = (boardId, data, membershipType) =>
-  client.post(`/boards/${boardId}/memberships`, data, {
+export const boardStatsAPI = (workspaceId) =>
+  client.get(`/boards/stats`, {
     params: {
-      membershipType,
+      workspaceId,
     },
   })
-
-export const boardMembershipsDeleteAPI = (boardId, membershipId) =>
-  client.delete(`/boards/${boardId}/memberships/${membershipId}`)
-
-export const boardMembershipsUpdateAPI = (boardId, membershipId, updateData) =>
-  client.patch(`/boards/${boardId}/memberships/${membershipId}`, updateData)

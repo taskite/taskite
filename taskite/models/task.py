@@ -1,4 +1,5 @@
-from django.db import models
+from django.db import models, transaction
+from django.utils import timezone
 
 from taskite.models.base import UUIDTimestampModel
 
@@ -9,6 +10,14 @@ class Task(UUIDTimestampModel):
         FEATURE = ("feature", "Feature")
         STORY = ("story", "Story")
         BUG = ("bug", "Bug")
+
+    class ActiveTaskManager(models.Manager):
+        def get_queryset(self):
+            return super().get_queryset().filter(archived_at__isnull=True)
+
+    class ArchivedTaskManager(models.Manager):
+        def get_queryset(self):
+            return super().get_queryset().filter(archived_at__isnull=False)
 
     board = models.ForeignKey(
         "Board", on_delete=models.CASCADE, related_name="board_tasks"
@@ -61,6 +70,10 @@ class Task(UUIDTimestampModel):
         ]
         ordering = ("sequence",)
 
+    objects = ActiveTaskManager()
+    archived_objects = ArchivedTaskManager()
+    all_objects = models.Manager()
+
     def __str__(self):
         return self.name
 
@@ -87,6 +100,11 @@ class Task(UUIDTimestampModel):
                 update_fields=["task_number_counter", "task_prefix", "tasks_count"]
             )
         return super().save(*args, **kwargs)
+
+    @transaction.atomic
+    def archive(self):
+        self.archived_at = timezone.now()
+        self.save(update_fields=["archived_at"])
 
 
 class TaskAssignee(UUIDTimestampModel):

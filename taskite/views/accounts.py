@@ -57,7 +57,7 @@ class VerifyConfirmView(View):
         
         user.verify_confirm()
         login(request, user)
-        return redirect("home-index")
+        return redirect("workspace-index")
     
 
 class ProfileView(LoginRequiredMixin, View):

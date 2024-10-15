@@ -1,7 +1,9 @@
-from django.db.models import Q
 from rest_framework import permissions
 
-from taskite.models import WorkspaceMembership, BoardMembership, Workspace
+from taskite.models import (
+    WorkspaceMembership,
+    BoardPermission,
+)
 
 
 class BoardCollaboratorPermission(permissions.BasePermission):
@@ -22,23 +24,8 @@ class BoardCollaboratorPermission(permissions.BasePermission):
             return True
 
         # Check for board collaborative permission
-        board_permission_queryset = BoardMembership.objects.filter(
-            board=request.board
-        ).filter(
-            Q(
-                user=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
-            | Q(
-                team__members=request.user,
-                role__in=[
-                    BoardMembership.Role.ADMIN,
-                    BoardMembership.Role.COLLABORATOR,
-                ],
-            )
+        board_permission_queryset = BoardPermission.objects.filter(
+            board=request.board, user=request.user, role__in=["admin", "collaborator"]
         )
         return board_permission_queryset.exists()
 
@@ -61,10 +48,7 @@ class BoardAdminPermission(permissions.BasePermission):
             return True
 
         # Check for board collaborative permission
-        board_permission_queryset = BoardMembership.objects.filter(
-            board=request.board
-        ).filter(
-            Q(user=request.user, role=BoardMembership.Role.ADMIN)
-            | Q(team__members=request.user, role=BoardMembership.Role.ADMIN)
+        board_permission_queryset = BoardPermission.objects.filter(
+            board=request.board, user=request.user, role="admin"
         )
         return board_permission_queryset.exists()

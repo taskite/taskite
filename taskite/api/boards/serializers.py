@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
 from taskite.mixins import NameAndSourceSerializerMixin
-from taskite.models.board import Board, BoardMembership
-from taskite.models.user import User
+from taskite.models import User, Board, Task
 
 
 class BoardCreateSerializer(serializers.Serializer):
@@ -41,12 +40,6 @@ class BoardUpdateSerializer(serializers.Serializer):
     )
 
 
-class BoardMembershipSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BoardMembership
-        fields = ["id", "board_id", "role", "created_at"]
-
-
 class BoardMemberSeralizer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -57,4 +50,20 @@ class BoardMemberSeralizer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "avatar",
+        ]
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    board = BoardSerializer()
+
+    class Meta:
+        model = Task
+        fields = [
+            "id",
+            "name",
+            "board_id",
+            "board",
+            "task_type",
+            "summary",
+            "created_at"
         ]

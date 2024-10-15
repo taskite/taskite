@@ -9,11 +9,12 @@ from taskite.api.priorities.views import PrioritiesViewSet
 from taskite.api.workspace_memberships.views import WorkspaceMembershipsViewset
 from taskite.api.teams.views import TeamsViewSet
 from taskite.api.workspace_invites.views import WorkspaceInvitesViewSet
-from taskite.api.board_memberships.views import BoardMembershipsViewset
 from taskite.api.team_memberships.views import TeamMembershipsViewSet
 from taskite.api.uploads.views import UploadsViewSet
 from taskite.api.task_comments.views import TaskCommentsViewSet
 from taskite.api.labels.views import LabelsViewSet
+from taskite.api.board_permissions.views import BoardPermissionsViewSet
+from taskite.api.board_team_permissions.views import BoardTeamPermissionsViewSet
 
 router = SimpleRouter(trailing_slash=False, use_regex_path=False)
 
@@ -35,9 +36,10 @@ router.register("workspaces", WorkspaceViewSet, basename="workspace")
 router.register("boards", BoardViewSet, basename="board")
 router.register("boards/<uuid:board_id>/states", StatesViewSet, basename="state")
 router.register("boards/<uuid:board_id>/tasks", TasksViewSet, basename="task")
-router.register("boards/<uuid:board_id>/tasks/<uuid:task_id>/comments", TaskCommentsViewSet, basename="task_comment")
+router.register("boards/<uuid:board_id>/tasks/<uuid:task_id>/comments", TaskCommentsViewSet, basename="task-comment")
 router.register("boards/<uuid:board_id>/priorities", PrioritiesViewSet, basename="priority")
-router.register("boards/<uuid:board_id>/memberships", BoardMembershipsViewset, basename="board-membership")
 router.register("boards/<uuid:board_id>/labels", LabelsViewSet, basename="label")
+router.register("boards/<uuid:board_id>/permissions", BoardPermissionsViewSet, basename="board-permission")
+router.register("boards/<uuid:board_id>/team_permissions", BoardTeamPermissionsViewSet, basename="board-team-permission")
 
 urlpatterns = router.urls
