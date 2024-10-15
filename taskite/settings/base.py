@@ -70,6 +70,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "taskite.context_processors.global_settings"
             ],
         },
     },
@@ -139,3 +140,6 @@ AUTH_USER_MODEL = "taskite.User"
 DEFAULT_SUPPORT_EMAIL = os.environ.get("DEFAULT_SUPPORT_EMAIL")
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 DEFAULT_ADMIN_EMAIL = os.environ.get("DEFAULT_ADMIN_EMAIL")
+
+# Google Analytics
+GA_ID = os.environ.get("GA_ID", None)
