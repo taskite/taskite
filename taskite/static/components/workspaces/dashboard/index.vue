@@ -26,27 +26,20 @@ const updateDateTime = () => {
     currentDateTime.value = new Date()
 }
 
-const stats = ref(null)
+const stats = ref({
+    assignedTasksCount: 0,
+    createdTasksCount: 0,
+    recentTasksAssigned: [],
+    recentTasksCreated: []
+})
 const loadStats = async () => {
     try {
         const { data } = await boardStatsAPI(props.workspace.id)
-        stats.value = {
-            ...data,
-            recentTasksAssigned: data.recentTasksAssigned.map(t => {
-                return {
-                    ...t,
-                    key: t.id
-                }
-            }),
-            recentTasksCreated: data.recentTasksCreated.map(t => {
-                return {
-                    ...t,
-                    key: t.id
-                }
-            })
-        }
+        stats.value.assignedTasksCount = data.assignedTasksCount
+        stats.value.createdTasksCount = data.createdTasksCount
 
-        console.log(stats.value)
+        stats.value.recentTasksAssigned = data.recentTasksAssigned.map(item => ({ ...item, key: item.id }))
+        stats.value.recentTasksCreated = data.recentTasksCreated.map(item => ({ ...item, key: item.id }))
     } catch (error) {
         handleResponseError(error)
     }
@@ -59,17 +52,6 @@ onMounted(() => {
 
     loadStats()
 })
-
-const columns = [
-    {
-        name: 'Name',
-        key: 'name'
-    },
-    {
-        name: 'Summary',
-        key: 'summary'
-    }
-]
 </script>
 
 <template>
@@ -87,16 +69,16 @@ const columns = [
                     </div>
                 </div>
             </div>
-            
+
             <div class="grid grid-cols-2 mt-5 gap-5" v-if="!!stats">
                 <Card>
-                    <Statistic title="Tasks created" :value="stats.assignedTasksCount" />
+                    <Statistic title="Tasks assigned" :value="stats.assignedTasksCount" />
                     <div>Recently assigned tasks</div>
                     <TaskList :tasks="stats.recentTasksAssigned" />
                 </Card>
 
                 <Card>
-                    <Statistic title="Tasks assigned" :value="stats.createdTasksCount" />
+                    <Statistic title="Tasks created" :value="stats.createdTasksCount" />
                     <div>Recently created tasks</div>
                     <TaskList :tasks="stats.recentTasksCreated" />
                 </Card>

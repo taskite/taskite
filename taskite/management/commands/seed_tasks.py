@@ -27,7 +27,7 @@ class Command(BaseCommand):
             priorities = board.priorities.all()
             states = board.states.all()
             members = (
-                User.objects.filter(Q(boards=board) | Q(teams__boards=board))
+                User.objects.filter(user_board_permissions__board=board)
                 .distinct()
                 .order_by("first_name")
             )
@@ -47,14 +47,14 @@ class Command(BaseCommand):
                 )
 
                 self.stdout.write(
-                    self.style.SUCCESS(
-                        f"Task {task.name} created successfully."
-                    )
+                    self.style.SUCCESS(f"Task {task.name} created successfully.")
                 )
                 try:
                     random_assignee_number = random.randint(2, 6)
                     for _ in range(random_assignee_number):
-                        TaskAssignee.objects.create(task=task, user=random.choice(members))
+                        TaskAssignee.objects.create(
+                            task=task, user=random.choice(members)
+                        )
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(e))
 
@@ -67,8 +67,9 @@ class Command(BaseCommand):
 
                 random_comment_number = random.randint(2, 10)
                 for _ in range(random_comment_number):
-                    TaskComment.objects.create(task=task, content=fake.text(), author=random.choice(members))
-
+                    TaskComment.objects.create(
+                        task=task, content=fake.text(), author=random.choice(members)
+                    )
 
         except Board.DoesNotExist:
             self.stdout.write(
