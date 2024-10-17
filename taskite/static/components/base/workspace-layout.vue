@@ -16,7 +16,7 @@ const changePage = (event) => {
     if (event.key === 'dashboard') {
         window.location.href = `/w/${props.workspace.slug}/`
     } else if (event.key === 'boards') {
-        window.location.href = `/w/${props.workspace.slug}/b`
+        window.location.href = `/w/${props.workspace.slug}/boards`
     } else {
         window.location.href = `/w/${props.workspace.slug}/${event.key}/`
     }

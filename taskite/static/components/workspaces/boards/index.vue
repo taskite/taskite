@@ -1,6 +1,6 @@
 <script setup>
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
-import { Card, message, Button, Modal } from 'ant-design-vue';
+import { Card, Button, Modal } from 'ant-design-vue';
 import { ref, onMounted, h } from 'vue';
 import { boardListAPI } from '@/utils/api';
 import dayjs from 'dayjs';
@@ -11,7 +11,6 @@ import { handleResponseError } from '@/utils/helpers';
 const props = defineProps(['workspace', 'currentUser'])
 
 const boards = ref([])
-const error = ref('')
 const fetchBoards = async () => {
     try {
         const { data } = await boardListAPI(props.workspace.id)
@@ -23,7 +22,7 @@ const fetchBoards = async () => {
 }
 
 const redirectToBoard = (board) => {
-    window.location.href = `/w/${props.workspace.slug}/b/${board.slug}/`
+    window.location.href = `/b/${board.slug}/`
 }
 
 const openNewBoardModal = ref(false)

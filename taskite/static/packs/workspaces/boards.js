@@ -3,10 +3,9 @@ import camelcaseKeys from 'camelcase-keys';
 import 'ant-design-vue/dist/reset.css'
 import '@/assets/base.css'
 
-
-import BoardSettingGeneralApp from '@/components/workspaces/boards/settings/general/index.vue'
+import WorkspaceBoardsApp from '@/components/workspaces/boards/index.vue'
 const props = JSON.parse(document.getElementById('props').textContent)
 
-const app = createApp(BoardSettingGeneralApp, camelcaseKeys(props, { deep: true }))
+const app = createApp(WorkspaceBoardsApp, camelcaseKeys(props, { deep: true }))
 
 app.mount('#app')

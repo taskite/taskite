@@ -12,6 +12,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("taskite.urls.accounts")),
     path("w/", include("taskite.urls.workspaces")),
+    path("b/<str:board_slug>/", include("taskite.urls.boards")),
     path("", include("taskite.urls.home"))
 ]
 

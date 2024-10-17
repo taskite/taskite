@@ -21,7 +21,7 @@ const onSubmit = async (values) => {
 
         const { data } = await boardCreateAPI(postData)
 
-        window.location.href = `/w/${props.workspace.slug}/b/${data.slug}`
+        window.location.href = `/b/${data.slug}`
     } catch (error) {
         handleResponseError(error)
     }

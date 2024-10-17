@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from taskite.models import Board, Workspace
+from django.http import Http404
+
+from taskite.models import Board, Workspace, WorkspaceMembership, BoardPermission
 from taskite.exceptions import BoardNotFoundException, WorkspaceNotFoundException
 
 
@@ -67,3 +69,35 @@ class NameAndSourceSerializerMixin:
                     representation[field_name] = None
                     representation[f"{field_name}_src"] = None
         return representation
+
+
+class PermissionCheckMixin:
+    def check_for_workspace_permission(self, workspace, user):
+        workspace_membership_queryset = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=user
+        )
+        if not workspace_membership_queryset.exists():
+            raise Http404
+
+    def check_for_board_permission(self, board, user):
+        board_permission_queryset = BoardPermission.objects.filter(
+            board=board, user=user, role__in=["admin", "collaborator"]
+        )
+        if not board_permission_queryset.exists():
+            raise Http404
+
+    def check_and_get_workpace_permssion(self, workspace, user):
+        workspace_membership = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=user
+        ).first()
+
+        if not workspace_membership:
+            raise Http404
+
+        return workspace_membership
+
+    def has_board_admin_permission(self, board, user):
+        permission_queryset = BoardPermission.objects.filter(
+            board=board, user=user, role="admin"
+        )
+        return permission_queryset.exists()

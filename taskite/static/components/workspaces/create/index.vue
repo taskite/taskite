@@ -18,7 +18,7 @@ const props = defineProps(['baseUrl'])
 const onFinish = async (values) => {
     try {
         const { data } = await workspaceCreareAPI(values)
-        window.location.href = `/w/${data.slug}/b`
+        window.location.href = `/w/${data.slug}/boards`
     } catch (error) {
         handleResponseError(error)
     }

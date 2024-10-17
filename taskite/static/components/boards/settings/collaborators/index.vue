@@ -4,8 +4,8 @@ import { ref } from 'vue';
 import { Tabs, TabPane } from 'ant-design-vue';
 import { TeamOutlined, UserOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
-import TeamList from '@/components/workspaces/boards/settings/collaborators/team-list.vue';
-import UserList from '@/components/workspaces/boards/settings/collaborators/user-list.vue';
+import TeamList from '@/components/boards/settings/collaborators/team-list.vue';
+import UserList from '@/components/boards/settings/collaborators/user-list.vue';
 
 const props = defineProps(['workspace', 'board', 'hasEditPermission'])
 

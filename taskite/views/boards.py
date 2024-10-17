@@ -1,184 +1,100 @@
 from django.views import View
-from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
 
 from taskite.models import (
-    Workspace,
     WorkspaceMembership,
     Board,
-    BoardPermission,
 )
 from taskite.serializers import WorkspaceSerializer, ProfileSerializer, BoardSerializer
+from taskite.mixins import PermissionCheckMixin
 
 
-class BoardsView(LoginRequiredMixin, View):
-    def get(self, request, workspace_slug):
-        workspace = Workspace.objects.filter(slug=workspace_slug).first()
-        if not workspace:
-            raise Http404
+class BoardKanbanView(LoginRequiredMixin, PermissionCheckMixin, View):
+    def get(self, request, board_slug):
+        board = get_object_or_404(Board, slug=board_slug)
 
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user
-        ).first()
-        if not workspace_membership:
-            raise Http404
+        self.check_for_workspace_permission(board.workspace, request.user)
+        self.check_for_board_permission(board, request.user)
 
         context = {
             "props": {
-                "workspace": WorkspaceSerializer(workspace).data,
-                "current_user": ProfileSerializer(request.user).data,
-                "membership_role": workspace_membership.role,
-            }
-        }
-        return render(request, "workspaces/boards/index.html", context)
-
-
-class BoardsKanbanView(LoginRequiredMixin, View):
-    def get(self, request, workspace_slug, board_slug):
-        workspace = Workspace.objects.filter(slug=workspace_slug).first()
-        if not workspace:
-            raise Http404
-
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user
-        ).first()
-        if not workspace_membership:
-            raise Http404
-
-        board = Board.objects.filter(slug=board_slug, workspace=workspace).first()
-        if not board:
-            raise Http404
-
-        board_permission_queryset = BoardPermission.objects.filter(
-            board=board, user=request.user, role__in=["admin", "collaborator"]
-        )
-        if not board_permission_queryset.exists():
-            raise Http404
-
-        context = {
-            "props": {
-                "workspace": WorkspaceSerializer(workspace).data,
+                "workspace": WorkspaceSerializer(board.workspace).data,
                 "board": BoardSerializer(board).data,
                 "current_user": ProfileSerializer(request.user).data,
             }
         }
-        return render(request, "workspaces/boards/kanban.html", context)
+        return render(request, "boards/kanban.html", context)
 
 
-class BoardsTableView(LoginRequiredMixin, View):
-    def get(self, request, workspace_slug, board_slug):
-        workspace = Workspace.objects.filter(slug=workspace_slug).first()
-        if not workspace:
-            raise Http404
+class BoardTableView(LoginRequiredMixin, PermissionCheckMixin, View):
+    def get(self, request, board_slug):
+        board = get_object_or_404(Board, slug=board_slug)
 
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user
-        ).first()
-        if not workspace_membership:
-            raise Http404
-
-        board = Board.objects.filter(slug=board_slug, workspace=workspace).first()
-        if not board:
-            raise Http404
-
-        # Check for board collaborative permission
-        board_permission_queryset = BoardPermission.objects.filter(
-            board=board, user=request.user
-        )
-        if not board_permission_queryset.exists():
-            raise Http404
+        self.check_for_workspace_permission(board.workspace, request.user)
+        self.check_for_board_permission(board, request.user)
 
         context = {
             "props": {
-                "workspace": WorkspaceSerializer(workspace).data,
+                "workspace": WorkspaceSerializer(board.workspace).data,
                 "board": BoardSerializer(board).data,
             }
         }
-        return render(request, "workspaces/boards/table.html", context)
+        return render(request, "boards/table.html", context)
 
 
-class BoardsSettingsGeneralView(LoginRequiredMixin, View):
-    def get(self, request, workspace_slug, board_slug):
-        workspace = Workspace.objects.filter(slug=workspace_slug).first()
-        if not workspace:
-            raise Http404
+class BoardSettingsGeneralView(LoginRequiredMixin, PermissionCheckMixin, View):
+    def get(self, request, board_slug):
+        board = get_object_or_404(Board, slug=board_slug)
 
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user
-        ).first()
-        if not workspace_membership:
-            raise Http404
-
-        board = Board.objects.filter(slug=board_slug, workspace=workspace).first()
-        if not board:
-            raise Http404
-
-        # Check for board collaborative permission
-        board_permission_queryset = BoardPermission.objects.filter(
-            board=board, user=request.user
-        )
-        if not board_permission_queryset.exists():
-            raise Http404
-
-        has_edit_permission = False
-        is_board_admin_queryset = BoardPermission.objects.filter(
-            board=board, user=request.user, role="admin"
+        # Check and get workspace membership permission
+        workspace_membership = self.check_and_get_workpace_permssion(
+            board.workspace, request.user
         )
 
-        if workspace_membership.role == WorkspaceMembership.Role.ADMIN:
-            has_edit_permission = True
-        else:
-            has_edit_permission = is_board_admin_queryset.exists()
+        # Check for board-level permission
+        self.check_for_board_permission(board, request.user)
+
+        # Check board-edit permission
+        has_edit_permission = (
+            workspace_membership.role == WorkspaceMembership.Role.ADMIN
+            or self.has_board_admin_permission(board, request.user)
+        )
 
         context = {
             "props": {
-                "workspace": WorkspaceSerializer(workspace).data,
+                "workspace": WorkspaceSerializer(board.workspace).data,
                 "board": BoardSerializer(board).data,
                 "has_edit_permission": has_edit_permission,
             }
         }
-        return render(request, "workspaces/boards/settings/general.html", context)
+        return render(request, "boards/settings/general.html", context)
 
 
-class BoardsSettingsCollaboratorsView(LoginRequiredMixin, View):
-    def get(self, request, workspace_slug, board_slug):
-        workspace = Workspace.objects.filter(slug=workspace_slug).first()
-        if not workspace:
-            raise Http404
+class BoardSettingsCollaboratorsView(LoginRequiredMixin, PermissionCheckMixin, View):
+    def get(self, request, board_slug):
+        board = get_object_or_404(Board, slug=board_slug)
 
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user
-        ).first()
-        if not workspace_membership:
-            raise Http404
-
-        board = Board.objects.filter(slug=board_slug, workspace=workspace).first()
-        if not board:
-            raise Http404
-
-        board_permission_queryset = BoardPermission.objects.filter(
-            board=board, user=request.user
-        )
-        if not board_permission_queryset.exists():
-            raise Http404
-
-        has_edit_permission = False
-        is_board_admin_queryset = BoardPermission.objects.filter(
-            board=board, user=request.user, role="admin"
+        # Check and get workspace membership permission
+        workspace_membership = self.check_and_get_workpace_permssion(
+            board.workspace, request.user
         )
 
-        if workspace_membership.role == WorkspaceMembership.Role.ADMIN:
-            has_edit_permission = True
-        else:
-            has_edit_permission = is_board_admin_queryset.exists()
+        # Check for board-level permission
+        self.check_for_board_permission(board, request.user)
+
+        # Check board-edit permission
+        has_edit_permission = (
+            workspace_membership.role == WorkspaceMembership.Role.ADMIN
+            or self.has_board_admin_permission(board, request.user)
+        )
 
         context = {
             "props": {
-                "workspace": WorkspaceSerializer(workspace).data,
+                "workspace": WorkspaceSerializer(board.workspace).data,
                 "board": BoardSerializer(board).data,
                 "has_edit_permission": has_edit_permission,
             }
         }
-        return render(request, "workspaces/boards/settings/collaborators.html", context)
+        return render(request, "boards/settings/collaborators.html", context)

@@ -4,15 +4,15 @@ import { useKanbanStore } from '@/stores/kanban';
 import { h, onMounted, ref, watch } from 'vue';
 import { taskListAPI, stateListAPI, boardMembersListAPI, priorityListAPI, taskUpdateSequence, taskCreateAPI, labelListAPI } from '@/utils/api';
 import { VueDraggable } from 'vue-draggable-plus';
-import TaskCard from '@/components/workspaces/boards/kanban/task-card.vue';
+import TaskCard from '@/components/boards/kanban/task-card.vue';
 import { handleResponseError } from '@/utils/helpers';
 import { Button, Dropdown, Card, Input, Modal, AvatarGroup, Avatar } from 'ant-design-vue';
-import { FilterOutlined, GroupOutlined, PlusOutlined, ReloadOutlined, ShareAltOutlined, UnorderedListOutlined } from '@ant-design/icons-vue';
+import { FilterOutlined, PlusOutlined, ReloadOutlined, UnorderedListOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
-import FilterList from '@/components/workspaces/boards/kanban/filters/filter-list.vue';
-import TaskAddForm from '@/components/workspaces/boards/kanban/task-add-form.vue';
-import TaskView from '@/components/workspaces/boards/kanban/detail/task-view.vue';
-import { generateAvatar } from '../../../../utils/helpers';
+import FilterList from '@/components/boards/kanban/filters/filter-list.vue';
+import TaskAddForm from '@/components/boards/kanban/task-add-form.vue';
+import TaskView from '@/components/boards/kanban/detail/task-view.vue';
+import { generateAvatar } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()

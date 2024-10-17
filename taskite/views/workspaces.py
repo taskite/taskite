@@ -10,6 +10,7 @@ from django.conf import settings
 
 from taskite.models import WorkspaceMembership, Workspace, Team, WorkspaceInvite, User
 from taskite.serializers import WorkspaceSerializer, ProfileSerializer, TeamSerializer
+from taskite.mixins import PermissionCheckMixin
 
 
 class WorkspaceCreateView(LoginRequiredMixin, View):
@@ -69,6 +70,26 @@ class WorkspaceDashboardView(LoginRequiredMixin, View):
             }
         }
         return render(request, "workspaces/dashboard.html", context)
+    
+
+class WorkspaceBoardsView(LoginRequiredMixin, PermissionCheckMixin, View):
+    def get(self, request, workspace_slug):
+        workspace = Workspace.objects.filter(slug=workspace_slug).first()
+        if not workspace:
+            raise Http404
+
+        workspace_membership = self.check_and_get_workpace_permssion(
+            workspace, request.user
+        )
+
+        context = {
+            "props": {
+                "workspace": WorkspaceSerializer(workspace).data,
+                "current_user": ProfileSerializer(request.user).data,
+                "membership_role": workspace_membership.role,
+            }
+        }
+        return render(request, "workspaces/boards.html", context)
 
 
 class WorkspaceMembersView(LoginRequiredMixin, View):

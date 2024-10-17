@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.utils.crypto import get_random_string
 
 from taskite.models.base import UUIDTimestampModel
 
@@ -9,7 +10,7 @@ class Board(UUIDTimestampModel):
         "Workspace", on_delete=models.CASCADE, related_name="boards"
     )
     name = models.CharField(max_length=124)
-    slug = models.SlugField(max_length=124, blank=True)
+    slug = models.SlugField(max_length=124, blank=True, unique=True)
     description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(
         "User", on_delete=models.SET_NULL, null=True, related_name="created_boards"
@@ -33,11 +34,6 @@ class Board(UUIDTimestampModel):
 
     class Meta:
         db_table = "boards"
-        constraints = [
-            models.UniqueConstraint(
-                fields=["workspace", "slug"], name="unqiue_board_slug_per_workspace"
-            )
-        ]
 
     def __str__(self) -> str:
         return self.name
@@ -45,7 +41,7 @@ class Board(UUIDTimestampModel):
     def save(self, *args, **kwargs):
         if self._state.adding:
             if not self.slug:
-                self.slug = slugify(self.name)
+                self.slug = slugify(self.name) + get_random_string(10)
 
             # Generate task prefix if not given
             if not self.task_prefix:
