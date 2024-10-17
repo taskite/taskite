@@ -77,7 +77,7 @@ const currentUser = computed(() => {
                                             {{ currentUser.firstName }}
                                             {{ currentUser?.lastName }}
                                         </div>
-                                        <div class="text-xs text-gray-600">@{{ currentUser.username }}</div>
+                                        <div class="text-xs text-gray-600">{{ currentUser.email }}</div>
                                     </div>
                                     <div class="mt-2 cursor-pointer" @click="redirecToProfilePage">Edit profile</div>
                                     <div class="mt-2 cursor-pointer text-red-300" @click="logoutUser">Logout</div>

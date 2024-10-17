@@ -13,8 +13,6 @@ export const boardUpdateAPI = (boardId, data) =>
 export const boardMembersListAPI = (boardId) =>
   client.get(`/boards/${boardId}/members`)
 
-export const stateListAPI = (boardId) => client.get(`/boards/${boardId}/states`)
-
 export const taskListAPI = (boardId, filters = {}) =>
   client.get(`/boards/${boardId}/tasks`, {
     params: filters,
