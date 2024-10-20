@@ -30,7 +30,7 @@ const onFinish = async (values) => {
 }
 
 const handleCoverUpload = async (options) => {
-    const { fileKey, fileSrc } = await uploadRequestHandler(options)
+    const { fileKey, fileSrc } = await uploadRequestHandler(options, "Board", "cover")
     boardForm.value.cover = fileKey
     boardForm.value.coverSrc = fileSrc
 }

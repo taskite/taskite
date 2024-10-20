@@ -1,4 +1,4 @@
-from django.db.models import Q, F, Value
+from django.db.models import F, Value
 from django.db.models.functions import Concat
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
+from taskite.utils import update_file_field
 from taskite.models import (
     Board,
     Workspace,
@@ -157,6 +158,9 @@ class BoardViewSet(ViewSet):
 
         data = update_serializer.validated_data
         update_tasks_prefix = False
+
+        if "cover" in data:
+            update_file_field(board, "cover", data.get("cover"))
 
         if data.get("task_prefix") and data.get("task_prefix") != board.task_prefix:
             # Check if task prefix is getting updated

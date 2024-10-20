@@ -1,5 +1,4 @@
 from django.db.models import Q
-import time
 from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -15,6 +14,7 @@ from taskite.api.workspaces.serializers import (
     WorkspaceUpdateSerializer,
 )
 from taskite.exceptions import WorkspaceNotFoundException, InvalidInputException
+from taskite.utils import update_file_field
 
 
 class WorkspaceViewSet(ViewSet):
@@ -59,12 +59,36 @@ class WorkspaceViewSet(ViewSet):
             raise InvalidInputException
 
         data = update_serializer.validated_data
+
+        if "logo" in data:
+            update_file_field(workspace, 'logo', data.get("logo"))
+            del data["logo"]
+
         for key, value in data.items():
             setattr(workspace, key, value)
 
         workspace.save(update_fields=data.keys())
         serializer = WorkspaceSerializer(workspace)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    # @action(methods=["DELETE"], detail=True)
+    # def files(self, request, *args, **kwargs):
+    #     workspace = Workspace.objects.filter(
+    #         memberships__user=request.user, id=kwargs.get("pk")
+    #     ).first()
+    #     if not workspace:
+    #         raise WorkspaceNotFoundException
+
+    #     resources = request.query_params.getlist("resources[]")
+    #     for resource in resources:
+    #         file = getattr(workspace, resource)
+    #         if file:
+    #             purge_asset.delay(file.name, datetime.now().isoformat())
+
+    #     return Response(
+    #         data={"detail": "Resource files deleted."},
+    #         status=status.HTTP_204_NO_CONTENT,
+    #     )
 
     @action(methods=["GET"], detail=False)
     def memberships(self, request, *args, **kwargs):

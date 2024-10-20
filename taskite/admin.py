@@ -17,9 +17,6 @@ from taskite.models import (
     Team,
     TeamMembership,
     WorkspaceInvite,
-    Upload,
-    PurgedAsset,
-    UnusedAsset,
     TaskComment,
     TaskLabel,
     Label,
@@ -189,21 +186,6 @@ class TaskCommentInlineAdmin(admin.StackedInline):
 class TaskAdmin(admin.ModelAdmin):
     list_display = ["name", "summary", "created_at"]
     inlines = [TaskAssigneeInlineAdmin, TaskCommentInlineAdmin]
-
-
-@admin.register(Upload)
-class UploadAdmin(admin.ModelAdmin):
-    list_display = ["id", "key", "filename", "confirmed_at", "deleted_at", "created_at"]
-
-
-@admin.register(UnusedAsset)
-class UnunsedAssetAdmin(admin.ModelAdmin):
-    list_display = ["key", "bucket", "created_at"]
-
-
-@admin.register(PurgedAsset)
-class PurgeAssetAdmin(admin.ModelAdmin):
-    list_display = ["key", "bucket", "purged_at"]
 
 
 # Now register the new UserAdmin...

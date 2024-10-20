@@ -6,8 +6,8 @@ import { computed, h, ref } from 'vue';
 import LeaveConfirmationModal from '@/components/workspaces/settings/general/leave-confirmation-modal.vue';
 import DeleteConfirmationModal from '@/components/workspaces/settings/general/delete-confirmation-modal.vue';
 import { workspaceUpdateAPI } from '@/utils/api';
-import { uploadRequestHandler } from '@/utils/helpers';
-import { generateAvatar, handleResponseError } from '@/utils/helpers';
+import { generateAvatar, handleResponseError, uploadRequestHandler, processImage } from '@/utils/helpers';
+
 
 const props = defineProps(['workspace', 'currentUser', 'membershipRole'])
 const activeKey = ref([''])
@@ -16,8 +16,10 @@ const updateForm = ref({
     name: props.workspace.name,
     description: props.workspace.description,
     logo: props.workspace.logo,
-    logoSrc: props.workspace.logoSrc
+    logoSrc: props.workspace.logoSrc,
+    logoInitial: props.workspace.logo
 })
+
 
 const onSubmit = async (values) => {
     try {
@@ -42,8 +44,17 @@ const showDeleteConfirmationModal = () => {
     openDeleteConfirmationModal.value = true
 }
 
+const beforeUpload = async (file) => {
+  try {
+    return await processImage(file, 200, 200, 2);
+  } catch (error) {
+    message.error(error.message);
+    return Upload.LIST_IGNORE;
+  }
+};
 const handleLogoUpload = async (options) => {
-    const { fileKey, fileSrc } = await uploadRequestHandler(options)
+    const { fileKey, fileSrc } = await uploadRequestHandler(options, "Workspace", "logo")
+    
     updateForm.value.logo = fileKey
     updateForm.value.logoSrc = fileSrc
 }
@@ -51,7 +62,6 @@ const removeLogo = () => {
     updateForm.value.logo = null
     updateForm.value.logoSrc = null
 }
-
 </script>
 
 <template>
@@ -63,7 +73,7 @@ const removeLogo = () => {
                     <FormItem name="logo">
                         <div class="flex flex-col items-start gap-2">
                             <Upload :multiple="false" name="file" :customRequest="handleLogoUpload"
-                                :show-upload-list="false">
+                                :show-upload-list="false" :before-upload="beforeUpload">
                                 <Avatar shape="square" :size="80"
                                     :src="!!updateForm.logoSrc ? updateForm.logoSrc : generateAvatar(props.workspace.name, 5)">
                                     <template #icon>

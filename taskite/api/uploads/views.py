@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 import boto3
 from django.utils.crypto import get_random_string
 from django.utils import timezone
+from django.apps import apps
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -12,27 +13,35 @@ from rest_framework import status
 
 from taskite.api.uploads.serializers import PreSignedSerializer
 from taskite.exceptions import InvalidInputException
-from taskite.models import Upload, UnusedAsset
 
 
 class UploadsViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def generate_unique_file_key(self, original_filename):
+    def get_model_field_upload_path(self, model_name, model_field):
+        model = apps.get_model("taskite", model_name)
+        field = model._meta.get_field(model_field)
+        return field.upload_to
+
+    def generate_unique_file_key(self, model_name, model_field, original_filename):
+        self.get_model_field_upload_path(model_name, model_field)
+
         # Get the file extension
         _, file_extension = os.path.splitext(original_filename)
 
         # Generate a timestamp string
-        timestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
-
-        # Generate a random UUID
-        random_string = get_random_string(64)
+        timestamp = timezone.now().strftime("%Y%m%d")
 
         # Combine all parts to create a unique filename
-        unique_filename = f"{timestamp}_{random_string}{file_extension}"
+        unique_filename = (
+            f"{timestamp}_{get_random_string(8)}_{get_random_string(8)}{file_extension}"
+        )
+
+        # path prefix
+        path_prefix = self.get_model_field_upload_path(model_name, model_field)
 
         # Prepend the base 'uploads' folder
-        file_key = os.path.join("attachments", unique_filename)
+        file_key = os.path.join(path_prefix, unique_filename)
 
         return file_key
 
@@ -48,7 +57,7 @@ class UploadsViewSet(ViewSet):
                 "put_object",
                 Params={
                     "Bucket": settings.AWS_STORAGE_BUCKET_NAME,
-                    "Key": file_key,
+                    "Key": "cache/" + file_key,
                 },
                 ExpiresIn=3600,  # URL expires in 1 hour
             )
@@ -58,13 +67,13 @@ class UploadsViewSet(ViewSet):
             return None
 
     def get_file_src(self, file_key):
-        return f"https://s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/{settings.AWS_STORAGE_BUCKET_NAME}/{file_key}"
+        return f"https://s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/{settings.AWS_STORAGE_BUCKET_NAME}/cache/{file_key}"
 
     def get_local_file_upload_url(self, file_key):
         return f"http://localhost:8000/upload/{file_key}"
 
     def get_local_file_src(self, file_key):
-        return f"http://localhost:8000/{settings.MEDIA_URL}/{file_key}"
+        return f"http://localhost:8000{settings.MEDIA_URL}cache/{file_key}"
 
     @action(methods=["POST"], detail=False, url_path="presigned-url")
     def presigned_url(self, request):
@@ -73,19 +82,12 @@ class UploadsViewSet(ViewSet):
             return InvalidInputException
 
         data = serializer.validated_data
-        file_key = self.generate_unique_file_key(data.get("file_name"))
+
+        file_key = self.generate_unique_file_key(
+            data.get("model_name"), data.get("model_field"), data.get("file_name")
+        )
 
         if settings.USE_S3:
-            Upload.objects.create(
-                key=file_key,
-                filename=data.get("file_name"),
-                bucket=settings.AWS_STORAGE_BUCKET_NAME,
-                uploaded_by_email=request.user.email,
-            )
-            UnusedAsset.objects.create(
-                key=file_key, bucket=settings.AWS_STORAGE_BUCKET_NAME
-            )
-
             data = {
                 "file_key": file_key,
                 "file_upload_url": self.generate_s3_presigned_url(file_key),
@@ -93,15 +95,6 @@ class UploadsViewSet(ViewSet):
             }
 
         else:
-            Upload.objects.create(
-                key=file_key,
-                filename=data.get("file_name"),
-                uploaded_by_email=request.user.email,
-            )
-            UnusedAsset.objects.create(
-                key=file_key
-            )
-
             data = {
                 "file_key": file_key,
                 "file_upload_url": self.get_local_file_upload_url(file_key),

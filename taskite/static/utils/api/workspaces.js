@@ -4,6 +4,12 @@ export const workspaceListAPI = () => client.get(`/workspaces`)
 export const workspaceCreareAPI = (data) => client.post(`/workspaces`, data)
 export const workspaceUpdateAPI = (workspaceId, data) =>
   client.patch(`/workspaces/${workspaceId}`, data)
+export const workspaceFilesDeleteAPI = (workspaceId, resources) =>
+  client.delete(`/workspaces/${workspaceId}/files`, {
+    params: {
+      resources,
+    },
+  })
 
 export const workspaceMemberSearchAPI = (workspaceId, searchQuery) =>
   client.get(`/workspaces/${workspaceId}/members/search`, {

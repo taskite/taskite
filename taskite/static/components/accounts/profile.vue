@@ -17,8 +17,8 @@ const formState = ref({
 })
 
 const handleAvatarUpload = async (options) => {
-    const { fileKey, fileSrc } = await uploadRequestHandler(options)
-
+    const { fileKey, fileSrc } = await uploadRequestHandler(options, "User", "avatar")
+    
     formState.value.avatar = fileKey
     formState.value.avatarSrc = fileSrc
 }

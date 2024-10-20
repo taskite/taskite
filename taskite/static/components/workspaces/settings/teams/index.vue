@@ -12,10 +12,8 @@ import { handleResponseError } from '@/utils/helpers';
 
 const props = defineProps(['workspace', 'currentUser', 'membershipRole'])
 
-console.log(props)
 
 const teams = ref([])
-const error = ref('')
 const fetchTeams = async () => {
     try {
         const { data } = await workspaceTeamsAPI(props.workspace.id)

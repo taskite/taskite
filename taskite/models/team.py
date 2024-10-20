@@ -12,7 +12,7 @@ class Team(UUIDTimestampModel):
     members = models.ManyToManyField(
         "User", through="TeamMembership", related_name="teams"
     )
-    avatar = models.ImageField(blank=True, null=True, upload_to="attachments/")
+    avatar = models.ImageField(blank=True, null=True, upload_to="teams/avatars/")
 
     class Meta:
         db_table = "teams"

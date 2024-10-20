@@ -42,7 +42,7 @@ class User(UUIDTimestampModel, AbstractBaseUser):
     email = models.CharField(max_length=124, unique=True)
     first_name = models.CharField(max_length=124)
     last_name = models.CharField(max_length=124, blank=True, null=True)
-    avatar = models.ImageField(blank=True, null=True, upload_to="attachments/")
+    avatar = models.ImageField(blank=True, null=True, upload_to="users/avatars/")
 
     is_password_expired = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)

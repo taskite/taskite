@@ -15,7 +15,7 @@ class Board(UUIDTimestampModel):
     created_by = models.ForeignKey(
         "User", on_delete=models.SET_NULL, null=True, related_name="created_boards"
     )
-    cover = models.ImageField(blank=True, null=True, upload_to="attachments/")
+    cover = models.ImageField(blank=True, null=True, upload_to="boards/covers/")
     task_number_counter = models.IntegerField(default=1)
     task_prefix = models.CharField(max_length=5, blank=True)
     tasks_count = models.IntegerField(default=0)

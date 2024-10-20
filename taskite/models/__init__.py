@@ -7,6 +7,4 @@ from .priority import Priority
 from .task import Task, TaskAssignee, TaskComment, TaskLabel
 from .sprint import Sprint
 from .team import Team, TeamMembership
-from .upload import Upload
-from .asset import PurgedAsset, UnusedAsset
 from .label import Label

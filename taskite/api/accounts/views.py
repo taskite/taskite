@@ -1,5 +1,4 @@
 from django.contrib.auth import login, logout
-from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
@@ -17,6 +16,7 @@ from taskite.models import User, WorkspaceInvite, WorkspaceMembership
 from taskite.exceptions import InvalidInputException
 from taskite.tasks import send_verification_email
 from taskite.throttles import ResendEmailThrottle
+from taskite.utils import update_file_field
 
 
 class AccountsViewSet(ViewSet):
@@ -181,6 +181,11 @@ class AccountsViewSet(ViewSet):
                 raise InvalidInputException
 
             data = update_serializer.validated_data
+
+            if "avatar" in data:
+                update_file_field(request.user, "avatar", data.get("avatar"))
+                del data["avatar"]
+
             for key, value in data.items():
                 setattr(request.user, key, value)
 
