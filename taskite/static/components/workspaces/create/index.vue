@@ -18,7 +18,7 @@ const props = defineProps(['baseUrl'])
 const onFinish = async (values) => {
     try {
         const { data } = await workspaceCreareAPI(values)
-        window.location.href = `/w/${data.slug}/boards`
+        window.location.href = `/${data.slug}/boards`
     } catch (error) {
         handleResponseError(error)
     }
@@ -67,7 +67,7 @@ watch(() => createForm.value.name, (newValue) => {
                         </FormItem>
 
                         <FormItem label="Workspace URL" name="slug">
-                            <Input :addon-before="`${props.baseUrl}/w/`" v-model:value="createForm.slug" />
+                            <Input :addon-before="`${props.baseUrl}`" v-model:value="createForm.slug" />
                         </FormItem>
 
                         <FormItem label="Organization Size" name="org_size">

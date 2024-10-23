@@ -10,7 +10,7 @@ const disabled = computed(() => {
 })
 
 const leaveWorkspace = () => {
-    window.location.href = `/w/${props.workspaceSlug}/leave/`
+    window.location.href = `/${props.workspaceSlug}/leave/`
 }
 </script>
 

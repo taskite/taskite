@@ -57,6 +57,7 @@ class Workspace(UUIDTimestampModel):
 class WorkspaceMembership(UUIDTimestampModel):
     class Role(models.TextChoices):
         ADMIN = ("admin", "Admin")
+        MAINTAINER = ("maintainer", "Maintainer")
         COLLABORATOR = ("collaborator", "Collaborator")
         GUEST = ("guest", "Guest")
 

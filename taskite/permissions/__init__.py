@@ -1,3 +1,3 @@
-from .workspace import WorkspaceAdminPermission, WorkspaceCollaboratorPermission
+from .workspace import *
 from .board import BoardCollaboratorPermission, BoardAdminPermission
 

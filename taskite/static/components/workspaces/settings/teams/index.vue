@@ -10,7 +10,7 @@ import { workspaceTeamDeleteAPI, workspaceTeamsAPI } from '@/utils/api';
 import { handleResponseError } from '@/utils/helpers';
 
 
-const props = defineProps(['workspace', 'currentUser', 'membershipRole'])
+const props = defineProps(['workspace', 'hasEditPermission'])
 
 
 const teams = ref([])
@@ -48,7 +48,7 @@ const columns = [
 ]
 
 const redirectToEditPage = (team) => {
-    window.location.href = `/w/${props.workspace.slug}/settings/teams/${team.id}/edit`
+    window.location.href = `/${props.workspace.slug}/settings/teams/${team.id}/edit`
 }
 
 const openTeamAddModal = ref(false)
@@ -69,22 +69,19 @@ const removeTeam = async (team) => {
     }
 }
 
-const notAdmin = computed(() => {
-    return props.membershipRole !== 'admin'
-})
-
 onMounted(() => {
     fetchTeams()
 })
 </script>
 
 <template>
-    <WorkspaceSettingsLayout :workspace="props.workspace" page="teams" :currentUser="props.currentUser">
+    <WorkspaceSettingsLayout :workspace="props.workspace" page="teams">
         <div class="flex justify-between mb-4">
             <div class="text-2xl">Teams</div>
 
             <div>
-                <Button :icon="h(PlusOutlined)" type="primary" @click="showTeamAddModal" :disabled="notAdmin">Create
+                <Button :icon="h(PlusOutlined)" type="primary" @click="showTeamAddModal"
+                    :disabled="!props.hasEditPermission">Create
                     team</Button>
             </div>
         </div>
@@ -131,9 +128,9 @@ onMounted(() => {
                 <template v-else-if="column.key === 'actions'">
                     <div class="flex gap-2">
                         <Button :icon="h(EditOutlined)" type="text" @click="redirectToEditPage(record)"
-                            :disabled="notAdmin">Edit</Button>
+                            :disabled="!props.hasEditPermission">Edit</Button>
                         <Button :icon="h(CloseOutlined)" type="text" class="text-gray-500" @click="removeTeam(record)"
-                            :disabled="notAdmin">Remove</Button>
+                            :disabled="!props.hasEditPermission">Remove</Button>
                     </div>
                 </template>
             </template>

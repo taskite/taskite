@@ -14,11 +14,11 @@ const selectedKeys = ref([props.page])
 
 const changePage = (event) => {
     if (event.key === 'dashboard') {
-        window.location.href = `/w/${props.workspace.slug}/`
+        window.location.href = `/${props.workspace.slug}/`
     } else if (event.key === 'boards') {
-        window.location.href = `/w/${props.workspace.slug}/boards`
+        window.location.href = `/${props.workspace.slug}/boards`
     } else {
-        window.location.href = `/w/${props.workspace.slug}/${event.key}/`
+        window.location.href = `/${props.workspace.slug}/${event.key}/`
     }
 }
 

@@ -101,3 +101,17 @@ class PermissionCheckMixin:
             board=board, user=user, role="admin"
         )
         return permission_queryset.exists()
+
+
+class WorkspacePermissionMixin:
+    def has_valid_permission(self, workspace, user, allowed_roles):
+        permission_queryset = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=user, role__in=allowed_roles
+        )
+        return permission_queryset.exists()
+
+    def has_valid_membership(self, workspace, user):
+        membership_queryset = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=user
+        )
+        return membership_queryset.exists()

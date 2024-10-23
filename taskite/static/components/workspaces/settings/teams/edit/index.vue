@@ -1,5 +1,6 @@
 <script setup>
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
+import WorkspaceSettingsLayout from '@/components/base/workspace-settings-layout.vue';
 import { Avatar, Table, Button, Modal, message } from 'ant-design-vue';
 import { computed, h, onMounted, ref } from 'vue';
 import { workspaceTeamMembershipsAPI, workspaceTeamMembershipsDeleteAPI } from '@/utils/api';
@@ -10,7 +11,7 @@ import { BackwardOutlined, CloseOutlined, EditOutlined, PlusOutlined } from '@an
 import AddMemberModal from './add-member-modal.vue';
 import { handleResponseError } from '@/utils/helpers';
 
-const props = defineProps(['workspace', 'team', 'currentUser'])
+const props = defineProps(['workspace', 'team',])
 
 const memberships = ref([])
 const loadTeamMemberships = async () => {
@@ -51,7 +52,7 @@ const columns = [
 ]
 
 const redirectToTeamsPage = () => {
-    window.location.href = `/w/${props.workspace.slug}/settings/teams/`
+    window.location.href = `/${props.workspace.slug}/settings/teams/`
 }
 
 const openMemberModal = ref(false)
@@ -79,7 +80,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <WorkspaceLayout :workspace="props.workspace" :currentUser="props.currentUser" page="teams">
+    <WorkspaceSettingsLayout :workspace="props.workspace" page="teams">
         <div class="mb-3 text-primary" @click="redirectToTeamsPage">
             <BackwardOutlined />
             <span class="hover:underline hover:underline-offset-4 hover:cursor-pointer ml-1">Back to teams</span>
@@ -125,12 +126,13 @@ onMounted(() => {
                 </template>
             </Table>
         </div>
-    </WorkspaceLayout>
 
-    <Modal v-model:open="openMemberModal" title="Add member">
-        <template #footer>
-            <Button @click="openMemberModal = false">Cancel</Button>
-        </template>
-        <AddMemberModal :workspace="props.workspace" :team="team" :members="members" @membershipAdded="addMembership" />
-    </Modal>
+        <Modal v-model:open="openMemberModal" title="Add member">
+            <template #footer>
+                <Button @click="openMemberModal = false">Cancel</Button>
+            </template>
+            <AddMemberModal :workspace="props.workspace" :team="team" :members="members"
+                @membershipAdded="addMembership" />
+        </Modal>
+    </WorkspaceSettingsLayout>
 </template>

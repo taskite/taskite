@@ -7,7 +7,7 @@ import { h, ref } from 'vue';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import { handleResponseError } from '@/utils/helpers';
 
-const props = defineProps(['memberships', 'notAdmin', 'workspaceId'])
+const props = defineProps(['memberships', 'workspaceId', 'hasEditPermission'])
 const emit = defineEmits(['remove'])
 
 const columns = [
@@ -54,6 +54,28 @@ const handleRoleChange = async (membershipId, newRole) => {
     }
 }
 
+const roleOptions = ref([
+    {
+        value: 'collaborator',
+        label: 'Collaborator',
+        description: 'Can view boards and content but cannot modify workspace settings.',
+    },
+    {
+        value: 'maintainer',
+        label: 'Maintainer',
+        description: 'Can modify basic workspace settings, excluding critical actions like deletion or billing.',
+    },
+    {
+        value: 'guest',
+        label: 'Guest',
+        description: 'Has limited access and can only view assigned items, such as specific boards or tasks, without the ability to make any modifications.'
+    },
+    {
+        value: 'admin',
+        label: 'Admin',
+        description: 'Has full access to manage the workspace, including settings, members, and permissions.',
+    },
+])
 </script>
 
 <template>
@@ -76,11 +98,15 @@ const handleRoleChange = async (membershipId, newRole) => {
             </template>
 
             <template v-else-if="column.key === 'role'">
-                <Select v-model:value="record.role" style="width: 140px"
-                    @change="(role) => handleRoleChange(record.id, role)" :disabled="props.notAdmin"
-                    :loading="loading === record.id">
-                    <SelectOption value="collaborator">Collaborator</SelectOption>
-                    <SelectOption value="admin">Admin</SelectOption>
+                <Select v-model:value="record.role" style="width: 250px"
+                    @change="(role) => handleRoleChange(record.id, role)" :disabled="!props.hasEditPermission"
+                    :loading="loading === record.id" :options="roleOptions">
+                    <template #option="{ value: val, label, description }">
+                        <div class="flex flex-col gap-1">
+                            <div class="font-semibold">{{ label }}</div>
+                            <div class="text-xs text-wrap">{{ description }}</div>
+                        </div>
+                    </template>
                 </Select>
             </template>
 
@@ -98,7 +124,7 @@ const handleRoleChange = async (membershipId, newRole) => {
 
             <template v-else-if="column.key === 'actions'">
                 <div class="flex gap-2">
-                    <Button type="text" :icon="h(CloseOutlined)" :disabled="props.notAdmin" class="text-gray-500"
+                    <Button type="text" :icon="h(CloseOutlined)" :disabled="!props.hasEditPermission" class="text-gray-500"
                         @click="emit('remove', record.id)">
                         Remove
                     </Button>

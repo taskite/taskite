@@ -7,21 +7,18 @@ from django.contrib import messages
 from django.db import transaction
 from django.contrib.auth import login
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from taskite.models import WorkspaceMembership, Workspace, Team, WorkspaceInvite, User
 from taskite.serializers import WorkspaceSerializer, ProfileSerializer, TeamSerializer
-from taskite.mixins import PermissionCheckMixin
+from taskite.mixins import PermissionCheckMixin, WorkspacePermissionMixin
 
 
 class WorkspaceCreateView(LoginRequiredMixin, View):
     def get(self, request):
-        context = {
-            "props": {
-                "base_url": settings.BASE_URL
-            }
-        }
+        context = {"props": {"base_url": settings.BASE_URL}}
         return render(request, "workspaces/create.html", context)
-    
+
 
 class WorkspaceIndexView(LoginRequiredMixin, View):
     def get(self, request):
@@ -29,12 +26,15 @@ class WorkspaceIndexView(LoginRequiredMixin, View):
             # Redirect them to email verification page
             return redirect("accounts-verify")
 
-        if request.user.current_workspace and request.user.current_workspace.deleted_at == None:
+        if (
+            request.user.current_workspace
+            and request.user.current_workspace.deleted_at == None
+        ):
             return redirect(
                 "workspaces-dashboard",
                 workspace_slug=request.user.current_workspace.slug,
             )
-        
+
         workspace = request.user.workspaces.first()
         if not workspace:
             return redirect("workspace-create")
@@ -70,7 +70,7 @@ class WorkspaceDashboardView(LoginRequiredMixin, View):
             }
         }
         return render(request, "workspaces/dashboard.html", context)
-    
+
 
 class WorkspaceBoardsView(LoginRequiredMixin, PermissionCheckMixin, View):
     def get(self, request, workspace_slug):
@@ -92,70 +92,61 @@ class WorkspaceBoardsView(LoginRequiredMixin, PermissionCheckMixin, View):
         return render(request, "workspaces/boards.html", context)
 
 
-class WorkspaceMembersView(LoginRequiredMixin, View):
+class WorkspaceMembersView(LoginRequiredMixin, WorkspacePermissionMixin, View):
     def get(self, request, workspace_slug):
-        workspace = Workspace.objects.filter(slug=workspace_slug).first()
-        if not workspace:
-            raise Http404
+        workspace = get_object_or_404(Workspace, slug=workspace_slug)
 
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user
-        ).first()
-        if not workspace_membership:
+        if not self.has_valid_membership(workspace, request.user):
             raise Http404
 
         context = {
             "props": {
                 "workspace": WorkspaceSerializer(workspace).data,
-                "membership_role": workspace_membership.role,
-                "current_user": ProfileSerializer(request.user).data,
+                "has_edit_permission": self.has_valid_permission(
+                    workspace, request.user, ["admin", "maintainer"]
+                ),
             }
         }
         return render(request, "workspaces/settings/members.html", context)
 
 
-class WorkspaceTeamsView(LoginRequiredMixin, View):
+class WorkspaceTeamsView(LoginRequiredMixin, WorkspacePermissionMixin, View):
     def get(self, request, workspace_slug):
-        workspace = Workspace.objects.filter(slug=workspace_slug).first()
-        if not workspace:
-            raise Http404
+        workspace = get_object_or_404(Workspace, slug=workspace_slug)
 
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user
-        ).first()
-        if not workspace_membership:
+        if not self.has_valid_membership(workspace, request.user):
             raise Http404
 
         context = {
             "props": {
                 "workspace": WorkspaceSerializer(workspace).data,
-                "membership_role": workspace_membership.role,
-                "current_user": ProfileSerializer(request.user).data,
+                "has_edit_permission": self.has_valid_permission(
+                    workspace, request.user, ["admin", "maintainer"]
+                ),
             }
         }
         return render(request, "workspaces/settings/teams/index.html", context)
 
 
-class WorkspaceTeamsEditView(LoginRequiredMixin, View):
+class WorkspaceTeamsEditView(LoginRequiredMixin, WorkspacePermissionMixin, View):
     def get(self, request, workspace_slug, team_id):
-        workspace = Workspace.objects.filter(slug=workspace_slug).first()
-        if not workspace:
+        workspace = get_object_or_404(Workspace, slug=workspace_slug)
+
+        if not self.has_valid_membership(workspace, request.user):
+            raise Http404
+        
+        if not self.has_valid_permission(
+            workspace=workspace,
+            user=request.user,
+            allowed_roles=["admin", "maintainer"],
+        ):
             raise Http404
 
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user, role=WorkspaceMembership.Role.ADMIN
-        ).first()
-        if not workspace_membership:
-            raise Http404
-
-        team = Team.objects.filter(workspace=workspace, id=team_id).first()
-        if not team:
-            raise Http404
+        team = get_object_or_404(Team, workspace=workspace, id=team_id)
 
         context = {
             "props": {
                 "workspace": WorkspaceSerializer(workspace).data,
-                "current_user": ProfileSerializer(request.user).data,
                 "team": TeamSerializer(team).data,
             }
         }
@@ -268,13 +259,13 @@ class WorkspaceDeleteView(LoginRequiredMixin, View):
         workspace = Workspace.objects.filter(slug=workspace_slug).first()
         if not workspace:
             raise Http404
-        
+
         workspace_membership = WorkspaceMembership.objects.filter(
             workspace=workspace, user=request.user, role=WorkspaceMembership.Role.ADMIN
         ).first()
         if not workspace_membership:
             raise Http404
-        
+
         # Mark the workspace as deleted.
         workspace.soft_delete()
 

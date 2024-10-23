@@ -4,16 +4,16 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from taskite.mixins import WorkspaceMixin
-from taskite.permissions import (
-    WorkspaceAdminPermission,
-    WorkspaceCollaboratorPermission,
-)
+from taskite.permissions import WorkspaceGenericPermission
 from taskite.models.workspace import WorkspaceMembership
 from taskite.exceptions import (
     WorkspaceMembershipNotFoundException,
-    InvalidInputException
+    InvalidInputException,
 )
-from taskite.api.workspace_memberships.serializers import WorkspaceMembershipSerializer, WorkspaceMembershipUpdateSerializer
+from taskite.api.workspace_memberships.serializers import (
+    WorkspaceMembershipSerializer,
+    WorkspaceMembershipUpdateSerializer,
+)
 
 
 class WorkspaceMembershipsViewset(WorkspaceMixin, ViewSet):
@@ -21,11 +21,22 @@ class WorkspaceMembershipsViewset(WorkspaceMixin, ViewSet):
 
     def get_permissions(self):
         if self.action == "list":
-            return [IsAuthenticated(), WorkspaceCollaboratorPermission()]
+            return [
+                IsAuthenticated(),
+                WorkspaceGenericPermission(
+                    allowed_roles=["admin", "maintainer", "collaborator", "guest"]
+                ),
+            ]
         elif self.action == "destroy":
-            return [IsAuthenticated(), WorkspaceAdminPermission()]
+            return [
+                IsAuthenticated(),
+                WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+            ]
         elif self.action == "partial_update":
-            return [IsAuthenticated(), WorkspaceAdminPermission()]
+            return [
+                IsAuthenticated(),
+                WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+            ]
 
         return super().get_permissions()
 
@@ -57,10 +68,13 @@ class WorkspaceMembershipsViewset(WorkspaceMixin, ViewSet):
             workspace=request.workspace, id=kwargs.get("pk")
         ).first()
 
+        if not workspace_membership:
+            raise WorkspaceMembershipNotFoundException
+
         update_serializer = WorkspaceMembershipUpdateSerializer(data=request.data)
         if not update_serializer.is_valid():
             raise InvalidInputException
-        
+
         data = update_serializer.validated_data
         for key, value in data.items():
             setattr(workspace_membership, key, value)

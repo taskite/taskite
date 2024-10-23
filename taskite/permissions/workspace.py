@@ -23,3 +23,14 @@ class WorkspaceCollaboratorPermission(permissions.BasePermission):
             ],
         )
         return queryset.exists()
+
+
+class WorkspaceGenericPermission(permissions.BasePermission):
+    def __init__(self, allowed_roles):
+        self.allowed_roles = allowed_roles
+
+    def has_permission(self, request, view):
+        queryset = WorkspaceMembership.objects.filter(
+            workspace=request.workspace, user=request.user, role__in=self.allowed_roles
+        )
+        return queryset.exists()

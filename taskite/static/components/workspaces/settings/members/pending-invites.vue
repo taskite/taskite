@@ -6,7 +6,7 @@ import { DeleteOutlined, SendOutlined } from '@ant-design/icons-vue';
 import { workspaceResendInviteAPI } from '@/utils/api';
 import { handleResponseError } from '@/utils/helpers';
 
-const props = defineProps(['workspaceId', 'notAdmin', 'invites'])
+const props = defineProps(['workspaceId', 'invites', 'hasEditPermission'])
 const emit = defineEmits(['remove'])
 
 const resendInvitation = async (inviteId) => {
@@ -46,9 +46,9 @@ const columns = [
 
             <template v-else-if="column.key === 'actions'">
                 <div class="flex gap-1">
-                    <Button type="text" :icon="h(SendOutlined)" :disabled="notAdmin"
+                    <Button type="text" :icon="h(SendOutlined)" :disabled="!props.hasEditPermission"
                         @click="resendInvitation(record.id)">Resend invitation</Button>
-                    <Button type="text" :icon="h(DeleteOutlined)" danger :disabled="notAdmin"
+                    <Button type="text" :icon="h(DeleteOutlined)" danger :disabled="!props.hasEditPermission"
                         @click="emit('remove', record.id)">Delete invitation</Button>
                 </div>
             </template>

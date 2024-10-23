@@ -4,8 +4,9 @@ import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import { onMounted, ref, h } from 'vue';
 import { stateListAPI } from '@/utils/api';
 import { handleResponseError } from '@/utils/helpers';
-import { CloseOutlined, DeleteOutlined, EditOutlined, HolderOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import { CloseOutlined, EditOutlined, HolderOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import { Button } from 'ant-design-vue';
+import { VueDraggable } from 'vue-draggable-plus';
 
 const props = defineProps(['workspace', 'board', 'hasEditPermission'])
 
@@ -15,10 +16,13 @@ const loadStates = async () => {
         const { data } = await stateListAPI(props.board.id)
         states.value = data
     } catch (error) {
-        handleResponseError(error)        
+        handleResponseError(error)
     }
 }
 
+const onUpdate = async (event) => {
+    console.log(event)
+}
 
 onMounted(() => {
     loadStates()
@@ -29,19 +33,21 @@ onMounted(() => {
     <WorkspaceLayout :workspace="workspace" page="boards">
         <BoardSettingsLayout :workspace="props.workspace" :board="props.board" page="states">
             <div class="text-lg">States</div>
-            <div class="flex flex-col gap-3">
-                <div v-for="state in states" class="w-full rounded overflow-hidden shadow-lg bg-white py-3 px-2">
-                    <div class="flex justify-between relative group">
-                        <div class="flex items-center gap-1 cursor-pointer">
-                            <HolderOutlined />
-                            <Button>{{ state.name }}</Button>
-                        </div>
-                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <Button type="text" :icon="h(EditOutlined)">Edit</Button>
-                            <Button type="text" :icon="h(CloseOutlined)" danger></Button>
+            <div class="flex flex-col gap-2">
+                <VueDraggable v-model="states" class="flex flex-col gap-1" @update="onUpdate">
+                    <div v-for="state in states" class="w-full rounded overflow-hidden shadow-lg bg-white py-3 px-2">
+                        <div class="flex justify-between relative group">
+                            <div class="flex items-center gap-1 cursor-pointer">
+                                <HolderOutlined />
+                                <Button>{{ state.name }}</Button>
+                            </div>
+                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <Button type="text" :icon="h(EditOutlined)">Edit</Button>
+                                <Button type="text" :icon="h(CloseOutlined)" danger></Button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </VueDraggable>
                 <div class="flex justify-center">
                     <Button :icon="h(PlusOutlined)" type="text" class="w-full mt-2">New state</Button>
                 </div>

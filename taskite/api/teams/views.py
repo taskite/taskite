@@ -8,10 +8,7 @@ from taskite.api.teams.serializers import TeamSerializer, TeamCreateSerializer
 from taskite.exceptions import InvalidInputException, TeamNotFoundException
 from taskite.models.team import Team
 from taskite.mixins import WorkspaceMixin
-from taskite.permissions import (
-    WorkspaceCollaboratorPermission,
-    WorkspaceAdminPermission,
-)
+from taskite.permissions import WorkspaceGenericPermission
 
 
 class TeamsViewSet(WorkspaceMixin, ViewSet):
@@ -19,11 +16,30 @@ class TeamsViewSet(WorkspaceMixin, ViewSet):
 
     def get_permissions(self):
         if self.action == "list":
-            return [IsAuthenticated(), WorkspaceCollaboratorPermission()]
+            return [
+                IsAuthenticated(),
+                WorkspaceGenericPermission(
+                    allowed_roles=["admin", "collaborator", "guest", "maintainer"]
+                ),
+            ]
         elif self.action == "create":
-            return [IsAuthenticated(), WorkspaceAdminPermission()]
+            return [
+                IsAuthenticated(),
+                WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+            ]
         elif self.action == "destroy":
-            return [IsAuthenticated(), WorkspaceAdminPermission()]
+            return [
+                IsAuthenticated(),
+                WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+            ]
+
+        elif self.action == "search":
+            return [
+                IsAuthenticated(),
+                WorkspaceGenericPermission(
+                    allowed_roles=["admin", "collaborator", "guest", "maintainer"]
+                ),
+            ]
 
         return super().get_permissions()
 
