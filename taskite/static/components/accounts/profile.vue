@@ -42,7 +42,7 @@ const onFinishFailed = (errorInfo) => {
 }
 
 const goToDashboard = () => {
-    window.location.href = `/w`
+    window.location.href = `/`
 }
 
 const fetchUserProfile = async () => {
