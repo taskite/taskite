@@ -15,9 +15,9 @@ def send_welcome_email(email_address):
 
     try:
         send_mail(
-            subject="Email verification",
+            subject="Welcome to taskite",
             message=text_content,
-            from_email=settings.DEFAULT_ADMIN_EMAIL,
+            from_email=settings.DEFAULT_EMAIL,
             recipient_list=[user.email],
             html_message=html_content,
             fail_silently=False,

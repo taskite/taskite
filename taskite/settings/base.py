@@ -139,11 +139,6 @@ ARCHIVE_MEDIA_ROOT = BASE_DIR / "media" / "archives"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "taskite.User"
 
-# Emails
-DEFAULT_SUPPORT_EMAIL = os.environ.get("DEFAULT_SUPPORT_EMAIL")
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
-DEFAULT_ADMIN_EMAIL = os.environ.get("DEFAULT_ADMIN_EMAIL")
-
 DEFAULT_EMAIL = os.environ.get("DEFAULT_EMAIL")
 DEFAULT_NOTIFICATION_EMAIL = os.environ.get("DEFAULT_NOTIFICATION_EMAIL")
 

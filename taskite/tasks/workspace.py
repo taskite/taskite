@@ -18,7 +18,7 @@ def send_member_invitation_email(invite_id):
         send_mail(
             subject="Workspace Invite",
             message=text_content,
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=settings.DEFAULT_NOTIFICATION_EMAIL,
             recipient_list=[invite.email],
             html_message=html_content,
             fail_silently=False,
