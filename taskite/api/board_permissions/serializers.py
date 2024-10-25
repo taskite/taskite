@@ -6,7 +6,7 @@ from taskite.models import BoardPermission, User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "email", "first_name", "last_name", "avatar"]
+        fields = ["id", "email", "first_name", "display_name", "last_name", "avatar"]
 
 
 class BoardPermissionSerializer(serializers.ModelSerializer):

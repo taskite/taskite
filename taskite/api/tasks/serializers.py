@@ -6,7 +6,7 @@ from taskite.models import Task, User, Priority, Label
 class AssigneeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "avatar"]
+        fields = ["id", "username", "email", "first_name", "display_name", "last_name", "avatar"]
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class LabelSerializer(serializers.ModelSerializer):
 class CreatedBySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "avatar"]
+        fields = ["id", "username", "email", "first_name", "display_name", "last_name", "avatar"]
 
 
 class QuerySerializer(serializers.Serializer):

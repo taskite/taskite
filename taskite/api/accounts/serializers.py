@@ -19,6 +19,7 @@ class UserSerializer(FileNameAndSourceSerializerMixin, serializers.ModelSerializ
             "email",
             "first_name",
             "last_name",
+            "display_name",
             "avatar",
             "created_at",
             "is_verified",
@@ -29,6 +30,7 @@ class UserUpdateSerializer(serializers.Serializer):
     username = serializers.CharField(required=False)
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False, allow_null=True)
+    display_name = serializers.CharField(required=False)
     avatar = serializers.CharField(required=False, allow_null=True)
 
 
@@ -65,3 +67,15 @@ class WorkspaceInviteSerializer(serializers.ModelSerializer):
             "rejection_link",
             "created_at",
         ]
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    password_reset_id = serializers.CharField()
+    new_password = serializers.CharField()
+    confirm_password = serializers.CharField()
+
+
+class PasswordChangeSerializer(serializers.Serializer):
+    current_password = serializers.CharField()
+    new_password = serializers.CharField()
+    confirm_password = serializers.CharField()

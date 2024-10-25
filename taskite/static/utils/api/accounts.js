@@ -9,3 +9,9 @@ export const accountsResendVerificationEmailAPI = () => client.post('/accounts/r
 export const accountsProfileAPI = () => client.get(`/accounts/profile`)
 
 export const accountsProfileUpdateAPI = (data) => client.patch(`/accounts/profile`, data)
+
+export const accountsPasswordResetAPI = (data) => client.post(`/accounts/password-reset`, data)
+
+export const accountsPasswordResetConfirmAPI = (data) => client.post('/accounts/password-reset-confirm', data)
+
+export const accountsPasswordChangeAPI = (data) => client.post(`/accounts/password-change`, data)

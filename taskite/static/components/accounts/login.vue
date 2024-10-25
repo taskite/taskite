@@ -40,6 +40,9 @@ const onFinish = async (values) => {
 
             <FormItem label="Password" name="password"
                 :rules="[{ required: true, message: 'Please input a strong password!' }]">
+                <template #extra>
+                    <a class="text-primary hover:text-primary" href="/accounts/reset/">Forgot Password?</a>
+                </template>
                 <InputPassword v-model:value="loginForm.password" placeholder="***********" />
             </FormItem>
 

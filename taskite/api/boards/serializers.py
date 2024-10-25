@@ -49,6 +49,7 @@ class BoardMemberSeralizer(serializers.ModelSerializer):
             "username",
             "first_name",
             "last_name",
+            "display_name",
             "avatar",
         ]
 

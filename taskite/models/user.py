@@ -1,5 +1,5 @@
 import random
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -8,7 +8,6 @@ from django.utils.crypto import get_random_string
 from django.utils.text import slugify
 
 from taskite.models.base import UUIDTimestampModel
-from taskite.callbacks import FileUploadCallback
 
 
 class UserManager(BaseUserManager):
@@ -40,17 +39,24 @@ class User(UUIDTimestampModel, AbstractBaseUser):
     )
     username = models.CharField(max_length=124, unique=True, blank=True)
     email = models.CharField(max_length=124, unique=True)
-    first_name = models.CharField(max_length=124)
-    last_name = models.CharField(max_length=124, blank=True, null=True)
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64, blank=True, null=True)
+    display_name = models.CharField(max_length=124, blank=True)
     avatar = models.ImageField(blank=True, null=True, upload_to="users/avatars/")
+    bio = models.TextField(blank=True, null=True)
+    phone = models.CharField(max_length=30, blank=True, null=True)
 
     is_password_expired = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
-    verified_at = models.DateTimeField(blank=True, null=True)
     restricted_at = models.DateTimeField(blank=True, null=True)
 
     verification_id = models.CharField(max_length=64, blank=True, null=True)
+    verified_at = models.DateTimeField(blank=True, null=True)
+    verification_sent_at = models.DateTimeField(blank=True, null=True)
+
+    password_reset_id = models.CharField(max_length=64, blank=True, null=True)
+    password_reset_sent_at = models.DateTimeField(blank=True, null=True)
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "first_name"]
@@ -67,6 +73,9 @@ class User(UUIDTimestampModel, AbstractBaseUser):
 
     def save(self, *args, **kwargs):
         if self._state.adding:
+            if not self.display_name:
+                self.display_name = f"{self.first_name} {self.last_name}"
+
             if not self.username:
                 self.username = slugify(self.first_name) + str(random.randint(100, 999))
 
@@ -89,7 +98,7 @@ class User(UUIDTimestampModel, AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
-    
+
     def get_full_name(self):
         """
         Return the first_name plus the last_name, with a space in between.
@@ -119,4 +128,21 @@ class User(UUIDTimestampModel, AbstractBaseUser):
 
         return settings.BASE_URL + reverse(
             "accounts-verify-confirm", args=[self.verification_id]
+        )
+
+    @transaction.atomic
+    def password_reset_confirm(self, new_password):
+        self.set_password(new_password)
+        self.password_reset_id = None
+        self.save()
+
+    @property
+    def password_reset_link(self):
+        if not self.password_reset_id:
+            self.password_reset_id = get_random_string(64)
+            self.password_reset_sent_at = timezone.now()
+            self.save(update_fields=["password_reset_id", "password_reset_sent_at"])
+
+        return settings.BASE_URL + reverse(
+            "accounts-reset-confirm", args=[self.password_reset_id]
         )

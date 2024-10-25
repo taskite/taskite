@@ -1,0 +1,9 @@
+{% extends '_client.html' %}
+{% load django_vite %}
+
+{% block head_script %}
+{% endblock head_script %}
+
+{% block script %}
+{% vite_asset 'packs/accounts/reset_confirm.js' %}
+{% endblock script %}

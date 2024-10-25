@@ -6,7 +6,7 @@ from taskite.models import TaskComment, User
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "email", "username", "first_name", "last_name", "avatar"]
+        fields = ["id", "email", "username", "first_name", "display_name", "last_name", "avatar"]
 
 
 class TaskCommentSerializer(serializers.ModelSerializer):

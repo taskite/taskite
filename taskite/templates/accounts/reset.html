@@ -1,0 +1,10 @@
+{% extends '_client.html' %}
+{% load django_vite %}
+
+{% block head_script %}
+{% include 'partials/_turnstile.html' %}
+{% endblock head_script %}
+
+{% block script %}
+{% vite_asset 'packs/accounts/reset.js' %}
+{% endblock script %}

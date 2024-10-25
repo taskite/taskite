@@ -7,7 +7,7 @@ from taskite.models import Workspace, User, Team, Board
 class ProfileSerializer(NameAndSourceSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "avatar"]
+        fields = ["id", "username", "email", "first_name", "last_name", "display_name", "avatar"]
 
 
 class WorkspaceSerializer(NameAndSourceSerializerMixin, serializers.ModelSerializer):

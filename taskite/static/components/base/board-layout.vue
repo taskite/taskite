@@ -1,7 +1,7 @@
 <script setup>
-import { MenuOutlined, ProjectOutlined, TableOutlined, CalendarOutlined, CarryOutOutlined, SettingOutlined, LeftOutlined, AppstoreOutlined } from '@ant-design/icons-vue';
-import { Avatar, Button, TabPane, Tabs } from 'ant-design-vue';
-import { h, ref } from 'vue';
+import { TableOutlined, CalendarOutlined, CarryOutOutlined, SettingOutlined, LeftOutlined, AppstoreOutlined } from '@ant-design/icons-vue';
+import { TabPane, Tabs } from 'ant-design-vue';
+import { ref } from 'vue';
 import BaseLayout from '@/components/base/base-layout.vue';
 
 const props = defineProps(['board', 'workspace', 'page'])
