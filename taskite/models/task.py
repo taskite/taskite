@@ -130,16 +130,21 @@ class TaskAssignee(UUIDTimestampModel):
 
 
 class TaskComment(UUIDTimestampModel):
+    class CommentType(models.TextChoices):
+        UPDATE = ("update", "Update")
+        ACTIVITY = ("activity", "Activity")
+
     task = models.ForeignKey("Task", on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey("User", on_delete=models.SET_NULL, null=True)
     content = models.TextField()
+    comment_type = models.CharField(max_length=10, default=CommentType.UPDATE)
 
     class Meta:
         verbose_name = "Task Comment"
         verbose_name_plural = "Task Comments"
         db_table = "task_comments"
 
-    def __str__(self) -> str:
+    def __str__(self):
         return str(self.id)
 
 
@@ -160,3 +165,16 @@ class TaskLabel(UUIDTimestampModel):
                 fields=["task", "label"], name="unique_label_per_task"
             )
         ]
+
+
+class TaskAttachment(UUIDTimestampModel):
+    task = models.ForeignKey(
+        "Task", on_delete=models.CASCADE, related_name="attachments"
+    )
+    attachment = models.FileField(upload_to="tasks/attachments/")
+
+    class Meta:
+        db_table = "task_attachments"
+
+    def __str__(self) -> str:
+        return str(self.id)

@@ -6,7 +6,7 @@ import { taskListAPI, stateListAPI, boardMembersListAPI, priorityListAPI, taskUp
 import { VueDraggable } from 'vue-draggable-plus';
 import TaskCard from '@/components/boards/kanban/task-card.vue';
 import { handleResponseError } from '@/utils/helpers';
-import { Button, Dropdown, Card, Input, Modal, AvatarGroup, Avatar } from 'ant-design-vue';
+import { Button, Dropdown, Card, Input, Modal, AvatarGroup, Avatar, Drawer, Breadcrumb, BreadcrumbItem } from 'ant-design-vue';
 import { FilterOutlined, PlusOutlined, ReloadOutlined, UnorderedListOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import FilterList from '@/components/boards/kanban/filters/filter-list.vue';
@@ -155,6 +155,16 @@ const closeTaskAddModal = () => {
     selectedTask.value = ''
     openTaskAddModal.value = false
 }
+
+const getTypeColor = (type) => {
+    const colors = {
+        bug: 'red',
+        issue: 'blue',
+        feature: 'green',
+        story: 'brown'
+    };
+    return colors[type] || 'default';
+};
 </script>
 
 <template>
@@ -230,11 +240,24 @@ const closeTaskAddModal = () => {
                 </template>
             </BoardLayout>
 
-            <Modal centered v-model:open="openTaskAddModal" destroyOnClose style="width: 1000px;" :afterClose="closeTaskAddModal">
+            <Drawer centered v-model:open="openTaskAddModal" destroyOnClose :width="700"
+                :afterClose="closeTaskAddModal">
                 <TaskView :board="props.board" :workspace="props.workspace" :taskId="selectedTask" />
-                <template #footer>
+                <template #extra>
+                    <Breadcrumb>
+                        <BreadcrumbItem>
+                            <Avatar :size="20" shape="square"
+                                :src="!!props.workspace.logo ? props.workspace.logoSrc : generateAvatar(props.workspace.name, 10)" />
+                            <span class="ml-2">{{ props.workspace.name }}</span>
+                        </BreadcrumbItem>
+                        <BreadcrumbItem>
+                            <Avatar :size="20" shape="square"
+                                :src="!!props.board.cover ? props.board.cover : generateAvatar(props.board.name, 10)" />
+                            <span class="ml-2">{{ props.board.name }}</span>
+                        </BreadcrumbItem>
+                    </Breadcrumb>
                 </template>
-            </Modal>
+            </Drawer>
         </WorkspaceLayout>
     </div>
 </template>

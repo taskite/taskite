@@ -12,6 +12,8 @@ from taskite.models import (
     Priority,
     BoardPermission,
     BoardTeamPermission,
+    TaskComment,
+    Task,
 )
 from taskite.tasks import file_archive
 
@@ -93,12 +95,20 @@ def get_file_fields(instance):
     ]
 
 
-
-
-
 @receiver(post_delete)
 def handle_file_operations_on_delete(sender, instance, **kwargs):
     for field in get_file_fields(instance):
         file_instance = getattr(instance, field.name)
         if file_instance:
             file_archive.delay(file_instance.name)
+
+
+@receiver(post_save, sender=Task)
+def create_task_comment(sender, instance, created, **kwargs):
+    if created:
+        TaskComment.objects.create(
+            task=instance,
+            author=instance.created_by,
+            content="created the task.",
+            comment_type=TaskComment.CommentType.ACTIVITY,
+        )

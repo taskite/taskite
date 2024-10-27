@@ -1,12 +1,15 @@
 from django.db import transaction
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 
-from taskite.models import Task, TaskAssignee, State, Priority, User
+from taskite.utils import get_object_or_raise_api_404
+from taskite.models import Task, TaskAssignee, State, Priority, User, TaskComment
 from taskite.mixins import BoardMixin
 from taskite.api.tasks.serializers import (
     TaskSerializer,
@@ -79,7 +82,10 @@ class TasksViewSet(BoardMixin, ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
-        queryset = Task.objects.filter(board=request.board, archived_at__isnull=True)
+        parent_id = request.query_params.get("parent_id", None)
+        queryset = Task.objects.filter(
+            board=request.board, archived_at__isnull=True, parent_id=parent_id
+        )
         if request.query_params.getlist("assignees[]"):
             # Filter for assignees
             assignees = request.query_params.getlist("assignees[]")
@@ -114,9 +120,9 @@ class TasksViewSet(BoardMixin, ViewSet):
             print(update_serializer.errors)
             raise InvalidInputException
 
-        task = Task.objects.filter(board=request.board, id=kwargs.get("pk")).first()
-        if not task:
-            raise TaskNotFoundException
+        task = get_object_or_raise_api_404(
+            Task, board=request.board, id=kwargs.get("pk"), message="Task not found."
+        )
 
         data = update_serializer.validated_data
 
@@ -124,6 +130,50 @@ class TasksViewSet(BoardMixin, ViewSet):
         if data.get("assignees"):
             assignees = data.pop("assignees")
         for key, value in data.items():
+            if key == "priority_id":
+                priority = Priority.objects.filter(
+                    board=request.board, id=value
+                ).first()
+                TaskComment.objects.create(
+                    task=task,
+                    content=f"updated priority to {priority.name}.",
+                    author=request.user,
+                    comment_type=TaskComment.CommentType.ACTIVITY,
+                )
+
+            if key == "task_type":
+                TaskComment.objects.create(
+                    task=task,
+                    content=f"updated task type to {value}.",
+                    author=request.user,
+                    comment_type=TaskComment.CommentType.ACTIVITY,
+                )
+
+            if key == "state_id":
+                state = State.objects.filter(board=request.board, id=value).first()
+                TaskComment.objects.create(
+                    task=task,
+                    content=f"updated state to {state.name}.",
+                    author=request.user,
+                    comment_type=TaskComment.CommentType.ACTIVITY,
+                )
+
+            if key == "description":
+                TaskComment.objects.create(
+                    task=task,
+                    content="updated the description.",
+                    author=request.user,
+                    comment_type=TaskComment.CommentType.ACTIVITY,
+                )
+
+            if key == "summary":
+                TaskComment.objects.create(
+                    task=task,
+                    content="updated the summary.",
+                    author=request.user,
+                    comment_type=TaskComment.CommentType.ACTIVITY,
+                )
+
             setattr(task, key, value)
         task.save(update_fields=data.keys())
         if assignees:

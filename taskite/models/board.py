@@ -5,6 +5,13 @@ from django.utils.crypto import get_random_string
 from taskite.models.base import UUIDTimestampModel
 
 
+class BoardPermissionRole(models.TextChoices):
+    ADMIN = ("admin", "Admin")
+    COLLABORATOR = ("collaborator", "Collaborator")
+    MAINTAINER = ("maintainer", "Maintainer")
+    GUEST = ("guest", "Guest")
+
+
 class Board(UUIDTimestampModel):
     workspace = models.ForeignKey(
         "Workspace", on_delete=models.CASCADE, related_name="boards"
@@ -41,7 +48,7 @@ class Board(UUIDTimestampModel):
     def save(self, *args, **kwargs):
         if self._state.adding:
             if not self.slug:
-                self.slug = slugify(self.name) + get_random_string(10)
+                self.slug = slugify(self.name) + "-" + get_random_string(10)
 
             # Generate task prefix if not given
             if not self.task_prefix:
@@ -61,15 +68,17 @@ class Board(UUIDTimestampModel):
 
 
 class BoardTeamPermission(UUIDTimestampModel):
-    ROLE_CHOICES = [("admin", "Admin"), ("collaborator", "Collaborator")]
-
     board = models.ForeignKey(
         "Board", on_delete=models.CASCADE, related_name="team_memberships"
     )
     team = models.ForeignKey(
         "Team", on_delete=models.CASCADE, related_name="team_board_team_memberships"
     )
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="collaborator")
+    role = models.CharField(
+        max_length=20,
+        choices=BoardPermissionRole.choices,
+        default=BoardPermissionRole.COLLABORATOR,
+    )
 
     class Meta:
         db_table = "board_team_permissions"
@@ -97,15 +106,17 @@ class BoardPermission(UUIDTimestampModel):
                 .filter(team_permission__isnull=False, team_membership__isnull=False)
             )
 
-    ROLE_CHOICES = [("admin", "Admin"), ("collaborator", "Collaborator")]
-
     board = models.ForeignKey(
         "Board", on_delete=models.CASCADE, related_name="permissions"
     )
     user = models.ForeignKey(
         "User", on_delete=models.CASCADE, related_name="user_board_permissions"
     )
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="collaborator")
+    role = models.CharField(
+        max_length=20,
+        choices=BoardPermissionRole.choices,
+        default=BoardPermissionRole.COLLABORATOR,
+    )
     team_permission = models.ForeignKey(
         "BoardTeamPermission",
         related_name="+",
