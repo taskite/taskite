@@ -6,10 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
-from taskite.permissions import (
-    WorkspaceAdminPermission,
-    WorkspaceCollaboratorPermission,
-)
+from taskite.permissions import WorkspaceGenericPermission
 from taskite.mixins import WorkspaceMixin
 from taskite.models import WorkspaceInvite, User
 from taskite.exceptions import (
@@ -28,14 +25,21 @@ class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        if self.action == "list":
-            return [IsAuthenticated(), WorkspaceCollaboratorPermission()]
-        elif self.action == "create":
-            return [IsAuthenticated(), WorkspaceAdminPermission()]
-        elif self.action == "destroy":
-            return [IsAuthenticated(), WorkspaceAdminPermission()]
-
-        return super().get_permissions()
+        match self.action:
+            case "list":
+                return [IsAuthenticated(), WorkspaceGenericPermission()]
+            case "create":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case "destroy":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case _:
+                return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         workspace_invites = (
@@ -101,7 +105,10 @@ class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
         methods=["POST"],
         detail=True,
         url_path="resend-invitation",
-        permission_classes=[IsAuthenticated, WorkspaceAdminPermission],
+        permission_classes=[
+            IsAuthenticated,
+            WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+        ],
         throttle_classes=[ResendEmailThrottle],
     )
     def resend_invitation(self, request, *args, **kwargs):

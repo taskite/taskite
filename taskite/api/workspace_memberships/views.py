@@ -20,25 +20,26 @@ class WorkspaceMembershipsViewset(WorkspaceMixin, ViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        if self.action == "list":
-            return [
-                IsAuthenticated(),
-                WorkspaceGenericPermission(
-                    allowed_roles=["admin", "maintainer", "collaborator", "guest"]
-                ),
-            ]
-        elif self.action == "destroy":
-            return [
-                IsAuthenticated(),
-                WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
-            ]
-        elif self.action == "partial_update":
-            return [
-                IsAuthenticated(),
-                WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
-            ]
-
-        return super().get_permissions()
+        match self.action:
+            case "list":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(
+                        allowed_roles=["admin", "maintainer", "collaborator", "guest"]
+                    ),
+                ]
+            case "destroy":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case "partial_update":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case _:
+                return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         workspace_memberships = (

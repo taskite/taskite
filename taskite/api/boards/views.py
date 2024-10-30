@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
-from taskite.utils import update_file_field
+from taskite.utils import update_file_field, get_object_or_raise_api_404
 from taskite.models import (
     Board,
     Workspace,
@@ -15,6 +15,7 @@ from taskite.models import (
     User,
     Task,
     BoardPermission,
+    BoardPermissionRole,
 )
 from taskite.api.boards.serializers import (
     BoardSerializer,
@@ -37,54 +38,40 @@ class BoardViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_workspace_membership(self, user, workspace):
-        return WorkspaceMembership.objects.filter(
-            workspace=workspace, user=user
-        ).first()
-
-    def check_for_workspace_admin_membership(self, user, workspace):
-        permission_queryset = WorkspaceMembership.objects.filter(
-            user=user, workspace=workspace, role=WorkspaceMembership.Role.ADMIN
+        workspace_membership = get_object_or_raise_api_404(
+            WorkspaceMembership, user=user, workspace=workspace
         )
-        if not permission_queryset.exists():
-            raise WorkspaceInvalidPermission
+        return workspace_membership
 
-    def check_for_workspace_collaborator_membership(self, user, workspace):
-        permission_queryset = WorkspaceMembership.objects.filter(
-            user=user,
-            workspace=workspace,
-            role__in=[
-                WorkspaceMembership.Role.ADMIN,
-                WorkspaceMembership.Role.COLLABORATOR,
-            ],
-        )
-        if not permission_queryset.exists():
-            raise WorkspaceInvalidPermission
-
-    def check_for_board_permission(self, user, board):
-        # Check for workspace permission
+    def check_for_board_permission(
+        self, user, board, allowed_roles=BoardPermissionRole.values
+    ):
+        # Check if user has membership in the workspace related to the board
         workspace_membership = self.get_workspace_membership(user, board.workspace)
         if not workspace_membership:
             raise WorkspaceInvalidPermission
 
-        if workspace_membership.role == WorkspaceMembership.Role.COLLABORATOR:
-            board_membership_queryset = BoardPermission.objects.filter(
-                user=user, board=board
-            )
-            if not board_membership_queryset.exists():
-                raise BoardInvalidPermission
+        # Allow access if the user is an admin or maintainer in the workspace
+        if workspace_membership.role in {
+            WorkspaceMembership.Role.ADMIN,
+            WorkspaceMembership.Role.MAINTAINER,
+        }:
+            return
 
-    def check_for_board_admin_permission(self, user, board):
-        # Check for workspace permission
-        workspace_membership = self.get_workspace_membership(user, board.workspace)
-        if not workspace_membership:
-            raise WorkspaceInvalidPermission
+        # Check if user has specific board permission if not an admin or maintainer
+        has_permission = BoardPermission.objects.filter(
+            user=user, board=board, role__in=allowed_roles
+        ).exists()
+        if not has_permission:
+            raise BoardInvalidPermission
 
-        if workspace_membership.role == WorkspaceMembership.Role.COLLABORATOR:
-            board_admin_permission_queryset = BoardPermission.objects.filter(
-                user=user, board=board, role="admin"
-            )
-            if not board_admin_permission_queryset.exists():
-                raise BoardInvalidPermission
+    def check_for_workspace_roles(
+        self, user, workspace, allowed_roles=WorkspaceMembership.Role.values
+    ):
+        queryset = WorkspaceMembership.objects.filter(
+            workspace=workspace, user=user, role__in=allowed_roles
+        )
+        return queryset.exists()
 
     def create(self, request, *args, **kwargs):
         create_serializer = BoardCreateSerializer(data=request.data)
@@ -92,14 +79,14 @@ class BoardViewSet(ViewSet):
             raise InvalidInputException
 
         data = create_serializer.validated_data
-        workspace_id = data.pop("workspace_id")
+        workspace = get_object_or_raise_api_404(
+            id=data.pop("workspace_id"), message="Workspace not found."
+        )
 
-        workspace = Workspace.objects.filter(id=workspace_id).first()
-        if not workspace:
-            raise WorkspaceNotFoundException
-
-        # # Check for workspace membership permission
-        # self.check_for_workspace_admin_membership(request.user, workspace)
+        # Check for workspace membership permission
+        self.check_for_workspace_roles(
+            request.user, workspace, ["admin", "collaborator", "maintainer"]
+        )
 
         board = Board(**data)
         board.workspace = workspace
@@ -114,15 +101,11 @@ class BoardViewSet(ViewSet):
         if not workspace_id:
             raise InvalidInputException
 
-        workspace = Workspace.objects.filter(id=workspace_id).first()
-        if not workspace:
-            raise WorkspaceNotFoundException
+        workspace = get_object_or_raise_api_404(Workspace, id=workspace_id)
 
-        workspace_membership = WorkspaceMembership.objects.filter(
-            workspace=workspace, user=request.user
-        ).first()
-        if not workspace_membership:
-            raise WorkspaceInvalidPermission
+        workspace_membership = self.get_workspace_membership(
+            request.user, workspace=workspace
+        )
 
         if workspace_membership.role == WorkspaceMembership.Role.ADMIN:
             boards = Board.objects.filter(workspace=workspace)
@@ -136,9 +119,9 @@ class BoardViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
-        board = Board.objects.filter(id=kwargs.get("pk")).first()
-        if not board:
-            raise BoardNotFoundException
+        board = get_object_or_raise_api_404(
+            Board, id=kwargs.get("pk"), message="Board not found."
+        )
 
         self.check_for_board_permission(request.user, board)
 
@@ -146,11 +129,11 @@ class BoardViewSet(ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, *args, **kwargs):
-        board = Board.objects.filter(id=kwargs.get("pk")).first()
-        if not board:
-            raise BoardNotFoundException
+        board = get_object_or_raise_api_404(
+            Board, id=kwargs.get("pk"), message="Board not found."
+        )
 
-        self.check_for_board_admin_permission(request.user, board)
+        self.check_for_board_permission(request.user, board, ["admin", "maintainer"])
 
         update_serializer = BoardUpdateSerializer(data=request.data)
         if not update_serializer.is_valid():
@@ -181,12 +164,10 @@ class BoardViewSet(ViewSet):
 
     @action(methods=["GET"], detail=True)
     def members(self, request, *args, **kwargs):
-        board = Board.objects.filter(id=kwargs.get("pk")).first()
-        if not board:
-            raise BoardNotFoundException
-
+        board = get_object_or_raise_api_404(
+            Board, id=kwargs.get("pk"), message="Board not found."
+        )
         self.check_for_board_permission(request.user, board)
-
         members = (
             User.objects.filter(user_board_permissions__board=board)
             .distinct()

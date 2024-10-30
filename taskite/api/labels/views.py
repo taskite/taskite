@@ -6,10 +6,23 @@ from rest_framework import status
 from taskite.models import Label
 from taskite.mixins import BoardMixin
 from taskite.api.labels.serializers import LabelSerializer
+from taskite.permissions import BoardGenericPermission
 
 
 class LabelsViewSet(BoardMixin, ViewSet):
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        match self.action:
+            case "list":
+                return [IsAuthenticated(), BoardGenericPermission()]
+            case "create":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case _:
+                return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         labels = Label.objects.filter(board=request.board).order_by("name")

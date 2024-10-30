@@ -79,6 +79,29 @@ const teams = computed(() => {
 const addPermissions = (data) => {
     permissions.value.push(data)
 }
+
+const roleOptions = ref([
+    {
+        value: 'collaborator',
+        label: 'Collaborator',
+        description: 'Can view boards and their content but cannot make changes to board settings.',
+    },
+    {
+        value: 'maintainer',
+        label: 'Maintainer',
+        description: 'Can manage tasks and basic board settings, excluding critical actions like deleting the board or archiving it.',
+    },
+    {
+        value: 'guest',
+        label: 'Guest',
+        description: 'Has restricted access, able only to view specific assigned boards or tasks without permission to make any modifications.',
+    },
+    {
+        value: 'admin',
+        label: 'Admin',
+        description: 'Has full control over board settings, tasks, and member permissions on all assigned boards.',
+    },
+])
 </script>
 
 <template>
@@ -97,10 +120,15 @@ const addPermissions = (data) => {
             </template>
 
             <template v-else-if="column.key === 'role'">
-                <Select v-model:value="record.role" style="width: 140px"
-                    @change="(role) => handleRoleChange(record.id, role)" :disabled="!props.hasEditPermission">
-                    <SelectOption value="collaborator">Collaborator</SelectOption>
-                    <SelectOption value="admin">Admin</SelectOption>
+                <Select v-model:value="record.role" style="width: 220px"
+                    @change="(role) => handleRoleChange(record.id, role)" :disabled="!props.hasEditPermission"
+                    :options="roleOptions">
+                    <template #option="{ value: val, label, description }">
+                        <div class="flex flex-col gap-1">
+                            <div class="font-semibold">{{ label }}</div>
+                            <div class="text-xs text-wrap">{{ description }}</div>
+                        </div>
+                    </template>
                 </Select>
             </template>
 

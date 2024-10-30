@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from taskite.utils import get_object_or_raise_api_404
 from taskite.models import Workspace, WorkspaceMembership
 from taskite.api.workspaces.serializers import (
     WorkspaceSerializer,
@@ -38,21 +39,24 @@ class WorkspaceViewSet(ViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
-        workspace = Workspace.objects.filter(
-            memberships__user=request.user, id=kwargs.get("pk")
-        ).first()
-        if not workspace:
-            raise WorkspaceNotFoundException
+        workspace = get_object_or_raise_api_404(
+            Workspace,
+            memberships__user=request.user,
+            id=kwargs.get("pk"),
+            message="workspace not found.",
+        )
 
         serializer = WorkspaceSerializer(workspace)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, *args, **kwargs):
-        workspace = Workspace.objects.filter(
-            memberships__user=request.user, id=kwargs.get("pk")
-        ).first()
-        if not workspace:
-            raise WorkspaceNotFoundException
+        workspace = get_object_or_raise_api_404(
+            Workspace,
+            memberships__user=request.user,
+            id=kwargs.get("pk"),
+            message="workspace not found.",
+            memberships__role__in=["admin", "maintainer"],
+        )
 
         update_serializer = WorkspaceUpdateSerializer(data=request.data)
         if not update_serializer.is_valid():
@@ -61,7 +65,7 @@ class WorkspaceViewSet(ViewSet):
         data = update_serializer.validated_data
 
         if "logo" in data:
-            update_file_field(workspace, 'logo', data.get("logo"))
+            update_file_field(workspace, "logo", data.get("logo"))
             del data["logo"]
 
         for key, value in data.items():
@@ -71,38 +75,14 @@ class WorkspaceViewSet(ViewSet):
         serializer = WorkspaceSerializer(workspace)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    # @action(methods=["DELETE"], detail=True)
-    # def files(self, request, *args, **kwargs):
-    #     workspace = Workspace.objects.filter(
-    #         memberships__user=request.user, id=kwargs.get("pk")
-    #     ).first()
-    #     if not workspace:
-    #         raise WorkspaceNotFoundException
-
-    #     resources = request.query_params.getlist("resources[]")
-    #     for resource in resources:
-    #         file = getattr(workspace, resource)
-    #         if file:
-    #             purge_asset.delay(file.name, datetime.now().isoformat())
-
-    #     return Response(
-    #         data={"detail": "Resource files deleted."},
-    #         status=status.HTTP_204_NO_CONTENT,
-    #     )
-
-    @action(methods=["GET"], detail=False)
-    def memberships(self, request, *args, **kwargs):
-        memberships = WorkspaceMembership.objects.filter(user=request.user)
-        serializer = WorkspaceMembershipSerializer(memberships, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
     @action(methods=["GET"], detail=True, url_path="members/search")
     def members_search(self, request, *args, **kwargs):
-        workspace = Workspace.objects.filter(
-            memberships__user=request.user, id=kwargs.get("pk")
-        ).first()
-        if not workspace:
-            raise WorkspaceNotFoundException
+        workspace = get_object_or_raise_api_404(
+            Workspace,
+            memberships__user=request.user,
+            id=kwargs.get("pk"),
+            message="workspace not found.",
+        )
 
         query = request.query_params.get("q")
         if not query:

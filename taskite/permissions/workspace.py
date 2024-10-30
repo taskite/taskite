@@ -26,7 +26,7 @@ class WorkspaceCollaboratorPermission(permissions.BasePermission):
 
 
 class WorkspaceGenericPermission(permissions.BasePermission):
-    def __init__(self, allowed_roles):
+    def __init__(self, allowed_roles=WorkspaceMembership.Role.values):
         self.allowed_roles = allowed_roles
 
     def has_permission(self, request, view):

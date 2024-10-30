@@ -5,14 +5,21 @@ from rest_framework import status
 from rest_framework.decorators import action
 
 from taskite.mixins import BoardMixin
-from taskite.permissions import BoardCollaboratorPermission
+from taskite.permissions import BoardGenericPermission
 from taskite.models import TaskComment, Task
 from taskite.exceptions import TaskNotFoundException
 from taskite.api.task_comments.serializers import TaskCommentSerializer
 
 
 class TaskCommentsViewSet(BoardMixin, ViewSet):
-    permission_classes = [IsAuthenticated, BoardCollaboratorPermission]
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        match self.action:
+            case "list":
+                return [IsAuthenticated(), BoardGenericPermission()]
+            case _:
+                return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         task = Task.objects.filter(id=kwargs.get("task_id")).first()

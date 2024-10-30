@@ -8,7 +8,7 @@ from taskite.api.team_memberships.serializers import (
     TeamMembershipSerializer,
     TeamMembershipCreateSerializer,
 )
-from taskite.permissions import WorkspaceAdminPermission
+from taskite.permissions import WorkspaceGenericPermission
 from taskite.mixins import WorkspaceMixin
 from taskite.exceptions import (
     TeamNotFoundException,
@@ -19,7 +19,24 @@ from taskite.exceptions import (
 
 
 class TeamMembershipsViewSet(WorkspaceMixin, ViewSet):
-    permission_classes = [IsAuthenticated, WorkspaceAdminPermission]
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        match self.action:
+            case "list":
+                return [IsAuthenticated(), WorkspaceGenericPermission()]
+            case "create":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case "destroy":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case _:
+                return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         team_id = request.query_params.get("team_id")

@@ -4,7 +4,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from taskite.models import BoardTeamPermission
-from taskite.permissions import BoardCollaboratorPermission, BoardAdminPermission
+from taskite.permissions import (
+    BoardCollaboratorPermission,
+    BoardAdminPermission,
+    BoardGenericPermission,
+)
 from taskite.mixins import BoardMixin
 from taskite.api.board_team_permissions.serializers import (
     BoardTeamPermissionSerializer,
@@ -21,15 +25,26 @@ class BoardTeamPermissionsViewSet(BoardMixin, ViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        if self.action == "list":
-            return [IsAuthenticated(), BoardCollaboratorPermission()]
-        elif self.action == "create":
-            return [IsAuthenticated(), BoardAdminPermission()]
-        elif self.action == "partial_update":
-            return [IsAuthenticated(), BoardAdminPermission()]
-        elif self.action == "destroy":
-            return [IsAuthenticated(), BoardAdminPermission()]
-
+        match self.action:
+            case "list":
+                return [IsAuthenticated(), BoardGenericPermission()]
+            case "create":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case "partial_update":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case "destroy":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case _:
+                return super().get_permissions()
         return super().get_permissions()
 
     def create(self, request, *args, **kwargs):

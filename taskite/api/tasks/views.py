@@ -1,15 +1,20 @@
 from django.db import transaction
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound
 
 from taskite.utils import get_object_or_raise_api_404
-from taskite.models import Task, TaskAssignee, State, Priority, User, TaskComment
+from taskite.models import (
+    Task,
+    TaskAssignee,
+    State,
+    Priority,
+    User,
+    TaskComment,
+    BoardPermissionRole,
+)
 from taskite.mixins import BoardMixin
 from taskite.api.tasks.serializers import (
     TaskSerializer,
@@ -17,7 +22,7 @@ from taskite.api.tasks.serializers import (
     TaskCreateSerializer,
     TaskUpdateSerializer,
 )
-from taskite.permissions import BoardCollaboratorPermission, BoardAdminPermission
+from taskite.permissions import BoardGenericPermission
 from taskite.exceptions import (
     InvalidInputException,
     TaskNotFoundException,
@@ -30,18 +35,45 @@ class TasksViewSet(BoardMixin, ViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        if self.action == "list":
-            return [IsAuthenticated(), BoardCollaboratorPermission()]
-        elif self.action == "create":
-            return [IsAuthenticated(), BoardCollaboratorPermission()]
-        elif self.action == "retrieve":
-            return [IsAuthenticated(), BoardCollaboratorPermission()]
-        elif self.action == "partial_update":
-            return [IsAuthenticated(), BoardCollaboratorPermission()]
-        elif self.action == "update_sequence":
-            return [IsAuthenticated(), BoardCollaboratorPermission()]
-
-        return super().get_permissions()
+        match self.action:
+            case "list":
+                return [IsAuthenticated(), BoardGenericPermission()]
+            case "create":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(
+                        allowed_roles=[
+                            BoardPermissionRole.ADMIN,
+                            BoardPermissionRole.COLLABORATOR,
+                            BoardPermissionRole.MAINTAINER,
+                        ]
+                    ),
+                ]
+            case "retrieve":
+                return [IsAuthenticated(), BoardGenericPermission()]
+            case "partial_update":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(
+                        allowed_roles=[
+                            BoardPermissionRole.ADMIN,
+                            BoardPermissionRole.COLLABORATOR,
+                            BoardPermissionRole.MAINTAINER,
+                        ]
+                    ),
+                ]
+            case "update_sequence":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(
+                        allowed_roles=[
+                            BoardPermissionRole.ADMIN,
+                            BoardPermissionRole.MAINTAINER,
+                        ]
+                    ),
+                ]
+            case _:
+                return super().get_permissions()
 
     def create(self, request, *args, **kwargs):
         create_serializer = TaskCreateSerializer(data=request.data)
@@ -117,7 +149,6 @@ class TasksViewSet(BoardMixin, ViewSet):
     def partial_update(self, request, *args, **kwargs):
         update_serializer = TaskUpdateSerializer(data=request.data)
         if not update_serializer.is_valid():
-            print(update_serializer.errors)
             raise InvalidInputException
 
         task = get_object_or_raise_api_404(

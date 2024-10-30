@@ -1,8 +1,5 @@
 <script setup>
-import { Avatar, Timeline, TimelineItem } from 'ant-design-vue';
-import { onMounted, ref } from 'vue';
-import { taskCommentsAPI } from '@/utils/api';
-import { handleResponseError, generateAvatar } from '@/utils/helpers';
+import { Timeline, TimelineItem } from 'ant-design-vue';
 import { MessageOutlined, PushpinOutlined, } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -13,7 +10,7 @@ const props = defineProps(['boardId', 'taskId', 'comments'])
 </script>
 
 <template>
-    <h3 class="text-lg font-semibold mb-2">Comments/Activity</h3>
+    <h3 class="text-lg font-semibold mb-2">Activity</h3>
     <Timeline>
         <TimelineItem v-for="comment in props.comments" :key="comment.id">
             <template #dot>
@@ -25,7 +22,7 @@ const props = defineProps(['boardId', 'taskId', 'comments'])
                 </template>
             </template>
 
-            <template v-if="comment.activityType === 'comment'">
+            <template v-if="comment.commentType === 'update'">
                 <div class="flex flex-col gap-1">
                     <div>
                         <span class="font-semibold text-[12px]">{{ comment.author.displayName }}</span> <span class="text-[12px]">commented.</span> <span class="text-[12px]">{{ dayjs(comment.createdAt).fromNow() }}</span>

@@ -15,33 +15,31 @@ class TeamsViewSet(WorkspaceMixin, ViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        if self.action == "list":
-            return [
-                IsAuthenticated(),
-                WorkspaceGenericPermission(
-                    allowed_roles=["admin", "collaborator", "guest", "maintainer"]
-                ),
-            ]
-        elif self.action == "create":
-            return [
-                IsAuthenticated(),
-                WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
-            ]
-        elif self.action == "destroy":
-            return [
-                IsAuthenticated(),
-                WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
-            ]
+        match self.action:
+            case "list":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(),
+                ]
+            case "create":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
+            case "destroy":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
 
-        elif self.action == "search":
-            return [
-                IsAuthenticated(),
-                WorkspaceGenericPermission(
-                    allowed_roles=["admin", "collaborator", "guest", "maintainer"]
-                ),
-            ]
+            case "search":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(),
+                ]
 
-        return super().get_permissions()
+            case _:
+                return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         teams = Team.objects.filter(workspace=request.workspace).prefetch_related(
