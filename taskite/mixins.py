@@ -1,8 +1,15 @@
 from rest_framework import serializers
 from django.http import Http404
 
-from taskite.models import Board, Workspace, WorkspaceMembership, BoardPermission
+from taskite.models import (
+    Board,
+    Workspace,
+    WorkspaceMembership,
+    BoardPermission,
+    BoardPermissionRole,
+)
 from taskite.exceptions import BoardNotFoundException, WorkspaceNotFoundException
+from taskite.utils import get_object_or_404
 
 
 class FileUploadMixin:
@@ -104,7 +111,9 @@ class PermissionCheckMixin:
 
 
 class WorkspacePermissionMixin:
-    def has_valid_permission(self, workspace, user, allowed_roles):
+    def has_valid_permission(
+        self, workspace, user, allowed_roles=WorkspaceMembership.Role.values
+    ):
         permission_queryset = WorkspaceMembership.objects.filter(
             workspace=workspace, user=user, role__in=allowed_roles
         )
@@ -115,3 +124,23 @@ class WorkspacePermissionMixin:
             workspace=workspace, user=user
         )
         return membership_queryset.exists()
+
+
+class BoardPermissionMixin:
+    def get_workspace_membership(self, workspace, user):
+        workspace_membership = get_object_or_404(
+            WorkspaceMembership, workspace=workspace, user=user
+        )
+        return workspace_membership
+
+    def has_valid_board_permission(
+        self, board, user, allowed_roles=BoardPermissionRole.values
+    ):
+        membership = self.get_workspace_membership(board.workspace, user)
+        if membership.role == WorkspaceMembership.Role.ADMIN:
+            return True
+
+        permission_queryset = BoardPermission.objects.filter(
+            user=user, board=board, role__in=allowed_roles
+        )
+        return permission_queryset.exists()

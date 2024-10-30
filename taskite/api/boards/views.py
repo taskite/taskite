@@ -80,7 +80,7 @@ class BoardViewSet(ViewSet):
 
         data = create_serializer.validated_data
         workspace = get_object_or_raise_api_404(
-            id=data.pop("workspace_id"), message="Workspace not found."
+            Workspace, id=data.pop("workspace_id"), message="Workspace not found."
         )
 
         # Check for workspace membership permission
