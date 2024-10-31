@@ -217,35 +217,29 @@ class TasksViewSet(BoardMixin, ViewSet):
         update_serializer = TaskSequenceUpdateSerializer(data=request.data)
         if not update_serializer.is_valid():
             raise InvalidInputException
-        task = Task.objects.filter(board=request.board, id=kwargs.get("pk")).first()
+        task = get_object_or_raise_api_404(
+            Task, board=request.board, id=kwargs.get("pk")
+        )
         data = update_serializer.validated_data
 
         if data.get("previous_task") and data.get("next_task"):
-            previous_task = (
-                Task.objects.filter(board=request.board, id=data.get("previous_task"))
-                .only("pk", "sequence")
-                .first()
+            previous_task = get_object_or_raise_api_404(
+                Task, board=request.board, id=data.get("previous_task")
             )
-            next_task = (
-                Task.objects.filter(board=request.board, id=data.get("next_task"))
-                .only("pk", "sequence")
-                .first()
+            next_task = get_object_or_raise_api_404(
+                Task, board=request.board, id=data.get("next_task")
             )
             task.sequence = (previous_task.sequence + next_task.sequence) / 2
 
         elif data.get("previous_task"):
-            previous_task = (
-                Task.objects.filter(board=request.board, id=data.get("previous_task"))
-                .only("pk", "sequence")
-                .first()
+            previous_task = get_object_or_raise_api_404(
+                Task, board=request.board, id=data.get("previous_task")
             )
             task.sequence = previous_task.sequence + 10000
 
         elif data.get("next_task"):
-            next_task = (
-                Task.objects.filter(board=request.board, id=data.get("next_task"))
-                .only("pk", "sequence")
-                .first()
+            next_task = get_object_or_raise_api_404(
+                Task, board=request.board, id=data.get("next_task")
             )
             task.sequence = next_task.sequence / 2
 

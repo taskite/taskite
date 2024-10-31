@@ -1,3 +1,4 @@
+from typing import Iterable
 from django.db import models
 
 from taskite.models.base import UUIDTimestampModel
@@ -20,3 +21,13 @@ class State(UUIDTimestampModel):
 
     def __str__(self) -> str:
         return f"{self.name}"
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            # last state
+            last_state = (
+                State.objects.filter(board=self.board).order_by("-sequence").first()
+            )
+            if last_state:
+                self.sequence = last_state.sequence + 10000
+        return super().save(*args, **kwargs)

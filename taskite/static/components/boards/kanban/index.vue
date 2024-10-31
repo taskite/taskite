@@ -6,7 +6,7 @@ import { taskListAPI, stateListAPI, boardMembersListAPI, priorityListAPI, taskUp
 import { VueDraggable } from 'vue-draggable-plus';
 import TaskCard from '@/components/boards/kanban/task-card.vue';
 import { handleResponseError } from '@/utils/helpers';
-import { Button, Dropdown, Card, Input, Modal, AvatarGroup, Avatar, Drawer, Breadcrumb, BreadcrumbItem } from 'ant-design-vue';
+import { Button, Dropdown, Card, Input, AvatarGroup, Avatar, Drawer, Breadcrumb, BreadcrumbItem } from 'ant-design-vue';
 import { FilterOutlined, PlusOutlined, ReloadOutlined, UnorderedListOutlined } from '@ant-design/icons-vue';
 import WorkspaceLayout from '@/components/base/workspace-layout.vue';
 import FilterList from '@/components/boards/kanban/filters/filter-list.vue';
@@ -155,16 +155,6 @@ const closeTaskAddModal = () => {
     selectedTask.value = ''
     openTaskAddModal.value = false
 }
-
-const getTypeColor = (type) => {
-    const colors = {
-        bug: 'red',
-        issue: 'blue',
-        feature: 'green',
-        story: 'brown'
-    };
-    return colors[type] || 'default';
-};
 </script>
 
 <template>
