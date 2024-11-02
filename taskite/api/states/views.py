@@ -29,6 +29,16 @@ class StatesViewSet(BoardMixin, ViewSet):
                     IsAuthenticated(),
                     BoardGenericPermission(allowed_roles=["admin", "maintainer"]),
                 ]
+            case "partial_update":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(allowed_roles=["admin", "maintainer"])
+                ]
+            case "destroy":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
             case "update_sequence":
                 return [
                     IsAuthenticated(),

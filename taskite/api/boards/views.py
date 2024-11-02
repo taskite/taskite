@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+from django.db.models import Count
+from django.db.models.functions import TruncDate
 
 from taskite.utils import update_file_field, get_object_or_raise_api_404
 from taskite.models import (
@@ -16,6 +18,7 @@ from taskite.models import (
     Task,
     BoardPermission,
     BoardPermissionRole,
+    TaskAssignee,
 )
 from taskite.api.boards.serializers import (
     BoardSerializer,
@@ -210,12 +213,37 @@ class BoardViewSet(ViewSet):
             board__in=boards, task_assignees__user=request.user
         ).count()
 
+        # Recent Tasks Created
         recent_tasks_created = Task.objects.filter(
             board__in=boards, created_by=request.user
         ).select_related("board")[:5]
+
+        # Recent Task Assigned
         recent_tasks_assigned = Task.objects.filter(
             board__in=boards, task_assignees__user=request.user
         ).select_related("board")[:5]
+
+        # Task Contributions
+        task_countributions_count = (
+            TaskAssignee.objects.filter(
+                user=request.user, created_at__year=2024, task__board__in=boards
+            )
+            .annotate(day=TruncDate("created_at"))
+            .values("day")
+            .annotate(task_count=Count("task_id"))
+            .order_by("day")
+        )
+
+        # Format the day field using strftime after retrieving the queryset
+        formatted_task_contributions_count = [
+            {
+                "day": entry["day"].strftime("%Y-%m-%d"),
+                "task_count": entry["task_count"],
+            }
+            for entry in task_countributions_count
+        ]
+
+        print(formatted_task_contributions_count)
 
         data = {
             "created_tasks_count": created_tasks_count,
@@ -226,5 +254,6 @@ class BoardViewSet(ViewSet):
             "recent_tasks_assigned": TaskSerializer(
                 recent_tasks_assigned, many=True
             ).data,
+            "task_contributions": formatted_task_contributions_count
         }
         return Response(data=data, status=status.HTTP_200_OK)
