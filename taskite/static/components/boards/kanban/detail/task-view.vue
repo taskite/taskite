@@ -1,11 +1,12 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import {
     Select,
     SelectOption,
     Tag,
     Skeleton,
     Avatar,
+    Divider
 } from 'ant-design-vue';
 import { handleResponseError, generateAvatar } from '@/utils/helpers';
 import { taskDetailAPI, taskUpdateAPI } from '@/utils/api';
@@ -13,11 +14,18 @@ import { useKanbanStore } from '@/stores/kanban';
 import TaskCommentList from './task-comment-list.vue';
 import SubTasks from './sub-tasks.vue';
 import { taskCommentsAPI, taskCommentsLastAPI } from '@/utils/api';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import debounce from "lodash/debounce";
+import TextEditor from '@/components/base/text-editor.vue';
+
+
+dayjs.extend(relativeTime);
 
 const store = useKanbanStore()
-
 const props = defineProps(['board', 'workspace', 'taskId']);
 
+const loading = ref(false)
 
 const updateTask = async (updatedData) => {
     try {
@@ -84,36 +92,65 @@ const loadComments = async () => {
     }
 }
 
+const loadTaskDetails = async () => {
+    loading.value = true
+    await loadTask()
+    await loadComments()
+    loading.value = false
+}
+
+const updateSummary = (event) => {
+    updateTask({ summary: event.target.innerText })
+};
+
+// Debounce the updateSummary function with a 1s delay
+const debouncedUpdateSummary = debounce(updateSummary, 1000);
+
+const descriptionUpdate = (content) => {
+    updateTask({ description: content })
+}
+
+// Debounce the descriptionUpdate function with a 1s delay
+const debouncedDescriptionUpdate = debounce(descriptionUpdate, 2000)
+
 onMounted(() => {
-    loadTask()
-    loadComments()
+    loadTaskDetails()
 })
+
+
+watch(() => store.selectedTask, () => {
+    loadTaskDetails()
+})
+
 </script>
 
 <template>
-    <div v-if="!!task">
+    <div v-if="!!task && !loading">
         <div class="mb-4">
-            <div class="flex gap-1">
-                <Tag v-for="label in task.labels" :key="label.id" :bordered="false" :color="label.color">
-                    {{ label.name }}
-                </Tag>
+            <div class="text-xs font-semibold">#{{ task.name }}</div>
+            <div class="text-2xl font-semibold mb-1" contenteditable="true" @input="debouncedUpdateSummary">
+                {{ task.summary }}
             </div>
-            <div class="text-2xl font-semibold">{{ task.summary }}</div>
             <div class="text-sm text-gray-500">
-                <div class="flex items-center gap-1">
-                    <div>Created by</div>
+                <div class="flex items-center gap-1 text-xs">
+                    <div>Created</div>
+                    <div>{{ dayjs(task.createdAt).fromNow() }} by</div>
                     <Avatar :size="16"
-                        :src="!!task.createdBy.avatar ? task.createdBy.avatar : generateAvatar(task.createdBy.firstName)" />
-                    <div>{{ task.createdBy.firstName }} {{ task.createdBy?.lastName }}</div>
+                        :src="!!task.createdBy.avatar ? task.createdBy.avatar : generateAvatar(task.createdBy.displayName)" />
+                    <div>{{ task.createdBy.displayName }}</div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-12 items-center gap-2 mb-4">
-            <div class="col-span-3">
-                <div>Assignees</div>
-            </div>
+        <div class="grid grid-cols-12 gap-2">
             <div class="col-span-9">
+                <div class="text-lg font-semibold mb-2">Description</div>
+                <div>
+                    <TextEditor v-model="task.description" @update:modelValue="debouncedDescriptionUpdate" />
+                </div>
+            </div>
+            <div class="col-span-3">
+                <div class="mb-2 font-semibold">Assignees</div>
                 <Select v-model:value="task.assigneeIds" mode="multiple" optionFilterProp="label"
                     @change="(assignees) => updateTask({ assignees })" class="w-full">
 
@@ -130,10 +167,10 @@ onMounted(() => {
                         </div>
                     </SelectOption>
                 </Select>
-            </div>
 
-            <div class="col-span-3">Issue type</div>
-            <div class="col-span-9">
+                <Divider class="p-0 my-3" />
+
+                <div class="mb-2 font-semibold">Task type</div>
                 <Select v-model:value="task.taskType" class="w-full" @change="(taskType) => updateTask({ taskType })">
                     <SelectOption value="issue">
                         Issue
@@ -148,19 +185,20 @@ onMounted(() => {
                         Feature
                     </SelectOption>
                 </Select>
-            </div>
 
-            <div class="col-span-3">Status</div>
-            <div class="col-span-9">
+                <Divider class="p-0 my-3" />
+
+                <div class="mb-2 font-semibold">Status</div>
                 <Select v-model:value="task.stateId" class="w-full mb-2" @change="updateState">
                     <SelectOption :value="state.id" v-for="state in store.states" :key="state.id">
                         {{ state.name }}
                     </SelectOption>
                 </Select>
-            </div>
 
-            <div class="col-span-3">Priority</div>
-            <div class="col-span-9">
+                <Divider class="p-0 my-3" />
+
+                <div class="mb-2 font-semibold">Priority</div>
+
                 <Select v-model:value="task.priorityId" @change="(priorityId) => updateTask({ priorityId })"
                     class="w-full">
                     <SelectOption :value="null">None</SelectOption>
@@ -168,13 +206,6 @@ onMounted(() => {
                         {{ priority.name }}
                     </SelectOption>
                 </Select>
-            </div>
-        </div>
-
-        <div class="col-span-8 mb-4">
-            <div class="text-lg font-semibold">Description</div>
-            <div>
-                {{ task.description }}
             </div>
         </div>
 

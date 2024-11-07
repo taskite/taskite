@@ -148,11 +148,11 @@ const createNewTask = async (event, stateId) => {
 const openTaskAddModal = ref(false)
 const selectedTask = ref('')
 const showTaskAddModal = (taskId) => {
-    selectedTask.value = taskId
+    store.setSelectedTask(taskId)
     openTaskAddModal.value = true
 }
 const closeTaskAddModal = () => {
-    selectedTask.value = ''
+    store.setSelectedTask('')
     openTaskAddModal.value = false
 }
 </script>
@@ -175,7 +175,7 @@ const closeTaskAddModal = () => {
                                             @click="showTaskAddModal(task.id)">
                                             <Card size="small"
                                                 class="rounded hover:border-1 hover:border-primary transition duration-300"
-                                                :class="{ 'border-1 border-primary': selectedTask === task.id }">
+                                                :class="{ 'border-1 border-primary': store.selectedTask === task.id }">
                                                 <TaskCard :task="task" :boardId="props.board.id" />
                                             </Card>
                                         </div>
@@ -230,9 +230,9 @@ const closeTaskAddModal = () => {
                 </template>
             </BoardLayout>
 
-            <Drawer centered v-model:open="openTaskAddModal" destroyOnClose :width="700"
+            <Drawer centered v-model:open="openTaskAddModal" destroyOnClose :width="920"
                 :afterClose="closeTaskAddModal">
-                <TaskView :board="props.board" :workspace="props.workspace" :taskId="selectedTask" />
+                <TaskView :board="props.board" :workspace="props.workspace" :taskId="store.selectedTask" />
                 <template #extra>
                     <Breadcrumb>
                         <BreadcrumbItem>

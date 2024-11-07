@@ -243,8 +243,6 @@ class BoardViewSet(ViewSet):
             for entry in task_countributions_count
         ]
 
-        print(formatted_task_contributions_count)
-
         data = {
             "created_tasks_count": created_tasks_count,
             "assigned_tasks_count": assigned_tasks_count,

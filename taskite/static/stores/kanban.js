@@ -108,6 +108,11 @@ export const useKanbanStore = defineStore('kanban', () => {
     globalTaskUpdate(updatedTaskData)
   }
 
+  const selectedTask = ref('')
+  const setSelectedTask = (taskId) => {
+    selectedTask.value = taskId
+  }
+
   return {
     states,
     setStates,
@@ -128,5 +133,7 @@ export const useKanbanStore = defineStore('kanban', () => {
     addNewTask,
     updateTask,
     updateTaskState,
+    selectedTask,
+    setSelectedTask
   }
 })
