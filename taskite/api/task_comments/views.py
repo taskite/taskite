@@ -9,6 +9,7 @@ from taskite.permissions import BoardGenericPermission
 from taskite.models import TaskComment, Task
 from taskite.exceptions import TaskNotFoundException
 from taskite.api.task_comments.serializers import TaskCommentSerializer
+from taskite.utils import get_object_or_raise_api_404
 
 
 class TaskCommentsViewSet(BoardMixin, ViewSet):
@@ -22,11 +23,13 @@ class TaskCommentsViewSet(BoardMixin, ViewSet):
                 return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
-        task = Task.objects.filter(id=kwargs.get("task_id")).first()
-        if not task:
-            raise TaskNotFoundException
-
+        comment_type = request.query_params.get("comment_type", "all")
+        task = get_object_or_raise_api_404(Task, id=kwargs.get("task_id"))
         comments = TaskComment.objects.filter(task=task).select_related("author")
+
+        if comment_type != "all":
+            comments = comments.filter(comment_type=comment_type)
+
         serializer = TaskCommentSerializer(comments, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 

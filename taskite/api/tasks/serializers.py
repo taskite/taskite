@@ -1,12 +1,20 @@
 from rest_framework import serializers
 
-from taskite.models import Task, User, Priority, Label
+from taskite.models import Task, User, Priority, Label, TaskComment
 
 
 class AssigneeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "display_name", "last_name", "avatar"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "display_name",
+            "last_name",
+            "avatar",
+        ]
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -18,7 +26,15 @@ class LabelSerializer(serializers.ModelSerializer):
 class CreatedBySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "display_name", "last_name", "avatar"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "display_name",
+            "last_name",
+            "avatar",
+        ]
 
 
 class QuerySerializer(serializers.Serializer):
@@ -57,6 +73,7 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             "id",
+            "parent_id",
             "state_id",
             "priority_id",
             "sprint_id",
@@ -95,9 +112,31 @@ class TaskSequenceUpdateSerializer(serializers.Serializer):
 class TaskUpdateSerializer(serializers.Serializer):
     summary = serializers.CharField(required=False)
     description = serializers.CharField(required=False)
-    assignees = serializers.ListField(
+    assignee_ids = serializers.ListField(
         child=serializers.UUIDField(), allow_empty=True, required=False
     )
     priority_id = serializers.UUIDField(required=False)
     state_id = serializers.UUIDField(required=False)
     task_type = serializers.ChoiceField(choices=Task.TaskType, required=False)
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "display_name",
+            "last_name",
+            "avatar",
+        ]
+
+
+class TaskCommentSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer()
+
+    class Meta:
+        model = TaskComment
+        fields = ["id", "content", "author", "comment_type", "created_at"]

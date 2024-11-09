@@ -1,3 +1,4 @@
+import time
 from django.db import transaction
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
@@ -21,6 +22,7 @@ from taskite.api.tasks.serializers import (
     TaskSequenceUpdateSerializer,
     TaskCreateSerializer,
     TaskUpdateSerializer,
+    TaskCommentSerializer,
 )
 from taskite.permissions import BoardGenericPermission
 from taskite.exceptions import (
@@ -146,6 +148,7 @@ class TasksViewSet(BoardMixin, ViewSet):
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @transaction.atomic
     def partial_update(self, request, *args, **kwargs):
         update_serializer = TaskUpdateSerializer(data=request.data)
         if not update_serializer.is_valid():
@@ -156,37 +159,33 @@ class TasksViewSet(BoardMixin, ViewSet):
         )
 
         data = update_serializer.validated_data
-
-        assignees = None
-        if data.get("assignees"):
-            assignees = data.pop("assignees")
+        task_updates = []
+        assignee_ids = None
+        if data.get("assignee_ids"):
+            assignee_ids = data.pop("assignee_ids")
         for key, value in data.items():
             if key == "priority_id":
-                priority = Priority.objects.filter(
-                    board=request.board, id=value
-                ).first()
-                TaskComment.objects.create(
-                    task=task,
-                    content=f"updated priority to {priority.name}.",
-                    author=request.user,
-                    comment_type=TaskComment.CommentType.ACTIVITY,
+                priority = get_object_or_raise_api_404(
+                    Priority, board=request.board, id=value
                 )
+                if task.priority:
+                    task_updates.append(
+                        f"changed priority from {task.priority.name} to {priority.name}."
+                    )
+                else:
+                    task_updates.append(f"has set task priority as {priority.name}")
 
             if key == "task_type":
-                TaskComment.objects.create(
-                    task=task,
-                    content=f"updated task type to {value}.",
-                    author=request.user,
-                    comment_type=TaskComment.CommentType.ACTIVITY,
+                task_updates.append(
+                    f"changed task type from {task.task_type} to {value}."
                 )
 
             if key == "state_id":
-                state = State.objects.filter(board=request.board, id=value).first()
-                TaskComment.objects.create(
-                    task=task,
-                    content=f"updated state to {state.name}.",
-                    author=request.user,
-                    comment_type=TaskComment.CommentType.ACTIVITY,
+                state = get_object_or_raise_api_404(
+                    State, board=request.board, id=value
+                )
+                task_updates.append(
+                    f"changed state from {task.state.name} to {state.name}."
                 )
 
             if key == "description":
@@ -196,21 +195,55 @@ class TasksViewSet(BoardMixin, ViewSet):
                     author=request.user,
                     comment_type=TaskComment.CommentType.ACTIVITY,
                 )
+                task_updates.append(f"updated description.")
 
             if key == "summary":
-                TaskComment.objects.create(
-                    task=task,
-                    content="updated the summary.",
-                    author=request.user,
-                    comment_type=TaskComment.CommentType.ACTIVITY,
-                )
+                task_updates.append(f"updated summary.")
 
             setattr(task, key, value)
         task.save(update_fields=data.keys())
-        if assignees:
-            task.assignees.set(assignees)
-        serializer = TaskSerializer(task)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        if assignee_ids:
+            current_assignees = set(task.assignees.values_list("id", flat=True))
+            new_assignees = set(assignee_ids)
+            added_assignees = new_assignees - current_assignees
+            removed_assignees = current_assignees - new_assignees
+
+            if added_assignees or removed_assignees:
+                task.assignees.set(task.board.members.filter(id__in=assignee_ids))
+                if added_assignees:
+                    added_names = ", ".join(
+                        task.board.members.filter(id__in=added_assignees).values_list(
+                            "display_name", flat=True
+                        )
+                    )
+                    task_updates.append(f"added assignees: {added_names}")
+
+                if removed_assignees:
+                    removed_names = ", ".join(
+                        task.board.members.filter(id__in=removed_assignees).values_list(
+                            "display_name", flat=True
+                        )
+                    )
+                    task_updates.append(f"removed assignees: {removed_names}")
+
+        if task_updates:
+            comments = TaskComment.objects.bulk_create(
+                [
+                    TaskComment(
+                        task=task,
+                        content=update,
+                        author=request.user,
+                        comment_type=TaskComment.CommentType.ACTIVITY,
+                    )
+                    for update in task_updates
+                ],
+            )
+        task_serializer = TaskSerializer(task)
+        comments_serializer = TaskCommentSerializer(comments, many=True)
+        return Response(
+            data={"task": task_serializer.data, "comments": comments_serializer.data},
+            status=status.HTTP_200_OK,
+        )
 
     @action(methods=["PATCH"], detail=True, url_path="update-sequence")
     def update_sequence(self, request, *args, **kwargs):

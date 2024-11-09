@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from django.utils.crypto import get_random_string
+from django.apps import apps
 
 from taskite.models.base import UUIDTimestampModel
 
@@ -65,6 +66,15 @@ class Board(UUIDTimestampModel):
         # Case for two or more words
         else:
             return "".join(word[0].upper() for word in words[:2])
+
+    @property
+    def members(self):
+        User = apps.get_model("taskite", "User")
+        return (
+            User.objects.filter(user_board_permissions__board=self)
+            .distinct()
+            .order_by("first_name")
+        )
 
 
 class BoardTeamPermission(UUIDTimestampModel):

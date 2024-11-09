@@ -13,11 +13,11 @@ class Task(UUIDTimestampModel):
 
     class ActiveTaskManager(models.Manager):
         def get_queryset(self):
-            return super().get_queryset().filter(archived_at__isnull=True)
+            return super().get_queryset().filter(is_archived=False)
 
     class ArchivedTaskManager(models.Manager):
         def get_queryset(self):
-            return super().get_queryset().filter(archived_at__isnull=False)
+            return super().get_queryset().filter(is_archived=True)
 
     board = models.ForeignKey(
         "Board", on_delete=models.CASCADE, related_name="board_tasks"
@@ -52,6 +52,8 @@ class Task(UUIDTimestampModel):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 
+    # Archived
+    is_archived = models.BooleanField(default=False, db_index=True)
     archived_at = models.DateTimeField(blank=True, null=True)
 
     assignees = models.ManyToManyField(
@@ -103,8 +105,9 @@ class Task(UUIDTimestampModel):
 
     @transaction.atomic
     def archive(self):
+        self.is_archived = True
         self.archived_at = timezone.now()
-        self.save(update_fields=["archived_at"])
+        self.save(update_fields=["is_archived", "archived_at"])
 
 
 class TaskAssignee(UUIDTimestampModel):
