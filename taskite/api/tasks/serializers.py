@@ -58,6 +58,7 @@ class TaskCreateSerializer(serializers.Serializer):
     assignees = serializers.ListField(
         child=serializers.UUIDField(), required=False, allow_empty=True
     )
+    parent_id = serializers.UUIDField(required=False)
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -89,6 +90,8 @@ class TaskSerializer(serializers.ModelSerializer):
             "labels",
             "label_ids",
             "priority",
+            "links",
+            "checklists",
             "created_by",
             "created_at",
         ]

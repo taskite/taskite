@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import dj_database_url
 load_dotenv()  # take environment variables from .env.
 
 from taskite.settings.base import *
@@ -26,6 +27,8 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+
+DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 if USE_S3:
   STORAGES = {

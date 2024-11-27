@@ -80,7 +80,7 @@ class User(UUIDTimestampModel, AbstractBaseUser):
                 self.username = slugify(self.first_name) + str(random.randint(100, 999))
 
             if not self.verified_at:
-                self.verification_id = get_random_string(64)
+                self.verification_id = get_random_string(18)
         return super().save(*args, **kwargs)
 
     def has_perm(self, perm, obj=None):
@@ -123,7 +123,7 @@ class User(UUIDTimestampModel, AbstractBaseUser):
     @property
     def verification_link(self):
         if not self.verification_id:
-            self.verification_id = get_random_string(64)
+            self.verification_id = get_random_string(18)
             self.save(update_fields=["verification_id"])
 
         return settings.BASE_URL + reverse(

@@ -1,5 +1,6 @@
 from django.db import models, transaction
 from django.utils import timezone
+from django.contrib.postgres.fields import ArrayField
 
 from taskite.models.base import UUIDTimestampModel
 
@@ -51,6 +52,8 @@ class Task(UUIDTimestampModel):
     sequence = models.FloatField(default=50000, blank=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+    links = ArrayField(base_field=models.TextField(), default=list)
+    checklists = ArrayField(base_field=models.JSONField(), default=list)
 
     # Archived
     is_archived = models.BooleanField(default=False, db_index=True)

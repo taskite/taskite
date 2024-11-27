@@ -9,7 +9,6 @@ import { handleResponseError, generateAvatar, slugify } from '@/utils/helpers';
 const createForm = ref({
     name: '',
     description: '',
-    slug: '',
     orgSize: null
 })
 
@@ -35,7 +34,7 @@ watch(() => createForm.value.name, (newValue) => {
 
 <template>
     <BaseLayout>
-        <div class="min-h-screen bg-gray-100 flex">
+        <div class="min-h-screen flex bg-[#F5F3FF] bg-gradient-to-br from-violet-50 to-violet-100">
             <!-- Left side - can be used for branding or additional content -->
             <div class="w-1/2 hidden lg:block">
                 <!-- You can add branding or additional content here -->
@@ -64,10 +63,6 @@ watch(() => createForm.value.name, (newValue) => {
                     <Form :model="createForm" layout="vertical" @finish="onFinish">
                         <FormItem label="Workspace Name" name="name" extra="Workspace name can be the name of your organization, company, etc.">
                             <Input v-model:value="createForm.name" />
-                        </FormItem>
-
-                        <FormItem label="Workspace URL" name="slug">
-                            <Input :addon-before="`${props.baseUrl}`" v-model:value="createForm.slug" />
                         </FormItem>
 
                         <FormItem label="Organization Size" name="org_size">

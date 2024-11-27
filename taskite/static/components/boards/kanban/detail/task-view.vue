@@ -1,6 +1,18 @@
 <script setup>
 import { h, onMounted, ref, watch } from 'vue'
-import { Skeleton, Avatar, Button, Radio, RadioGroup, Divider } from 'ant-design-vue'
+import {
+  Skeleton,
+  Avatar,
+  Button,
+  Radio,
+  RadioGroup,
+  Divider,
+  Dropdown,
+  Menu,
+  MenuItem,
+  Upload,
+  message,
+} from 'ant-design-vue'
 import { handleResponseError, generateAvatar } from '@/utils/helpers'
 import { taskDetailAPI, taskUpdateAPI } from '@/utils/api'
 import { useKanbanStore } from '@/stores/kanban'
@@ -17,8 +29,21 @@ import {
   ShareAltOutlined,
   SyncOutlined,
   LeftSquareOutlined,
+  PlusOutlined,
+  SwitcherOutlined,
+  LinkOutlined,
+  CheckSquareOutlined,
+  FileOutlined,
 } from '@ant-design/icons-vue'
 import TaskActionBar from './task-action-bar.vue'
+import TaskCommentAddForm from './task-comment-add-form.vue'
+import {
+  taskAttachmentsCreateAPI,
+  taskAttachmentsListAPI,
+  taskCreateAPI,
+} from '../../../../utils/api'
+import { uploadRequestHandler } from '../../../../utils/helpers'
+import TaskAttachmentList from './task-attachment-list.vue'
 
 dayjs.extend(relativeTime)
 
@@ -45,7 +70,7 @@ const updateTask = async (updatedData) => {
       selectedCommentType.value === 'activity' ||
       selectedCommentType.value === 'all'
     ) {
-      comments.value.push(...data.comments)
+      comments.value.unshift(...data.comments)
     }
 
     return data
@@ -113,10 +138,21 @@ const loadComments = async () => {
   }
 }
 
+const attachments = ref([])
+const loadAttachments = async () => {
+  try {
+    const { data } = await taskAttachmentsListAPI(props.board.id, props.taskId)
+    attachments.value = data
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
+
 const loadTaskDetails = async () => {
   loading.value = true
   await loadTask()
   await loadComments()
+  await loadAttachments()
   loading.value = false
 }
 
@@ -126,13 +162,6 @@ const updateSummary = (event) => {
 
 // Debounce the updateSummary function with a 1s delay
 const debouncedUpdateSummary = debounce(updateSummary, 1000)
-
-const descriptionUpdate = (content) => {
-  updateTask({ description: content })
-}
-
-// Debounce the descriptionUpdate function with a 1s delay
-const debouncedDescriptionUpdate = debounce(descriptionUpdate, 2000)
 
 const openDescriptionActionButton = ref(false)
 const showDescriptionActionButton = () => {
@@ -151,9 +180,40 @@ const handleCommentTypeChange = (e) => {
   loadComments()
 }
 
+const addNewComment = (newComment) => {
+  if (
+    selectedCommentType.value == 'all' ||
+    selectedCommentType.value == 'update'
+  ) {
+    comments.value.unshift(newComment)
+  }
+}
+
 onMounted(() => {
   loadTaskDetails()
 })
+
+const showSubtaskAddForm = ref(false)
+const openSubtaskAddForm = () => {
+  showSubtaskAddForm.value = true
+}
+const closeSubtaskAddForm = () => {
+  showSubtaskAddForm.value = false
+}
+const createSubtask = async (subtaskData) => {
+  try {
+    const { data } = await taskCreateAPI(props.board.id, {
+      ...subtaskData,
+      parentId: props.taskId,
+      assignees: [],
+    })
+    console.log(data)
+  } catch (error) {
+    handleResponseError(error)
+  } finally {
+    closeSubtaskAddForm()
+  }
+}
 
 watch(
   () => store.selectedTask,
@@ -161,6 +221,28 @@ watch(
     loadTaskDetails()
   }
 )
+
+const createAttachment = async (options) => {
+  const { fileKey, fileSrc } = await uploadRequestHandler(
+    options,
+    'TaskAttachment',
+    'attachment'
+  )
+  try {
+    const { data } = await taskAttachmentsCreateAPI(
+      props.board.id,
+      props.taskId,
+      { attachment: fileKey }
+    )
+    attachments.value.push({
+      ...data,
+      attachment: fileSrc
+    })
+    message.success(`You have added an attachment to ${task.value.name}`)
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
 </script>
 
 <template>
@@ -209,29 +291,32 @@ watch(
 
     <div class="grid grid-cols-12 gap-4">
       <div class="col-span-9">
-        <div class="text-lg font-semibold mb-2">Description</div>
+        <div class="text-base font-semibold">Description</div>
         <div>
           <TextEditor
             v-model="task.description"
             @update:modelValue="showDescriptionActionButton"
+            @saved="updateDescription"
           />
-          <div class="flex gap-2" v-if="openDescriptionActionButton">
-            <Button @click="updateDescription" :icon="h(SaveOutlined)"
-              >Save</Button
-            >
-            <Button @click="closeDescriptionActionButton" type="text"
-              >Cancel</Button
-            >
-          </div>
         </div>
-
-        <Divider class="my-3 p-0" />
 
         <div class="mb-4">
-          <SubTasks :boardId="props.board.id" :taskId="task.id" />
+          <TaskAttachmentList
+            :boardId="props.board.id"
+            :taskId="props.taskId"
+            :attachments="attachments"
+          />
         </div>
 
-        <Divider class="my-3 p-0" />
+        <div class="mb-4">
+          <SubTasks
+            :boardId="props.board.id"
+            :taskId="task.id"
+            :showSubtaskAddForm="showSubtaskAddForm"
+            @close="closeSubtaskAddForm"
+            @added="createSubtask"
+          />
+        </div>
 
         <div class="mb-6">
           <div class="flex gap-2 items-center justify-between mb-2">
@@ -247,6 +332,13 @@ watch(
               </RadioGroup>
             </div>
           </div>
+
+          <TaskCommentAddForm
+            :boardId="props.board.id"
+            :taskId="props.taskId"
+            @added="addNewComment"
+          />
+
           <TaskCommentList
             :boardId="props.board.id"
             :taskId="props.taskId"
@@ -255,6 +347,42 @@ watch(
         </div>
       </div>
       <div class="col-span-3">
+        <div class="mb-5">
+          <Dropdown :trigger="['click']" placement="left">
+            <Button :icon="h(PlusOutlined)" class="w-full" type="primary"
+              >Add</Button
+            >
+            <template #overlay>
+              <Menu>
+                <MenuItem key="subtask" @click="openSubtaskAddForm">
+                  <SwitcherOutlined />
+                  Subtask
+                </MenuItem>
+
+                <MenuItem key="attachment">
+                  <Upload
+                    :multiple="false"
+                    name="file"
+                    :customRequest="createAttachment"
+                  >
+                    <FileOutlined />
+                    Attachment
+                  </Upload>
+                </MenuItem>
+
+                <MenuItem key="checklist" disabled>
+                  <CheckSquareOutlined />
+                  Checklist (Coming Soon)
+                </MenuItem>
+
+                <MenuItem key="link" disabled>
+                  <LinkOutlined />
+                  Link (Coming Soon)
+                </MenuItem>
+              </Menu>
+            </template>
+          </Dropdown>
+        </div>
         <TaskActionBar
           :task="task"
           @updateProperties="(updatedData) => updateTask(updatedData)"

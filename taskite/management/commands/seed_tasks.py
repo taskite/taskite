@@ -7,7 +7,7 @@ from taskite.management.commands.sample_tasks import tasks as sample_tasks
 
 
 class Command(BaseCommand):
-    help = "Seed tasks from a JSON file and associate them with a specific board"
+    help = "Seed tasks for a specific board"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -45,7 +45,7 @@ class Command(BaseCommand):
                 task=task,
                 content=comment,
                 author=random.choice(members),
-                activity_type=TaskComment.ActivityType.COMMENT,
+                comment_type=TaskComment.CommentType.UPDATE
             )
 
         if "subtasks" in task_data:

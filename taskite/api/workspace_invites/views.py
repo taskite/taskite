@@ -38,6 +38,12 @@ class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
                     IsAuthenticated(),
                     WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
                 ]
+
+            case "resend_invitation":
+                return [
+                    IsAuthenticated(),
+                    WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
+                ]
             case _:
                 return super().get_permissions()
 
@@ -105,10 +111,6 @@ class WorkspaceInvitesViewSet(WorkspaceMixin, ViewSet):
         methods=["POST"],
         detail=True,
         url_path="resend-invitation",
-        permission_classes=[
-            IsAuthenticated,
-            WorkspaceGenericPermission(allowed_roles=["admin", "maintainer"]),
-        ],
         throttle_classes=[ResendEmailThrottle],
     )
     def resend_invitation(self, request, *args, **kwargs):

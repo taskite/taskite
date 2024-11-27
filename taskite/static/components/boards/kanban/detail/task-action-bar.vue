@@ -2,6 +2,7 @@
 import { Avatar, Divider, Select, SelectOption } from 'ant-design-vue'
 import { generateAvatar } from '@/utils/helpers'
 import { useKanbanStore } from '@/stores/kanban'
+import TaskTypeIcon from '../../../icons/task-type-icon.vue';
 
 const props = defineProps(['task'])
 const emit = defineEmits(['updateProperties', 'updateState'])
@@ -69,10 +70,22 @@ const getAvatarSrc = (memberId) => {
     class="w-full"
     @change="(taskType) => emit('updateProperties', { taskType })"
   >
-    <SelectOption value="issue"> Issue </SelectOption>
-    <SelectOption value="bug"> Bug </SelectOption>
-    <SelectOption value="story"> Story </SelectOption>
-    <SelectOption value="feature"> Feature </SelectOption>
+    <SelectOption value="issue"> 
+      <TaskTypeIcon taskType="issue" />
+      <span class="ml-1">Issue</span>
+    </SelectOption>
+    <SelectOption value="bug"> 
+      <TaskTypeIcon taskType="bug" />
+      <span class="ml-1">Bug</span> 
+    </SelectOption>
+    <SelectOption value="story"> 
+      <TaskTypeIcon taskType="story" />
+      <span class="ml-1">Story</span> 
+    </SelectOption>
+    <SelectOption value="feature"> 
+      <TaskTypeIcon taskType="feature" />
+      <span class="ml-1">Feature</span> 
+    </SelectOption>
   </Select>
 
   <Divider class="p-0 my-3" />
