@@ -55,6 +55,15 @@ const updateLoading = ref(false)
 
 const selectedCommentType = ref('update')
 
+const logComment = (commentsData) => {
+  if (
+    selectedCommentType.value === 'activity' ||
+    selectedCommentType.value === 'all'
+  ) {
+    comments.value.unshift(...commentsData)
+  }
+}
+
 const updateTask = async (updatedData) => {
   try {
     updateLoading.value = true
@@ -66,12 +75,7 @@ const updateTask = async (updatedData) => {
     store.updateTask(data.task)
     task.value = data.task
 
-    if (
-      selectedCommentType.value === 'activity' ||
-      selectedCommentType.value === 'all'
-    ) {
-      comments.value.unshift(...data.comments)
-    }
+    logComment(data.comments)
 
     return data
   } catch (error) {
@@ -228,18 +232,21 @@ const createAttachment = async (options) => {
     'TaskAttachment',
     'attachment'
   )
+
   try {
     const { data } = await taskAttachmentsCreateAPI(
       props.board.id,
       props.taskId,
-      { attachment: fileKey }
+      { attachment: fileKey, filename: options.file.name }
     )
     attachments.value.push({
-      ...data,
-      attachment: fileSrc
+      ...data.attachment,
+      attachment: fileSrc,
     })
     message.success(`You have added an attachment to ${task.value.name}`)
+    logComment([data.comment])
   } catch (error) {
+    console.log(error)
     handleResponseError(error)
   }
 }
@@ -365,6 +372,9 @@ const createAttachment = async (options) => {
                     name="file"
                     :customRequest="createAttachment"
                   >
+                    <template #itemRender="{ file, actions }">
+                      <!-- Don't render anything -->
+                    </template>
                     <FileOutlined />
                     Attachment
                   </Upload>
