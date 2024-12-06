@@ -32,12 +32,11 @@ class TaskAttachementsViewSet(BoardMixin, ViewSet):
 
         task = get_object_or_raise_api_404(Task, id=kwargs.get("task_id"))
         data = create_serializer.validated_data
-        filename = data.pop("filename")
         attachment = TaskAttachment.objects.create(**data, task=task)
         comment = TaskComment.objects.create(
             task=task,
             author=request.user,
-            content=f"added {filename} as an attachment",
+            content=f"added {data.get("filename")} as an attachment",
             comment_type=TaskComment.CommentType.ACTIVITY,
         )
         file_promote.delay(data.get("attachment"))
@@ -59,7 +58,7 @@ class TaskAttachementsViewSet(BoardMixin, ViewSet):
         comment = TaskComment.objects.create(
             task=task,
             author=request.user,
-            content="removed an attachment",
+            content=f"removed an attachment called {attachment.filename}",
             comment_type=TaskComment.CommentType.ACTIVITY,
         )
         comment_serializer = TaskCommentSerializer(comment)

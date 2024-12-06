@@ -18,3 +18,8 @@ export const taskAttachmentsCreateAPI = (boardId, taskId, data) =>
 
 export const taskAttachmentsListAPI = (boardId, taskId) =>
   client.get(`/boards/${boardId}/tasks/${taskId}/attachments`)
+
+export const taskAttachmentsDeleteAPI = (boardId, taskId, attachmentId) =>
+  client.delete(
+    `/boards/${boardId}/tasks/${taskId}/attachments/${attachmentId}`
+  )

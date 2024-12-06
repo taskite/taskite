@@ -6,12 +6,13 @@ from taskite.models import TaskAttachment, User, TaskComment
 class TaskAttachmentCreateSerializer(serializers.Serializer):
     attachment = serializers.CharField()
     filename = serializers.CharField()
+    mime_type = serializers.CharField()
 
 
 class TaskAttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskAttachment
-        fields = ["id", "attachment", "created_at"]
+        fields = ["id", "attachment", "filename", "mime_type", "created_at"]
 
 
 class AuthorSerializer(serializers.ModelSerializer):

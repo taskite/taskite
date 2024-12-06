@@ -178,6 +178,8 @@ class TaskAttachment(UUIDTimestampModel):
         "Task", on_delete=models.CASCADE, related_name="attachments"
     )
     attachment = models.FileField(upload_to="tasks/attachments/")
+    filename = models.CharField()
+    mime_type = models.CharField(max_length=121)
 
     class Meta:
         db_table = "task_attachments"

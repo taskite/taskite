@@ -14,11 +14,16 @@ import {
   message,
 } from 'ant-design-vue'
 import { handleResponseError, generateAvatar } from '@/utils/helpers'
-import { taskDetailAPI, taskUpdateAPI } from '@/utils/api'
 import { useKanbanStore } from '@/stores/kanban'
 import TaskCommentList from './task-comment-list.vue'
 import SubTasks from './sub-tasks.vue'
-import { taskCommentsAPI, taskCommentsLastAPI } from '@/utils/api'
+import {
+  taskCommentsAPI,
+  taskCommentsLastAPI,
+  taskAttachmentsDeleteAPI,
+  taskDetailAPI,
+  taskUpdateAPI,
+} from '@/utils/api'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import debounce from 'lodash/debounce'
@@ -211,7 +216,6 @@ const createSubtask = async (subtaskData) => {
       parentId: props.taskId,
       assignees: [],
     })
-    console.log(data)
   } catch (error) {
     handleResponseError(error)
   } finally {
@@ -237,13 +241,34 @@ const createAttachment = async (options) => {
     const { data } = await taskAttachmentsCreateAPI(
       props.board.id,
       props.taskId,
-      { attachment: fileKey, filename: options.file.name }
+      {
+        attachment: fileKey,
+        filename: options.file.name,
+        mimeType: options.file.type,
+      }
     )
     attachments.value.push({
       ...data.attachment,
       attachment: fileSrc,
     })
     message.success(`You have added an attachment to ${task.value.name}`)
+    logComment([data.comment])
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
+
+const deleteAttachment = async (attachmentId) => {
+  try {
+    const { data } = await taskAttachmentsDeleteAPI(
+      props.board.id,
+      props.taskId,
+      attachmentId
+    )
+    attachments.value = attachments.value.filter(
+      (attachment) => attachment.id !== attachmentId
+    )
+    message.success('You have removed an attachment')
     logComment([data.comment])
   } catch (error) {
     console.log(error)
@@ -312,6 +337,7 @@ const createAttachment = async (options) => {
             :boardId="props.board.id"
             :taskId="props.taskId"
             :attachments="attachments"
+            @delete="deleteAttachment"
           />
         </div>
 

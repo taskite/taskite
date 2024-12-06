@@ -325,13 +325,14 @@ const closeTaskAddDrawer = () => {
         v-model:open="openTaskAddDrawer"
         destroyOnClose
         :width="920"
-        :afterClose="closeTaskAddDrawer"
+        @close="closeTaskAddDrawer"
         :header-style="{ display: 'none' }"
       >
         <TaskView
           :board="props.board"
           :workspace="props.workspace"
           :taskId="store.selectedTask"
+          v-if="!!store.selectedTask"
         />
         <template #extra>
           <Breadcrumb>

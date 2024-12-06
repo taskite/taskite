@@ -22,7 +22,7 @@
     "@vueup/vue-quill": "^1.2.0",
     "@vueuse/core": "^11.0.3",
     "@vueuse/integrations": "^11.0.3",
-    "ant-design-vue": "^4.2.3",
+    "ant-design-vue": "^4.2.6",
     "axios": "^1.7.4",
     "axios-case-converter": "^1.1.1",
     "camelcase-keys": "^9.1.3",
