@@ -22,6 +22,9 @@ from taskite.models import (
     Label,
     BoardPermission,
     BoardTeamPermission,
+    Newsline,
+    NewslineTeamPermission,
+    NewslinePermission,
 )
 
 
@@ -186,6 +189,17 @@ class TaskCommentInlineAdmin(admin.StackedInline):
 class TaskAdmin(admin.ModelAdmin):
     list_display = ["name", "summary", "created_at"]
     inlines = [TaskAssigneeInlineAdmin, TaskCommentInlineAdmin]
+
+
+class NewslinePermissionInline(admin.StackedInline):
+    model = NewslinePermission
+    extra = 0
+
+
+@admin.register(Newsline)
+class NewslineAdmin(admin.ModelAdmin):
+    list_display = ["title", "author", "created_at"]
+    inlines = [NewslinePermissionInline]
 
 
 # Now register the new UserAdmin...

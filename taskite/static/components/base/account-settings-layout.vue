@@ -11,6 +11,10 @@ const selectedKeys = ref([props.page])
 const changePage = (event) => {
     window.location.href = `/accounts/${event.key}`
 }
+
+const redirectBackToDashboard = () => {
+    window.location.href = '/'
+}
 </script>
 
 <template>
@@ -18,7 +22,7 @@ const changePage = (event) => {
         <Layout>
             <Layout.Sider>
                 <div class="p-2">
-                    <Button type="text" :icon="h(LeftOutlined)">Back to dashboard</Button>
+                    <Button type="text" :icon="h(LeftOutlined)" @click="redirectBackToDashboard">Back to dashboard</Button>
                 </div>
                 <Menu v-model:selectedKeys="selectedKeys" mode="inline" @select="changePage">
                     <Menu.Item key="profile">

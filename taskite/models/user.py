@@ -48,6 +48,7 @@ class User(UUIDTimestampModel, AbstractBaseUser):
 
     is_password_expired = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    is_generic_email = models.BooleanField(default=True)
 
     restricted_at = models.DateTimeField(blank=True, null=True)
 
@@ -78,6 +79,10 @@ class User(UUIDTimestampModel, AbstractBaseUser):
 
             if not self.username:
                 self.username = slugify(self.first_name) + str(random.randint(100, 999))
+
+            # Determine if the email domain is generic
+            email_domain = self.email.split("@")[-1].lower()
+            self.is_generic_email = email_domain in self.public_domains()
 
             if not self.verified_at:
                 self.verification_id = get_random_string(18)
@@ -146,3 +151,23 @@ class User(UUIDTimestampModel, AbstractBaseUser):
         return settings.BASE_URL + reverse(
             "accounts-reset-confirm", args=[self.password_reset_id]
         )
+
+    def public_domains(self):
+        return {
+            "gmail.com",
+            "yahoo.com",
+            "outlook.com",
+            "hotmail.com",
+            "icloud.com",
+            "protonmail.com",
+            "zoho.com",
+            "aol.com",
+            "yandex.com",
+            "yandex.ru",
+            "mail.com",
+            "gmx.com",
+            "tutanota.com",
+            "fastmail.com",
+            "hey.com",
+            "mail.ru",
+        }

@@ -12,11 +12,12 @@ import {
   MenuItem,
   Upload,
   message,
+  Modal,
 } from 'ant-design-vue'
 import { handleResponseError, generateAvatar } from '@/utils/helpers'
 import { useKanbanStore } from '@/stores/kanban'
 import TaskCommentList from './task-comment-list.vue'
-import SubTasks from './sub-tasks.vue'
+import SubTaskAddForm from './sub-task-add-form.vue'
 import {
   taskCommentsAPI,
   taskCommentsLastAPI,
@@ -342,13 +343,7 @@ const deleteAttachment = async (attachmentId) => {
         </div>
 
         <div class="mb-4">
-          <SubTasks
-            :boardId="props.board.id"
-            :taskId="task.id"
-            :showSubtaskAddForm="showSubtaskAddForm"
-            @close="closeSubtaskAddForm"
-            @added="createSubtask"
-          />
+          <!-- Subtasks -->
         </div>
 
         <div class="mb-6">
@@ -426,6 +421,18 @@ const deleteAttachment = async (attachmentId) => {
         />
       </div>
     </div>
+
+    <!-- Subtask Add Form -->
+    <Modal
+      v-model:open="showSubtaskAddForm"
+      title="Add subtask"
+      :footer="null"
+      centered
+      destroyOnClose
+      width="700px"
+    >
+      <SubTaskAddForm :task="task" :boardId="props.board.id" />
+    </Modal>
   </div>
   <div v-else>
     <Skeleton />

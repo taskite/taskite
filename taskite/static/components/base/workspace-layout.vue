@@ -1,7 +1,7 @@
 <script setup>
 import { Layout, Menu, Flex, Avatar, Dropdown, Card } from 'ant-design-vue'
 import { computed, ref } from 'vue';
-import { DashboardOutlined, ProjectOutlined, SettingOutlined } from '@ant-design/icons-vue';
+import { CalendarOutlined, DashboardOutlined, ProjectOutlined, ReadOutlined, SettingOutlined } from '@ant-design/icons-vue';
 
 import BaseLayout from '@/components/base/base-layout.vue';
 import WorkspaceMenu from '@/components/base/workspace-menu.vue';
@@ -92,9 +92,19 @@ const currentUser = computed(() => {
                         <span>Dashboard</span>
                     </Menu.Item>
 
+                    <Menu.Item key="newslines">
+                        <ReadOutlined />
+                        <span>Newslines</span>
+                    </Menu.Item>
+
                     <Menu.Item key="boards">
                         <ProjectOutlined />
                         <span>Boards</span>
+                    </Menu.Item>
+
+                    <Menu.Item key="meetings" disabled>
+                        <CalendarOutlined />
+                        <span>Meetings (Coming soon)</span>
                     </Menu.Item>
 
                     <Menu.Item key="settings">

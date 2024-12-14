@@ -25,6 +25,9 @@ class Workspace(UUIDTimestampModel):
     )
     logo = models.ImageField(blank=True, null=True, upload_to="workspaces/logos/")
     org_size = models.CharField(max_length=20, default="1")
+    
+    auto_assign_domain = models.CharField(max_length=120, blank=True, null=True, unique=True)
+    auto_assign_membership = models.BooleanField(default=False)
 
     members = models.ManyToManyField(
         "User", through="WorkspaceMembership", related_name="workspaces"

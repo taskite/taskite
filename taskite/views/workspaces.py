@@ -92,6 +92,26 @@ class WorkspaceBoardsView(LoginRequiredMixin, PermissionCheckMixin, View):
         return render(request, "workspaces/boards.html", context)
 
 
+class WorkspaceNewslinesView(LoginRequiredMixin, PermissionCheckMixin, View):
+    def get(self, request, workspace_slug):
+        workspace = Workspace.objects.filter(slug=workspace_slug).first()
+        if not workspace:
+            raise Http404
+
+        workspace_membership = self.check_and_get_workpace_permssion(
+            workspace, request.user
+        )
+
+        context = {
+            "props": {
+                "workspace": WorkspaceSerializer(workspace).data,
+                "current_user": ProfileSerializer(request.user).data,
+                "membership_role": workspace_membership.role,
+            }
+        }
+        return render(request, "workspaces/newslines.html", context)
+
+
 class WorkspaceMembersView(LoginRequiredMixin, WorkspacePermissionMixin, View):
     def get(self, request, workspace_slug):
         workspace = get_object_or_404(Workspace, slug=workspace_slug)
@@ -134,7 +154,7 @@ class WorkspaceTeamsEditView(LoginRequiredMixin, WorkspacePermissionMixin, View)
 
         if not self.has_valid_membership(workspace, request.user):
             raise Http404
-        
+
         if not self.has_valid_permission(
             workspace=workspace,
             user=request.user,
@@ -164,7 +184,7 @@ class WorkspaceSettingsGeneralView(LoginRequiredMixin, View):
         ).first()
         if not workspace_membership:
             raise Http404
-
+        
         context = {
             "props": {
                 "workspace": WorkspaceSerializer(workspace).data,

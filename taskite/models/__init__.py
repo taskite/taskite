@@ -8,3 +8,10 @@ from .task import Task, TaskAssignee, TaskComment, TaskLabel, TaskAttachment
 from .sprint import Sprint
 from .team import Team, TeamMembership
 from .label import Label
+from .newsline import (
+    Newsline,
+    NewslinePermission,
+    NewslineTeamPermission,
+    NewslineComment,
+    NewslineRead
+)

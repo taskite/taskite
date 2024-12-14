@@ -11,7 +11,8 @@ from taskite.views.workspaces import (
     WorkspaceCreateView,
     WorkspaceIndexView,
     WorkspaceDeleteView,
-    WorkspaceBoardsView
+    WorkspaceBoardsView,
+    WorkspaceNewslinesView
 )
 
 # fmt: off
@@ -19,6 +20,7 @@ urlpatterns = [
     path("create/", WorkspaceCreateView.as_view(), name="workspace-create"),
     path("<str:workspace_slug>/", WorkspaceDashboardView.as_view(), name="workspaces-dashboard"),
     path("<str:workspace_slug>/boards/", WorkspaceBoardsView.as_view(), name="workspace-boards"),
+    path("<str:workspace_slug>/newslines/", WorkspaceNewslinesView.as_view(), name="workspace-newslines"),
     path("<str:workspace_slug>/settings/", WorkspaceSettingsGeneralView.as_view(), name="workspaces-settings-general"),
     path("<str:workspace_slug>/settings/billing/", WorkspaceSettingsBillingView.as_view(), name="workspaces-settings-billing"),
     path("<str:workspace_slug>/settings/members/", WorkspaceMembersView.as_view(), name="workspaces-members"),

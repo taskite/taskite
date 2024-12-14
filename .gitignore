@@ -296,3 +296,5 @@ taskite/static/dashboard/
 taskite/templates/dashboard/
 
 media/
+
+.DS_Store

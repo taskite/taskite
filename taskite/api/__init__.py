@@ -16,6 +16,7 @@ from taskite.api.labels.views import LabelsViewSet
 from taskite.api.board_permissions.views import BoardPermissionsViewSet
 from taskite.api.board_team_permissions.views import BoardTeamPermissionsViewSet
 from taskite.api.task_attachments.views import TaskAttachementsViewSet
+from taskite.api.newslines.views import NewslinesViewSet
 
 router = SimpleRouter(trailing_slash=False, use_regex_path=False)
 
@@ -43,5 +44,8 @@ router.register("boards/<uuid:board_id>/priorities", PrioritiesViewSet, basename
 router.register("boards/<uuid:board_id>/labels", LabelsViewSet, basename="label")
 router.register("boards/<uuid:board_id>/permissions", BoardPermissionsViewSet, basename="board-permission")
 router.register("boards/<uuid:board_id>/team_permissions", BoardTeamPermissionsViewSet, basename="board-team-permission")
+
+# Newslines
+router.register("newslines", NewslinesViewSet, basename="newsline")
 
 urlpatterns = router.urls

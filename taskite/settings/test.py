@@ -1,5 +1,9 @@
 import os
 from taskite.settings.base import *
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 DEBUG = True
@@ -15,9 +19,18 @@ EMAIL_HOST = "127.0.0.1"
 EMAIL_PORT = "1025"
 
 DJANGO_VITE = {
-  "default": {
-    "dev_mode": False,
-    "static_url_prefix": "dist",
-    "manifest_path": BASE_DIR / "taskite" / "static" / "dist" / "manifest.json"
-  }
+    "default": {
+        "dev_mode": False,
+        "static_url_prefix": "dist",
+        "manifest_path": BASE_DIR / "taskite" / "static" / "dist" / "manifest.json",
+    }
+}
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default="postgresql://taskite:taskite@localhost:5432/taskite"
+    ),
+    "test": dj_database_url.config(
+        default="postgresql://taskite:taskite@localhost:5432/taskite_testing"
+    ),
 }

@@ -8,7 +8,7 @@ import subprocess
 def run_npm_build():
     print("Building frontend assets...")
     try:
-        subprocess.run(["npm", "run", "build"], check=True)
+        subprocess.run(["npm", "run", "test:build"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Failed to build frontend assets: {e}")
         sys.exit(1)
@@ -18,7 +18,7 @@ def main():
     """Run administrative tasks."""
     if "test" in sys.argv:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taskite.settings.test")
-        run_npm_build()
+        # run_npm_build()
     else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taskite.settings.development")
     try:
