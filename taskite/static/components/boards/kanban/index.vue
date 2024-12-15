@@ -10,10 +10,11 @@ import {
   taskUpdateSequence,
   taskCreateAPI,
   labelListAPI,
+  estimateListAPI,
 } from '@/utils/api'
 import { VueDraggable } from 'vue-draggable-plus'
 import TaskCard from '@/components/boards/kanban/task-card.vue'
-import { handleResponseError } from '@/utils/helpers'
+import { handleResponseError, generateAvatar } from '@/utils/helpers'
 import {
   Button,
   Dropdown,
@@ -35,7 +36,6 @@ import WorkspaceLayout from '@/components/base/workspace-layout.vue'
 import FilterList from '@/components/boards/kanban/filters/filter-list.vue'
 import TaskAddForm from '@/components/boards/kanban/task-add-form.vue'
 import TaskView from '@/components/boards/kanban/detail/task-view.vue'
-import { generateAvatar } from '@/utils/helpers'
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
@@ -85,6 +85,15 @@ const fetchLabels = async () => {
   }
 }
 
+const fetchEstimates = async () => {
+  try {
+    const { data } = await estimateListAPI(props.board.id)
+    store.setEstimates(data)
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
+
 const loadKanban = async () => {
   try {
     await fetchStates()
@@ -94,6 +103,7 @@ const loadKanban = async () => {
     fetchMembers()
     fetchPriorities()
     fetchLabels()
+    fetchEstimates()
   } catch (error) {
     handleResponseError(error)
   }
@@ -148,6 +158,7 @@ watch(
     store.taskTypes,
     store.priorityFilters,
     store.labelFilters,
+    store.estimateFilters,
   ],
   async () => {
     await fetchTasks({
@@ -155,6 +166,7 @@ watch(
       taskTypes: store.taskTypes,
       priorities: store.priorityFilters,
       labels: store.labelFilters,
+      estimates: store.estimateFilters,
     })
     await store.setupKanban()
   }
@@ -234,7 +246,7 @@ const closeTaskAddDrawer = () => {
                             store.selectedTask === task.id,
                         }"
                       >
-                        <TaskCard :task="task" :boardId="props.board.id" />
+                        <TaskCard :task="task" :board="props.board" />
                       </Card>
                     </div>
                   </VueDraggable>
@@ -299,7 +311,7 @@ const closeTaskAddDrawer = () => {
             >
               <Button :icon="h(FilterOutlined)">Filters</Button>
               <template #overlay>
-                <FilterList />
+                <FilterList :board="props.board" />
               </template>
             </Dropdown>
 

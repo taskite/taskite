@@ -15,6 +15,7 @@ from taskite.models import (
     User,
     TaskComment,
     BoardPermissionRole,
+    Estimate,
 )
 from taskite.mixins import BoardMixin
 from taskite.api.tasks.serializers import (
@@ -140,9 +141,14 @@ class TasksViewSet(BoardMixin, ViewSet):
             labels = request.query_params.getlist("labels[]")
             queryset = queryset.filter(labels__in=labels)
 
+        if request.query_params.getlist("estimates[]"):
+            # Filter for estimates
+            estimates = request.query_params.getlist("estimates[]")
+            queryset = queryset.filter(estimate__in=estimates)
+
         tasks = (
             queryset.prefetch_related("assignees", "labels")
-            .select_related("priority", "created_by")
+            .select_related("priority", "created_by", "estimate")
             .order_by("sequence")
         )
         serializer = TaskSerializer(tasks, many=True)
@@ -164,6 +170,16 @@ class TasksViewSet(BoardMixin, ViewSet):
         if data.get("assignee_ids"):
             assignee_ids = data.pop("assignee_ids")
         for key, value in data.items():
+            if key == "estimate_id":
+                estimate = get_object_or_raise_api_404(
+                    Estimate, board=request.board, id=value
+                )
+                if task.estimate:
+                    task_updates.append(
+                        f"changed estimate from {task.estimate.value} to {estimate.value}"
+                    )
+                else:
+                    task_updates.append(f"has set estimate as {estimate.value}")
             if key == "priority_id":
                 priority = get_object_or_raise_api_404(
                     Priority, board=request.board, id=value

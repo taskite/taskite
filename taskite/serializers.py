@@ -7,7 +7,15 @@ from taskite.models import Workspace, User, Team, Board
 class ProfileSerializer(NameAndSourceSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "display_name", "avatar"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "display_name",
+            "avatar",
+        ]
 
 
 class WorkspaceSerializer(NameAndSourceSerializerMixin, serializers.ModelSerializer):
@@ -32,4 +40,12 @@ class TeamSerializer(serializers.ModelSerializer):
 class BoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
-        fields = ["id", "name", "slug", "cover", "description", "created_at"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "cover",
+            "description",
+            "is_estimate_enabled",
+            "created_at",
+        ]

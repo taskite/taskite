@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useKanbanStore = defineStore('kanban', () => {
@@ -29,10 +29,16 @@ export const useKanbanStore = defineStore('kanban', () => {
     labels.value = labelsData
   }
 
+  const estimates = ref([])
+  const setEstimates = (estimatesData) => {
+    estimates.value = estimatesData
+  }
+
   const assigneeFilters = ref([])
   const taskTypes = ref([])
   const priorityFilters = ref([])
   const labelFilters = ref([])
+  const estimateFilters = ref([])
 
   const setupKanban = async () => {
     kanban.value = states.value.map((state) => {
@@ -126,14 +132,17 @@ export const useKanbanStore = defineStore('kanban', () => {
     setPriorities,
     labels,
     setLabels,
+    estimates,
+    setEstimates,
     assigneeFilters,
     taskTypes,
     priorityFilters,
     labelFilters,
+    estimateFilters,
     addNewTask,
     updateTask,
     updateTaskState,
     selectedTask,
-    setSelectedTask
+    setSelectedTask,
   }
 })

@@ -54,6 +54,13 @@ class Task(UUIDTimestampModel):
     end_date = models.DateField(blank=True, null=True)
     links = ArrayField(base_field=models.TextField(), default=list)
     checklists = ArrayField(base_field=models.JSONField(), default=list)
+    estimate = models.ForeignKey(
+        "Estimate",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="estimate_tasks",
+    )
 
     # Archived
     is_archived = models.BooleanField(default=False, db_index=True)

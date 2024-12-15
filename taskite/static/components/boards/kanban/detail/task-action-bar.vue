@@ -2,9 +2,9 @@
 import { Avatar, Divider, Select, SelectOption } from 'ant-design-vue'
 import { generateAvatar } from '@/utils/helpers'
 import { useKanbanStore } from '@/stores/kanban'
-import TaskTypeIcon from '../../../icons/task-type-icon.vue';
+import TaskTypeIcon from '../../../icons/task-type-icon.vue'
 
-const props = defineProps(['task'])
+const props = defineProps(['task', 'board'])
 const emit = defineEmits(['updateProperties', 'updateState'])
 
 const store = useKanbanStore()
@@ -70,21 +70,21 @@ const getAvatarSrc = (memberId) => {
     class="w-full"
     @change="(taskType) => emit('updateProperties', { taskType })"
   >
-    <SelectOption value="issue"> 
+    <SelectOption value="issue">
       <TaskTypeIcon taskType="issue" />
       <span class="ml-1">Issue</span>
     </SelectOption>
-    <SelectOption value="bug"> 
+    <SelectOption value="bug">
       <TaskTypeIcon taskType="bug" />
-      <span class="ml-1">Bug</span> 
+      <span class="ml-1">Bug</span>
     </SelectOption>
-    <SelectOption value="story"> 
+    <SelectOption value="story">
       <TaskTypeIcon taskType="story" />
-      <span class="ml-1">Story</span> 
+      <span class="ml-1">Story</span>
     </SelectOption>
-    <SelectOption value="feature"> 
+    <SelectOption value="feature">
       <TaskTypeIcon taskType="feature" />
-      <span class="ml-1">Feature</span> 
+      <span class="ml-1">Feature</span>
     </SelectOption>
   </Select>
 
@@ -97,7 +97,7 @@ const getAvatarSrc = (memberId) => {
     @change="(priorityId) => emit('updateProperties', { priorityId })"
     class="w-full"
   >
-    <SelectOption :value="null">None</SelectOption>
+    <SelectOption :value="null">-</SelectOption>
     <SelectOption
       :value="priority.id"
       v-for="priority in store.priorities"
@@ -106,6 +106,26 @@ const getAvatarSrc = (memberId) => {
       {{ priority.name }}
     </SelectOption>
   </Select>
+
+  <template v-if="props.board.isEstimateEnabled">
+    <Divider class="p-0 my-3" />
+
+    <div class="mb-2 font-semibold">Estimate</div>
+    <Select
+      v-model:value="task.estimateId"
+      @change="(estimateId) => emit('updateProperties', { estimateId })"
+      class="w-full"
+    >
+      <SelectOption :value="null">-</SelectOption>
+      <SelectOption
+        :value="estimate.id"
+        v-for="estimate in store.estimates"
+        :key="estimate.id"
+      >
+        {{ estimate.value }}
+      </SelectOption>
+    </Select>
+  </template>
 </template>
 
 <style scoped></style>

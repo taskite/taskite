@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from taskite.models import Task, User, Priority, Label, TaskComment
+from taskite.models import Task, User, Priority, Label, TaskComment, Estimate
 
 
 class AssigneeSerializer(serializers.ModelSerializer):
@@ -47,6 +47,12 @@ class PrioritySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "created_at"]
 
 
+class EstimateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estimate
+        fields = ["id", "key", "value"]
+
+
 class TaskCreateSerializer(serializers.Serializer):
     summary = serializers.CharField()
     description = serializers.CharField(
@@ -65,6 +71,7 @@ class TaskSerializer(serializers.ModelSerializer):
     assignees = AssigneeSerializer(many=True)
     labels = LabelSerializer(many=True)
     priority = PrioritySerializer()
+    estimate = EstimateSerializer()
     created_by = CreatedBySerializer()
     assignee_ids = serializers.SerializerMethodField()
     label_ids = serializers.SerializerMethodField()
@@ -90,6 +97,8 @@ class TaskSerializer(serializers.ModelSerializer):
             "labels",
             "label_ids",
             "priority",
+            "estimate_id",
+            "estimate",
             "links",
             "checklists",
             "created_by",
@@ -121,6 +130,7 @@ class TaskUpdateSerializer(serializers.Serializer):
     priority_id = serializers.UUIDField(required=False)
     state_id = serializers.UUIDField(required=False)
     task_type = serializers.ChoiceField(choices=Task.TaskType, required=False)
+    estimate_id = serializers.UUIDField(required=False)
 
 
 class AuthorSerializer(serializers.ModelSerializer):

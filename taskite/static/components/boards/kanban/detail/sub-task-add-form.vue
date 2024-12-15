@@ -16,9 +16,14 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import { taskCreateAPI } from '@/utils/api'
 
 const props = defineProps(['task', 'boardId'])
-const emit = defineEmits(['added'])
+const emit = defineEmits(['created'])
 
 const store = useKanbanStore()
+
+const getAvatarSrc = (memberId) => {
+  const member = store.members.find((m) => m.id === memberId)
+  return member ? member.avatar || generateAvatar(member.firstName) : ''
+}
 
 const subTaskForm = ref({
   summary: '',
@@ -37,9 +42,8 @@ const onSubmit = async (values) => {
       parentId: props.task.id,
     })
     formRef.value.resetFields()
-    emit('added', data)
+    emit('created', data)
   } catch (error) {
-    console.log(error)
     handleResponseError(error)
   }
 }
@@ -61,7 +65,11 @@ const onSubmit = async (values) => {
         </FormItem>
       </div>
       <div class="col-span-3">
-        <FormItem name="summary" label="Summary">
+        <FormItem
+          name="summary"
+          label="Summary"
+          :rules="[{ required: true, message: 'Summary is required.' }]"
+        >
           <Input v-model:value="subTaskForm.summary" />
         </FormItem>
       </div>
@@ -99,6 +107,9 @@ const onSubmit = async (values) => {
           mode="multiple"
           optionFilterProp="label"
         >
+          <template #tagRender="{ value }">
+            <Avatar size="small" :src="getAvatarSrc(value)" />
+          </template>
           <SelectOption
             v-for="member in store.members"
             :key="member.id"

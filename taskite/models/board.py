@@ -14,6 +14,11 @@ class BoardPermissionRole(models.TextChoices):
 
 
 class Board(UUIDTimestampModel):
+    class EstimateType(models.TextChoices):
+        POINT = ("point", "Point")
+        CATEGORY = ("category", "Category")
+        TIME = ("time", "Time")
+
     workspace = models.ForeignKey(
         "Workspace", on_delete=models.CASCADE, related_name="boards"
     )
@@ -29,6 +34,10 @@ class Board(UUIDTimestampModel):
     task_prefix = models.CharField(max_length=5, blank=True)
     tasks_count = models.IntegerField(default=0)
     members_count = models.IntegerField(default=0)
+    is_estimate_enabled = models.BooleanField(default=False)
+    estimate_type = models.CharField(
+        max_length=10, choices=EstimateType.choices, default=EstimateType.TIME
+    )
 
     archived_at = models.DateTimeField(blank=True, null=True)
 

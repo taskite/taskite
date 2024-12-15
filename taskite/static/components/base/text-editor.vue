@@ -235,6 +235,7 @@ const showActionButtons = () => {
 const onSave = () => {
     emit('saved', editor.value.getHTML())
     isEditorFocused.value = false
+    closeActionButtons()
 }
 
 onMounted(() => {

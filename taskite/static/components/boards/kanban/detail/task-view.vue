@@ -14,21 +14,6 @@ import {
   message,
   Modal,
 } from 'ant-design-vue'
-import { handleResponseError, generateAvatar } from '@/utils/helpers'
-import { useKanbanStore } from '@/stores/kanban'
-import TaskCommentList from './task-comment-list.vue'
-import SubTaskAddForm from './sub-task-add-form.vue'
-import {
-  taskCommentsAPI,
-  taskCommentsLastAPI,
-  taskAttachmentsDeleteAPI,
-  taskDetailAPI,
-  taskUpdateAPI,
-} from '@/utils/api'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import debounce from 'lodash/debounce'
-import TextEditor from '@/components/base/text-editor.vue'
 import {
   EllipsisOutlined,
   SaveOutlined,
@@ -41,32 +26,64 @@ import {
   CheckSquareOutlined,
   FileOutlined,
 } from '@ant-design/icons-vue'
+import { handleResponseError, generateAvatar } from '@/utils/helpers'
+import { useKanbanStore } from '@/stores/kanban'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import debounce from 'lodash/debounce'
+
+// Component imports
+import TaskCommentList from './task-comment-list.vue'
+import SubTaskAddForm from './sub-task-add-form.vue'
+import TextEditor from '@/components/base/text-editor.vue'
 import TaskActionBar from './task-action-bar.vue'
 import TaskCommentAddForm from './task-comment-add-form.vue'
+import TaskAttachmentList from './task-attachment-list.vue'
+import SubTaskList from './sub-task-list.vue'
+
+// API imports
 import {
+  taskCommentsAPI,
+  taskCommentsLastAPI,
+  taskAttachmentsDeleteAPI,
+  taskDetailAPI,
+  taskUpdateAPI,
   taskAttachmentsCreateAPI,
   taskAttachmentsListAPI,
-  taskCreateAPI,
-} from '../../../../utils/api'
-import { uploadRequestHandler } from '../../../../utils/helpers'
-import TaskAttachmentList from './task-attachment-list.vue'
+  taskListAPI,
+} from '@/utils/api'
+import { uploadRequestHandler } from '@/utils/helpers'
 
+// Setup dayjs
 dayjs.extend(relativeTime)
 
-const store = useKanbanStore()
+// Props
 const props = defineProps(['board', 'workspace', 'taskId'])
 
+// Store
+const store = useKanbanStore()
+
+// State
 const loading = ref(false)
 const updateLoading = ref(false)
-
 const selectedCommentType = ref('update')
+const task = ref(null)
+const comments = ref([])
+const attachments = ref([])
+const subtasks = ref([])
+const showSubtaskAddForm = ref(false)
+const openDescriptionActionButton = ref(false)
 
-const logComment = (commentsData) => {
-  if (
-    selectedCommentType.value === 'activity' ||
-    selectedCommentType.value === 'all'
-  ) {
-    comments.value.unshift(...commentsData)
+// Task Management
+const loadTask = async () => {
+  try {
+    const { data } = await taskDetailAPI(props.board.id, props.taskId)
+    task.value = {
+      ...data,
+      oldStateId: data.stateId,
+    }
+  } catch (error) {
+    handleResponseError(error)
   }
 }
 
@@ -80,9 +97,7 @@ const updateTask = async (updatedData) => {
     )
     store.updateTask(data.task)
     task.value = data.task
-
     logComment(data.comments)
-
     return data
   } catch (error) {
     handleResponseError(error)
@@ -91,21 +106,7 @@ const updateTask = async (updatedData) => {
   }
 }
 
-const task = ref(null)
-const loadTask = async () => {
-  try {
-    const { data } = await taskDetailAPI(props.board.id, props.taskId)
-    task.value = {
-      ...data,
-      oldStateId: data.stateId,
-    }
-  } catch (error) {
-    handleResponseError(error)
-  }
-}
-
 const updateState = async (stateId) => {
-  // Update the task
   try {
     updateLoading.value = true
     const { data } = await taskUpdateAPI(props.board.id, props.taskId, {
@@ -117,11 +118,11 @@ const updateState = async (stateId) => {
       oldStateId: data.task.stateId,
     }
 
-    const lastCommentRespone = await taskCommentsLastAPI(
+    const lastCommentResponse = await taskCommentsLastAPI(
       props.board.id,
       props.taskId
     )
-    comments.value.push(lastCommentRespone.data)
+    comments.value.push(lastCommentResponse.data)
   } catch (error) {
     handleResponseError(error)
   } finally {
@@ -129,7 +130,7 @@ const updateState = async (stateId) => {
   }
 }
 
-const comments = ref([])
+// Comments Management
 const loadComments = async () => {
   try {
     const { data } = await taskCommentsAPI(
@@ -137,18 +138,38 @@ const loadComments = async () => {
       props.taskId,
       selectedCommentType.value
     )
-    comments.value = data.map((comment) => {
-      return {
-        ...comment,
-        key: comment.id,
-      }
-    })
+    comments.value = data.map((comment) => ({
+      ...comment,
+      key: comment.id,
+    }))
   } catch (error) {
     handleResponseError(error)
   }
 }
 
-const attachments = ref([])
+const logComment = (commentsData) => {
+  if (
+    selectedCommentType.value === 'activity' ||
+    selectedCommentType.value === 'all'
+  ) {
+    comments.value.unshift(...commentsData)
+  }
+}
+
+const addNewComment = (newComment) => {
+  if (
+    selectedCommentType.value === 'all' ||
+    selectedCommentType.value === 'update'
+  ) {
+    comments.value.unshift(newComment)
+  }
+}
+
+const handleCommentTypeChange = () => {
+  loadComments()
+}
+
+// Attachments Management
 const loadAttachments = async () => {
   try {
     const { data } = await taskAttachmentsListAPI(props.board.id, props.taskId)
@@ -157,79 +178,6 @@ const loadAttachments = async () => {
     handleResponseError(error)
   }
 }
-
-const loadTaskDetails = async () => {
-  loading.value = true
-  await loadTask()
-  await loadComments()
-  await loadAttachments()
-  loading.value = false
-}
-
-const updateSummary = (event) => {
-  updateTask({ summary: event.target.innerText })
-}
-
-// Debounce the updateSummary function with a 1s delay
-const debouncedUpdateSummary = debounce(updateSummary, 1000)
-
-const openDescriptionActionButton = ref(false)
-const showDescriptionActionButton = () => {
-  openDescriptionActionButton.value = true
-}
-const closeDescriptionActionButton = () => {
-  openDescriptionActionButton.value = false
-}
-
-const updateDescription = () => {
-  updateTask({ description: task.value.description })
-  closeDescriptionActionButton()
-}
-
-const handleCommentTypeChange = (e) => {
-  loadComments()
-}
-
-const addNewComment = (newComment) => {
-  if (
-    selectedCommentType.value == 'all' ||
-    selectedCommentType.value == 'update'
-  ) {
-    comments.value.unshift(newComment)
-  }
-}
-
-onMounted(() => {
-  loadTaskDetails()
-})
-
-const showSubtaskAddForm = ref(false)
-const openSubtaskAddForm = () => {
-  showSubtaskAddForm.value = true
-}
-const closeSubtaskAddForm = () => {
-  showSubtaskAddForm.value = false
-}
-const createSubtask = async (subtaskData) => {
-  try {
-    const { data } = await taskCreateAPI(props.board.id, {
-      ...subtaskData,
-      parentId: props.taskId,
-      assignees: [],
-    })
-  } catch (error) {
-    handleResponseError(error)
-  } finally {
-    closeSubtaskAddForm()
-  }
-}
-
-watch(
-  () => store.selectedTask,
-  () => {
-    loadTaskDetails()
-  }
-)
 
 const createAttachment = async (options) => {
   const { fileKey, fileSrc } = await uploadRequestHandler(
@@ -272,10 +220,78 @@ const deleteAttachment = async (attachmentId) => {
     message.success('You have removed an attachment')
     logComment([data.comment])
   } catch (error) {
-    console.log(error)
     handleResponseError(error)
   }
 }
+
+// Description Management
+const showDescriptionActionButton = () => {
+  openDescriptionActionButton.value = true
+}
+
+const closeDescriptionActionButton = () => {
+  openDescriptionActionButton.value = false
+}
+
+const updateDescription = () => {
+  updateTask({ description: task.value.description })
+  closeDescriptionActionButton()
+}
+
+// Summary Management
+const updateSummary = (event) => {
+  updateTask({ summary: event.target.innerText })
+}
+
+const debouncedUpdateSummary = debounce(updateSummary, 1000)
+
+// Subtask Management
+const openSubtaskAddForm = () => {
+  showSubtaskAddForm.value = true
+}
+
+const closeSubtaskAddForm = () => {
+  showSubtaskAddForm.value = false
+}
+
+const loadSubTasks = async () => {
+  try {
+    const { data } = await taskListAPI(props.board.id, {
+      parentId: props.taskId,
+    })
+    subtasks.value = data
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
+
+const addTaskToSubtask = (data) => {
+  closeSubtaskAddForm()
+  subtasks.value.push(data)
+}
+
+// Loading and Initialization
+const loadTaskDetails = async () => {
+  loading.value = true
+  await loadTask()
+  await loadComments()
+  await loadAttachments()
+  await loadSubTasks()
+  loading.value = false
+}
+
+// Lifecycle Hooks
+onMounted(() => {
+  loadTaskDetails()
+})
+
+// Watchers
+watch(
+  () => store.selectedTask,
+  () => {
+    loadTaskDetails()
+  }
+)
 </script>
 
 <template>
@@ -287,6 +303,7 @@ const deleteAttachment = async (attachmentId) => {
         @click="store.setSelectedTask(task.parentId)"
         >Back to parent task</Button
       >
+
       <div class="flex items-center justify-between">
         <div class="text-xs font-semibold">#{{ task.name }}</div>
         <div class="flex gap-2 items-center">
@@ -298,6 +315,7 @@ const deleteAttachment = async (attachmentId) => {
           <Button :icon="h(EllipsisOutlined)" type="text"></Button>
         </div>
       </div>
+
       <div
         class="text-2xl font-semibold mb-1"
         contenteditable="true"
@@ -305,6 +323,7 @@ const deleteAttachment = async (attachmentId) => {
       >
         {{ task.summary }}
       </div>
+
       <div class="text-sm text-gray-500">
         <div class="flex items-center gap-1 text-xs">
           <div>Created</div>
@@ -324,11 +343,10 @@ const deleteAttachment = async (attachmentId) => {
 
     <div class="grid grid-cols-12 gap-4">
       <div class="col-span-9">
-        <div class="text-base font-semibold">Description</div>
+        <div class="text-lg font-semibold">Description</div>
         <div>
           <TextEditor
             v-model="task.description"
-            @update:modelValue="showDescriptionActionButton"
             @saved="updateDescription"
           />
         </div>
@@ -344,7 +362,10 @@ const deleteAttachment = async (attachmentId) => {
 
         <div class="mb-4">
           <!-- Subtasks -->
+          <SubTaskList :subtasks="subtasks" :boardId="props.board.id" />
         </div>
+
+        <Divider />
 
         <div class="mb-6">
           <div class="flex gap-2 items-center justify-between mb-2">
@@ -374,6 +395,7 @@ const deleteAttachment = async (attachmentId) => {
           />
         </div>
       </div>
+
       <div class="col-span-3">
         <div class="mb-5">
           <Dropdown :trigger="['click']" placement="left">
@@ -414,10 +436,12 @@ const deleteAttachment = async (attachmentId) => {
             </template>
           </Dropdown>
         </div>
+
         <TaskActionBar
           :task="task"
-          @updateProperties="(updatedData) => updateTask(updatedData)"
-          @updateState="(stateId) => updateState(stateId)"
+          :board="props.board"
+          @updateProperties="updateTask"
+          @updateState="updateState"
         />
       </div>
     </div>
@@ -431,7 +455,11 @@ const deleteAttachment = async (attachmentId) => {
       destroyOnClose
       width="700px"
     >
-      <SubTaskAddForm :task="task" :boardId="props.board.id" />
+      <SubTaskAddForm
+        :task="task"
+        :boardId="props.board.id"
+        @created="addTaskToSubtask"
+      />
     </Modal>
   </div>
   <div v-else>

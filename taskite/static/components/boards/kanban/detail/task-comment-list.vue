@@ -1,5 +1,5 @@
 <script setup>
-import { Timeline, TimelineItem } from 'ant-design-vue'
+import { Divider, Timeline, TimelineItem } from 'ant-design-vue'
 import { MessageOutlined, PushpinOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'

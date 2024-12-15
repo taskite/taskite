@@ -25,6 +25,7 @@ from taskite.models import (
     Newsline,
     NewslineTeamPermission,
     NewslinePermission,
+    Estimate,
 )
 
 
@@ -142,11 +143,20 @@ class BoardTeamPermissionInlineAdmin(admin.StackedInline):
     extra = 0
 
 
+class EstimateInlineAdmin(admin.StackedInline):
+    model = Estimate
+    extra = 0
+
+
 @admin.register(Board)
 class BoardAdmin(admin.ModelAdmin):
     list_display = ["name", "created_by"]
     raw_id_fields = ["created_by"]
-    inlines = [BoardTeamPermissionInlineAdmin, BoardPermissionInlineAdmin]
+    inlines = [
+        BoardTeamPermissionInlineAdmin,
+        BoardPermissionInlineAdmin,
+        EstimateInlineAdmin,
+    ]
 
 
 class TeamMembershipInline(admin.StackedInline):

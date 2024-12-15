@@ -38,10 +38,9 @@ const onFinish = async (values) => {
   >
     <FormItem
       name="content"
-      label="Comment"
       :rules="[{ message: 'Comment is requuired', required: true }]"
     >
-      <Textarea v-model:value="form.content" :rows="2" class="w-full" />
+      <Textarea v-model:value="form.content" :rows="3" class="w-full" placeholder="Write a comment .." />
     </FormItem>
 
     <div class="flex justify-end">
