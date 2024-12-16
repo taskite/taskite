@@ -3,6 +3,7 @@ import { Avatar, Divider, Select, SelectOption } from 'ant-design-vue'
 import { generateAvatar } from '@/utils/helpers'
 import { useKanbanStore } from '@/stores/kanban'
 import TaskTypeIcon from '../../../icons/task-type-icon.vue'
+import { BorderOutlined, ClockCircleOutlined, FlagOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps(['task', 'board'])
 const emit = defineEmits(['updateProperties', 'updateState'])
@@ -27,7 +28,7 @@ const getAvatarSrc = (memberId) => {
       v-for="state in store.states"
       :key="state.id"
     >
-      {{ state.name }}
+      <span class="ml-1">{{ state.name }}</span>
     </SelectOption>
   </Select>
 
@@ -103,7 +104,8 @@ const getAvatarSrc = (memberId) => {
       v-for="priority in store.priorities"
       :key="priority.id"
     >
-      {{ priority.name }}
+      <FlagOutlined />
+      <span class="ml-2">{{ priority.name }}</span>
     </SelectOption>
   </Select>
 
@@ -122,7 +124,8 @@ const getAvatarSrc = (memberId) => {
         v-for="estimate in store.estimates"
         :key="estimate.id"
       >
-        {{ estimate.value }}
+        <ClockCircleOutlined class="text-xs" />
+        <span class="ml-1">{{ estimate.value }}</span>
       </SelectOption>
     </Select>
   </template>

@@ -1,6 +1,7 @@
 <script setup>
 import { Checkbox, CheckboxGroup } from 'ant-design-vue'
 import { useKanbanStore } from '@/stores/kanban'
+import { ClockCircleOutlined } from '@ant-design/icons-vue';
 
 const store = useKanbanStore()
 </script>
@@ -14,7 +15,10 @@ const store = useKanbanStore()
         :key="estimate.id"
       >
         <Checkbox :value="estimate.id"></Checkbox>
-        <div>{{ estimate.value }}</div>
+        <div>
+          <ClockCircleOutlined class="text-xs" />
+          <span class="ml-1">{{ estimate.value }}</span>
+        </div>
       </div>
     </div>
   </CheckboxGroup>

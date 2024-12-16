@@ -31,11 +31,14 @@ import {
   PlusOutlined,
   ReloadOutlined,
   UnorderedListOutlined,
+  BorderOutlined,
+  EllipsisOutlined,
 } from '@ant-design/icons-vue'
 import WorkspaceLayout from '@/components/base/workspace-layout.vue'
 import FilterList from '@/components/boards/kanban/filters/filter-list.vue'
 import TaskAddForm from '@/components/boards/kanban/task-add-form.vue'
 import TaskView from '@/components/boards/kanban/detail/task-view.vue'
+import StateMenu from './state-menu.vue'
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
@@ -221,10 +224,31 @@ const closeTaskAddDrawer = () => {
               <div
                 v-for="state in store.kanban"
                 :key="state.id"
-                class="column p-1 rounded-lg w-80 flex-shrink-0"
+                class="column p-1 rounded-lg w-80 flex-shrink-0 task-list"
               >
-                <div class="font-semibold mb-2">{{ state.name }}</div>
-                <div class="task-list">
+                <div
+                  class="font-bold mb-2 bg-gray-100 rounded px-2 py-1 flex justify-between items-center"
+                >
+                  <div>
+                    <BorderOutlined class="text-primary" />
+                    <span class="ml-2">{{ state.name }}</span>
+                  </div>
+
+                  <div>
+                    <Dropdown :trigger="['click']" placement="bottom">
+                      <Button
+                        :icon="h(EllipsisOutlined)"
+                        size="small"
+                        type="text"
+                      />
+                      <template #overlay>
+                        <StateMenu :state="state" />
+                      </template>
+                    </Dropdown>
+                  </div>
+                </div>
+                <!-- <Button size="small" class="w-full mb-2" :icon="h(PlusOutlined)">Add task</Button> -->
+                <div class="">
                   <VueDraggable
                     class="flex flex-col space-y-2"
                     v-model="state.tasks"
@@ -385,8 +409,8 @@ const closeTaskAddDrawer = () => {
 }
 
 .task-list {
-  min-height: 50px;
-  max-height: calc(100vh - 115px);
+  /* min-height: 50px; */
+  height: calc(100vh - 80px);
   overflow-y: auto;
 }
 
