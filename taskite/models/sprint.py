@@ -17,6 +17,7 @@ class Sprint(UUIDTimestampModel):
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
+    is_active = models.BooleanField(default=False)
 
     archived_at = models.DateTimeField(blank=True, null=True)
 
@@ -25,7 +26,12 @@ class Sprint(UUIDTimestampModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["board", "name"], name="unique_sprint_name_per_board"
-            )
+            ),
+            models.UniqueConstraint(
+                fields=["board"],
+                condition=models.Q(is_active=True),
+                name="unique_active_sprint_per_board",
+            ),
         ]
 
     objects = ActiveSprintManager()

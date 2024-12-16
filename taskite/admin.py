@@ -26,6 +26,7 @@ from taskite.models import (
     NewslineTeamPermission,
     NewslinePermission,
     Estimate,
+    Sprint
 )
 
 
@@ -148,6 +149,11 @@ class EstimateInlineAdmin(admin.StackedInline):
     extra = 0
 
 
+class SprintInlineAdmin(admin.StackedInline):
+    model = Sprint
+    extra = 0
+
+
 @admin.register(Board)
 class BoardAdmin(admin.ModelAdmin):
     list_display = ["name", "created_by"]
@@ -156,6 +162,7 @@ class BoardAdmin(admin.ModelAdmin):
         BoardTeamPermissionInlineAdmin,
         BoardPermissionInlineAdmin,
         EstimateInlineAdmin,
+        SprintInlineAdmin
     ]
 
 

@@ -2,7 +2,11 @@
 import { Avatar, AvatarGroup, Tag } from 'ant-design-vue'
 import { generateAvatar } from '@/utils/helpers'
 import TaskTypeIcon from '@/components/icons/task-type-icon.vue'
-import { ClockCircleOutlined, FlagOutlined } from '@ant-design/icons-vue'
+import {
+  ClockCircleOutlined,
+  FlagOutlined,
+  SyncOutlined,
+} from '@ant-design/icons-vue'
 
 const props = defineProps(['board', 'task'])
 </script>
@@ -22,17 +26,29 @@ const props = defineProps(['board', 'task'])
       <div class="text-xs font-semibold">{{ props.task.estimate?.value }}</div>
     </div>
   </div>
+
   <div>{{ props.task.summary }}</div>
 
   <div class="mt-2 flex justify-between items-center">
-    <Tag
-      :bordered="false"
-      class="text-xs font-semibold"
-      v-if="!!props.task.priority"
-    >
-      <FlagOutlined />
-      <span>{{ props.task?.priority.name }}</span>
-    </Tag>
+    <div class="flex items-start gap-1">
+      <Tag
+        :bordered="false"
+        class="text-xs font-semibold"
+        v-if="!!props.task.priority"
+      >
+        <FlagOutlined class="text-primary" />
+        <span class="text-primary">{{ props.task?.priority.name }}</span>
+      </Tag>
+
+      <Tag
+        :bordered="false"
+        class="text-xs font-semibold"
+        v-if="!!props.task.sprint"
+      >
+        <SyncOutlined />
+        <span>{{ props.task?.sprint.name }}</span>
+      </Tag>
+    </div>
     <AvatarGroup size="small">
       <Avatar
         v-for="assignee in props.task.assignees"

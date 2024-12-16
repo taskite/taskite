@@ -16,6 +16,7 @@ from taskite.models import (
     Task,
     Newsline,
     NewslinePermission,
+    Estimate,
 )
 from taskite.tasks import file_archive
 
@@ -103,6 +104,18 @@ def setup_initial_project(sender, instance, created, **kwargs):
                 Priority(board=instance, name="High"),
                 Priority(board=instance, name="Medium"),
                 Priority(board=instance, name="Low"),
+            ]
+        )
+
+        # 3. Creating initail set of estimates for time based.
+        Estimate.objects.bulk_create(
+            [
+                Estimate(board=instance, key=1, value="1h"),
+                Estimate(board=instance, key=2, value="2h"),
+                Estimate(board=instance, key=3, value="4h"),
+                Estimate(board=instance, key=4, value="1d"),
+                Estimate(board=instance, key=5, value="2d"),
+                Estimate(board=instance, key=6, value="4d"),
             ]
         )
 

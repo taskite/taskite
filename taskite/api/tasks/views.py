@@ -148,7 +148,7 @@ class TasksViewSet(BoardMixin, ViewSet):
 
         tasks = (
             queryset.prefetch_related("assignees", "labels")
-            .select_related("priority", "created_by", "estimate")
+            .select_related("priority", "created_by", "estimate", "sprint")
             .order_by("sequence")
         )
         serializer = TaskSerializer(tasks, many=True)

@@ -39,6 +39,7 @@ import FilterList from '@/components/boards/kanban/filters/filter-list.vue'
 import TaskAddForm from '@/components/boards/kanban/task-add-form.vue'
 import TaskView from '@/components/boards/kanban/detail/task-view.vue'
 import StateMenu from './state-menu.vue'
+import BaseSpinner from '../../base/base-spinner.vue'
 
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
@@ -97,11 +98,14 @@ const fetchEstimates = async () => {
   }
 }
 
+const loading = ref(false)
 const loadKanban = async () => {
   try {
+    loading.value = true
     await fetchStates()
     await fetchTasks()
     await store.setupKanban()
+    loading.value = false
 
     fetchMembers()
     fetchPriorities()
@@ -220,11 +224,20 @@ const closeTaskAddDrawer = () => {
       >
         <template #default>
           <div class="board-container">
-            <div class="flex space-x-1">
+            <div
+              v-if="loading"
+              class="flex justify-center items-center h-[80vh]"
+            >
+              <div class="flex items-center gap-2">
+                <BaseSpinner />
+                <div>Please wait while we load tasks...</div>
+              </div>
+            </div>
+            <div class="flex space-x-1" v-else>
               <div
                 v-for="state in store.kanban"
                 :key="state.id"
-                class="column p-1 rounded-lg w-80 flex-shrink-0 task-list"
+                class="column p-1 rounded-lg w-[21rem] flex-shrink-0 task-list"
               >
                 <div
                   class="font-bold mb-2 bg-gray-100 rounded px-2 py-1 flex justify-between items-center"
@@ -308,7 +321,7 @@ const closeTaskAddDrawer = () => {
 
         <template #actions>
           <div class="flex me-2 gap-3 items-center">
-            <Button type="text" :icon="h(ReloadOutlined)">Refresh board</Button>
+            <Button type="text" :icon="h(ReloadOutlined)" @click="loadKanban">Refresh board</Button>
             <Dropdown :trigger="['click']" placement="bottomRight">
               <AvatarGroup size="small" :max-count="5">
                 <Avatar

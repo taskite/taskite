@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from taskite.models import Task, User, Priority, Label, TaskComment, Estimate
+from taskite.models import Task, User, Priority, Label, TaskComment, Estimate, Sprint
 
 
 class AssigneeSerializer(serializers.ModelSerializer):
@@ -53,6 +53,12 @@ class EstimateSerializer(serializers.ModelSerializer):
         fields = ["id", "key", "value"]
 
 
+class SprintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sprint
+        fields = ["id", "name", "start_date", "end_date", "is_active", "created_at"]
+
+
 class TaskCreateSerializer(serializers.Serializer):
     summary = serializers.CharField()
     description = serializers.CharField(
@@ -72,6 +78,7 @@ class TaskSerializer(serializers.ModelSerializer):
     labels = LabelSerializer(many=True)
     priority = PrioritySerializer()
     estimate = EstimateSerializer()
+    sprint = SprintSerializer()
     created_by = CreatedBySerializer()
     assignee_ids = serializers.SerializerMethodField()
     label_ids = serializers.SerializerMethodField()
@@ -85,6 +92,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "state_id",
             "priority_id",
             "sprint_id",
+            "sprint",
             "task_type",
             "task_type_display",
             "number",
