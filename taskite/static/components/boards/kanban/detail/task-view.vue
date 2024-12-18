@@ -26,7 +26,7 @@ import {
   CheckSquareOutlined,
   FileOutlined,
 } from '@ant-design/icons-vue'
-import { handleResponseError, generateAvatar } from '@/utils/helpers'
+import { handleResponseError, generateAvatar, notify } from '@/utils/helpers'
 import { useKanbanStore } from '@/stores/kanban'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -200,7 +200,8 @@ const createAttachment = async (options) => {
       ...data.attachment,
       attachment: fileSrc,
     })
-    message.success(`You have added an attachment to ${task.value.name}`)
+    notify('ADDED', data.detail)
+    // message.success(`You have added an attachment to ${task.value.name}`)
     logComment([data.comment])
   } catch (error) {
     handleResponseError(error)
@@ -217,7 +218,7 @@ const deleteAttachment = async (attachmentId) => {
     attachments.value = attachments.value.filter(
       (attachment) => attachment.id !== attachmentId
     )
-    message.success('You have removed an attachment')
+    notify('REMOVED', data.detail)
     logComment([data.comment])
   } catch (error) {
     handleResponseError(error)

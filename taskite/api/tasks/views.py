@@ -1,5 +1,6 @@
 import time
 from django.db import transaction
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAuthenticated
@@ -106,7 +107,11 @@ class TasksViewSet(BoardMixin, ViewSet):
             task.assignees.set(assignees)
 
         serializer = TaskSerializer(task)
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        response_data = {
+            "detail": f"Task '{task.name}' has been created successfully",
+            "task": serializer.data,
+        }
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
         task = Task.objects.filter(board=request.board, id=kwargs.get("pk")).first()
@@ -145,6 +150,13 @@ class TasksViewSet(BoardMixin, ViewSet):
             # Filter for estimates
             estimates = request.query_params.getlist("estimates[]")
             queryset = queryset.filter(estimate__in=estimates)
+
+        if request.query_params.getlist("sprints[]"):
+            # Filter for sprints
+            sprints = request.query_params.getlist("sprints[]")
+            queryset = queryset.filter(Q(sprint__in=sprints) | Q(sprint=None))
+        else:
+            queryset = queryset.filter(sprint=None)
 
         tasks = (
             queryset.prefetch_related("assignees", "labels")

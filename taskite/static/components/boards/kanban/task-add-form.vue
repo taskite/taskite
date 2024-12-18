@@ -1,9 +1,9 @@
 <script setup>
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import { Avatar, Button, Card, Dropdown, Form, FormItem, Input, Select, SelectOption, Textarea } from 'ant-design-vue';
-import { h, ref } from 'vue';
+import { h, onMounted, ref } from 'vue';
 import { useKanbanStore } from '@/stores/kanban';
-import { generateAvatar, handleResponseError } from '@/utils/helpers';
+import { generateAvatar, handleResponseError, notify } from '@/utils/helpers';
 import { taskCreateAPI } from '@/utils/api';
 
 const props = defineProps(['board'])
@@ -29,7 +29,8 @@ const submitForm = async (values) => {
     try {
         const { data } = await taskCreateAPI(props.board.id, values)
         resetFields()
-        emit('created', data)
+        notify('CREATED', data.detail)
+        emit('created', data.task)
     } catch (error) {
         handleResponseError(error)
     }

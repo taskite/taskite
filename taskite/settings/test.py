@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3085"]
 DEBUG = True
-BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
-APP_URL = os.environ.get("APP_URL", "http://localhost:5173")
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:8085")
+APP_URL = os.environ.get("APP_URL", "http://localhost:3085")
 DJANGO_ALLOW_ASYNC_UNSAFE = True
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
@@ -18,12 +18,19 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "127.0.0.1"
 EMAIL_PORT = "1025"
 
+# DJANGO_VITE = {
+#     "default": {
+#         "dev_mode": False,
+#         "static_url_prefix": "dist",
+#         "manifest_path": BASE_DIR / "taskite" / "static" / "dist" / "manifest.json",
+#     }
+# }
+
 DJANGO_VITE = {
-    "default": {
-        "dev_mode": False,
-        "static_url_prefix": "dist",
-        "manifest_path": BASE_DIR / "taskite" / "static" / "dist" / "manifest.json",
-    }
+  "default": {
+    "dev_mode": True,
+    "dev_server_port": "3085"
+  }
 }
 
 DATABASES = {

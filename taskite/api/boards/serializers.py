@@ -8,6 +8,7 @@ class BoardCreateSerializer(serializers.Serializer):
     workspace_id = serializers.UUIDField()
     name = serializers.CharField()
     description = serializers.CharField(required=False, allow_blank=True)
+    template_id = serializers.UUIDField(required=False, allow_null=True)
 
 
 class BoardSerializer(serializers.ModelSerializer):
@@ -66,5 +67,5 @@ class TaskSerializer(serializers.ModelSerializer):
             "board",
             "task_type",
             "summary",
-            "created_at"
+            "created_at",
         ]

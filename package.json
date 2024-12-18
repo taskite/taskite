@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test:build": "vite build --mode testing",
     "test:unit": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:dev": "vite --port 3085"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",

@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useKanbanStore = defineStore('kanban', () => {
@@ -34,11 +34,29 @@ export const useKanbanStore = defineStore('kanban', () => {
     estimates.value = estimatesData
   }
 
+  const sprints = ref([])
+  const setSprints = (sprintsData) => {
+    sprints.value = sprintsData
+    const activeSprint = sprintsData.find(sprint => sprint.isActive === true)
+    if(!!activeSprint) {
+      sprintFilters.value = [activeSprint.id]
+    }
+  }
+
+  const activeSprint = computed(() => {
+    if(sprints.value.length === 0) {
+      return null
+    }
+
+    return sprints.value.find(sprint => sprint.isActive === true)
+  })
+
   const assigneeFilters = ref([])
   const taskTypes = ref([])
   const priorityFilters = ref([])
   const labelFilters = ref([])
   const estimateFilters = ref([])
+  const sprintFilters = ref([])
 
   const setupKanban = async () => {
     kanban.value = states.value.map((state) => {
@@ -134,11 +152,15 @@ export const useKanbanStore = defineStore('kanban', () => {
     setLabels,
     estimates,
     setEstimates,
+    sprints,
+    setSprints,
+    activeSprint,
     assigneeFilters,
     taskTypes,
     priorityFilters,
     labelFilters,
     estimateFilters,
+    sprintFilters,
     addNewTask,
     updateTask,
     updateTaskState,

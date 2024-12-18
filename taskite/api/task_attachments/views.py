@@ -46,6 +46,7 @@ class TaskAttachementsViewSet(BoardMixin, ViewSet):
         response_data = {
             "attachment": attachment_serializer.data,
             "comment": comment_serializer.data,
+            "detail": f"Attachment '{data.get('filename')}' has been successfully uploaded to the task",
         }
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
@@ -54,6 +55,7 @@ class TaskAttachementsViewSet(BoardMixin, ViewSet):
         attachment = get_object_or_raise_api_404(
             TaskAttachment, task=task, id=kwargs.get("pk")
         )
+        filename = attachment.filename
         attachment.delete()
         comment = TaskComment.objects.create(
             task=task,
@@ -63,7 +65,7 @@ class TaskAttachementsViewSet(BoardMixin, ViewSet):
         )
         comment_serializer = TaskCommentSerializer(comment)
         response_data = {
-            "detail": "Attachment removed successfully",
+            "detail": f"Attachment '{filename}' has been successfully removed from the task",
             "comment": comment_serializer.data,
         }
         return Response(data=response_data, status=status.HTTP_200_OK)

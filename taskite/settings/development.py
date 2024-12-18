@@ -17,7 +17,7 @@ EMAIL_PORT = "1025"
 
 DJANGO_VITE = {
   "default": {
-    "dev_mode": True
+    "dev_mode": True,
   }
 }
 

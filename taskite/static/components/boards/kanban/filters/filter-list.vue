@@ -6,6 +6,7 @@ import AssigneeFilters from './assignee-filters.vue'
 import PriorityFilters from './priority-filters.vue'
 import LabelFilters from './label-filters.vue'
 import EstimateFilters from './estimate-filters.vue'
+import SprintFilters from './sprint-filters.vue'
 
 const props = defineProps(['board'])
 </script>
@@ -33,6 +34,13 @@ const props = defineProps(['board'])
     </template>
 
     <Divider class="my-2 p-0" />
+
+    <div>
+      <div class="font-semibold text-gray-600">Sprints</div>
+      <SprintFilters />
+    </div>
+
+    <Divider class="my-2 p-0"/> 
 
     <div>
       <div class="font-semibold text-gray-600">Types</div>

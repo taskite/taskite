@@ -35,3 +35,10 @@ export const boardStatsAPI = (workspaceId) =>
       workspaceId,
     },
   })
+
+export const boardTemplatesAPI = (workspaceId) =>
+  client.get(`/boards/templates`, {
+    params: {
+      workspaceId,
+    },
+  })

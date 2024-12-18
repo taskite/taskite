@@ -86,38 +86,43 @@ def create_or_update_board_permission(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Board)
 def setup_initial_project(sender, instance, created, **kwargs):
     if created:
-        # 1. Creating initial set of states
-        State.objects.bulk_create(
-            [
-                State(board=instance, name="Backlog", sequence=10000),
-                State(board=instance, name="Todo", sequence=20000),
-                State(board=instance, name="In-progress", sequence=30000),
-                State(board=instance, name="Review", sequence=40000),
-                State(board=instance, name="Done", sequence=50000),
-            ]
-        )
+        if not instance.is_from_template:
+            # Create an initial set of items
+            # 1. Creating initial set of states
+            State.objects.bulk_create(
+                [
+                    State(board=instance, name="Backlog", sequence=10000),
+                    State(board=instance, name="Todo", sequence=20000),
+                    State(board=instance, name="In-progress", sequence=30000),
+                    State(board=instance, name="Review", sequence=40000),
+                    State(board=instance, name="Done", sequence=50000),
+                ]
+            )
 
-        # 2. Creating initial set of priorities
-        Priority.objects.bulk_create(
-            [
-                Priority(board=instance, name="Urgent"),
-                Priority(board=instance, name="High"),
-                Priority(board=instance, name="Medium"),
-                Priority(board=instance, name="Low"),
-            ]
-        )
+            # 2. Creating initial set of priorities
+            Priority.objects.bulk_create(
+                [
+                    Priority(board=instance, name="Urgent"),
+                    Priority(board=instance, name="High"),
+                    Priority(board=instance, name="Medium"),
+                    Priority(board=instance, name="Low"),
+                ]
+            )
 
-        # 3. Creating initail set of estimates for time based.
-        Estimate.objects.bulk_create(
-            [
-                Estimate(board=instance, key=1, value="1h"),
-                Estimate(board=instance, key=2, value="2h"),
-                Estimate(board=instance, key=3, value="4h"),
-                Estimate(board=instance, key=4, value="1d"),
-                Estimate(board=instance, key=5, value="2d"),
-                Estimate(board=instance, key=6, value="4d"),
-            ]
-        )
+            # 3. Creating initail set of estimates for time based.
+            Estimate.objects.bulk_create(
+                [
+                    Estimate(board=instance, key=1, value="1h"),
+                    Estimate(board=instance, key=2, value="2h"),
+                    Estimate(board=instance, key=3, value="4h"),
+                    Estimate(board=instance, key=4, value="1d"),
+                    Estimate(board=instance, key=5, value="2d"),
+                    Estimate(board=instance, key=6, value="4d"),
+                ]
+            )
+        else:
+            template_board = instance.template
+            print('Template Board --> ', template_board)
 
 
 def get_file_fields(instance):

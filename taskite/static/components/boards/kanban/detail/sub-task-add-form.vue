@@ -11,7 +11,7 @@ import {
   Button,
 } from 'ant-design-vue'
 import { h, ref } from 'vue'
-import { generateAvatar, handleResponseError } from '@/utils/helpers'
+import { generateAvatar, handleResponseError, notify } from '@/utils/helpers'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { taskCreateAPI } from '@/utils/api'
 
@@ -42,7 +42,8 @@ const onSubmit = async (values) => {
       parentId: props.task.id,
     })
     formRef.value.resetFields()
-    emit('created', data)
+    notify('ADDED', data.detail)
+    emit('created', data.task)
   } catch (error) {
     handleResponseError(error)
   }

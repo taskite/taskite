@@ -91,9 +91,15 @@ class BoardViewSet(ViewSet):
             request.user, workspace, ["admin", "collaborator", "maintainer"]
         )
 
+        template_id = data.pop("template_id", None)
         board = Board(**data)
         board.workspace = workspace
         board.created_by = request.user
+
+        if template_id is not None:
+            template_board = Board.template_objects.filter(id=template_id).first()
+            board.is_from_template = True
+            board.template = template_board
         board.save()
 
         serializer = BoardSerializer(board)
@@ -180,6 +186,25 @@ class BoardViewSet(ViewSet):
         serializer = BoardMemberSeralizer(members, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @action(methods=["GET"], detail=False, url_path="templates")
+    def template(self, request, *args, **kwargs):
+        workspace_id = request.query_params.get("workspace_id")
+        if not workspace_id:
+            raise InvalidInputException
+
+        workspace = get_object_or_raise_api_404(Workspace, id=workspace_id)
+
+        # Checking for workspace membership
+        self.check_for_workspace_roles(request.user, workspace)
+
+        template_boards = Board.template_objects.filter()
+        serializer = BoardSerializer(template_boards, many=True)
+
+        response_data = {
+            "results": serializer.data
+        }
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
     @action(methods=["GET"], detail=False)
     def stats(self, request, *args, **kwargs):
         workspace_id = request.query_params.get("workspace_id")
@@ -252,6 +277,6 @@ class BoardViewSet(ViewSet):
             "recent_tasks_assigned": TaskSerializer(
                 recent_tasks_assigned, many=True
             ).data,
-            "task_contributions": formatted_task_contributions_count
+            "task_contributions": formatted_task_contributions_count,
         }
         return Response(data=data, status=status.HTTP_200_OK)

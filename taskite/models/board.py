@@ -1,19 +1,18 @@
-from django.db import models
-from django.utils.text import slugify
+from django.db import models, IntegrityError
+
+# from django.utils.text import slugify
 from django.utils.crypto import get_random_string
 from django.apps import apps
 
 from taskite.models.base import UUIDTimestampModel
-
-
-class BoardPermissionRole(models.TextChoices):
-    ADMIN = ("admin", "Admin")
-    COLLABORATOR = ("collaborator", "Collaborator")
-    MAINTAINER = ("maintainer", "Maintainer")
-    GUEST = ("guest", "Guest")
+from taskite.models.choice import BoardPermissionRole
 
 
 class Board(UUIDTimestampModel):
+    class TemplateBoardManager(models.Manager):
+        def get_queryset(self):
+            return super().get_queryset().filter(is_template=True)
+
     class EstimateType(models.TextChoices):
         POINT = ("point", "Point")
         CATEGORY = ("category", "Category")
@@ -23,7 +22,7 @@ class Board(UUIDTimestampModel):
         "Workspace", on_delete=models.CASCADE, related_name="boards"
     )
     name = models.CharField(max_length=124)
-    slug = models.SlugField(max_length=124, blank=True, unique=True)
+    slug = models.SlugField(max_length=124, blank=True, unique=True, editable=False)
     description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(
         "User", on_delete=models.SET_NULL, null=True, related_name="created_boards"
@@ -38,14 +37,33 @@ class Board(UUIDTimestampModel):
     estimate_type = models.CharField(
         max_length=10, choices=EstimateType.choices, default=EstimateType.TIME
     )
-
     archived_at = models.DateTimeField(blank=True, null=True)
+
+    # Template Related Settings
+    is_template = models.BooleanField(
+        default=False,
+        help_text="WARN: Enabling this would make board public for other people to copy as template",
+    )
+    template = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="copies",
+        help_text="If this board was created from a template, reference to the template board",
+    )
+    is_from_template = models.BooleanField(
+        default=False, help_text="Indicates if this board was created from a template"
+    )
 
     users = models.ManyToManyField(
         "User",
         through="BoardPermission",
         related_name="boards",
     )
+
+    objects = models.Manager()
+    template_objects = TemplateBoardManager()
 
     def __str__(self) -> str:
         return self.name
@@ -56,10 +74,18 @@ class Board(UUIDTimestampModel):
     def __str__(self) -> str:
         return self.name
 
+    def generate_project_slug(self):
+        """Handles retry mechanism to generate a unique slug."""
+        max_attempts = 3
+        for _ in range(max_attempts):
+            slug = get_random_string(16)
+            if not self.__class__.objects.filter(slug=slug).exists():
+                return slug
+        raise IntegrityError("Could not generate a unique slug after 3 attempts.")
+
     def save(self, *args, **kwargs):
         if self._state.adding:
-            if not self.slug:
-                self.slug = slugify(self.name) + "-" + get_random_string(10)
+            self.slug = self.generate_project_slug()
 
             # Generate task prefix if not given
             if not self.task_prefix:

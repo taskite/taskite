@@ -11,6 +11,7 @@ import {
   taskCreateAPI,
   labelListAPI,
   estimateListAPI,
+  sprintListAPI,
 } from '@/utils/api'
 import { VueDraggable } from 'vue-draggable-plus'
 import TaskCard from '@/components/boards/kanban/task-card.vue'
@@ -44,6 +45,9 @@ import BaseSpinner from '../../base/base-spinner.vue'
 const props = defineProps(['workspace', 'board'])
 const store = useKanbanStore()
 
+const isInitializing = ref(true)
+const taskLoading = ref(false)
+
 const fetchStates = async () => {
   try {
     const { data } = await stateListAPI(props.board.id)
@@ -55,8 +59,10 @@ const fetchStates = async () => {
 
 const fetchTasks = async (filters = {}) => {
   try {
+    taskLoading.value = true
     const { data } = await taskListAPI(props.board.id, filters)
     store.setTasks(data)
+    taskLoading.value = false
   } catch (error) {
     handleResponseError(error)
   }
@@ -98,12 +104,25 @@ const fetchEstimates = async () => {
   }
 }
 
+const fetchSprints = async () => {
+  try {
+    const { data } = await sprintListAPI(props.board.id)
+    await store.setSprints(data)
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
+
 const loading = ref(false)
 const loadKanban = async () => {
   try {
     loading.value = true
     await fetchStates()
-    await fetchTasks()
+    await fetchSprints()
+
+    isInitializing.value = false
+
+    await fetchTasks({ sprints: store.sprintFilters })
     await store.setupKanban()
     loading.value = false
 
@@ -166,14 +185,20 @@ watch(
     store.priorityFilters,
     store.labelFilters,
     store.estimateFilters,
+    store.sprintFilters,
   ],
   async () => {
+    if (isInitializing.value === true) {
+      return
+    }
+
     await fetchTasks({
       assignees: store.assigneeFilters,
       taskTypes: store.taskTypes,
       priorities: store.priorityFilters,
       labels: store.labelFilters,
       estimates: store.estimateFilters,
+      sprints: store.sprintFilters,
     })
     await store.setupKanban()
   }
@@ -196,7 +221,7 @@ const createNewTask = async (event, stateId) => {
 
   try {
     const { data } = await taskCreateAPI(props.board.id, newTaskData)
-    store.addNewTask(data)
+    store.addNewTask(data.task)
     closeActiveTaskCard()
   } catch (error) {
     handleResponseError(error)
@@ -225,7 +250,7 @@ const closeTaskAddDrawer = () => {
         <template #default>
           <div class="board-container">
             <div
-              v-if="loading"
+              v-if="loading || taskLoading"
               class="flex justify-center items-center h-[80vh]"
             >
               <div class="flex items-center gap-2">
@@ -321,7 +346,9 @@ const closeTaskAddDrawer = () => {
 
         <template #actions>
           <div class="flex me-2 gap-3 items-center">
-            <Button type="text" :icon="h(ReloadOutlined)" @click="loadKanban">Refresh board</Button>
+            <Button type="text" :icon="h(ReloadOutlined)" @click="loadKanban"
+              >Refresh board</Button
+            >
             <Dropdown :trigger="['click']" placement="bottomRight">
               <AvatarGroup size="small" :max-count="5">
                 <Avatar

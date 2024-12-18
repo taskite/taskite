@@ -4,11 +4,13 @@ from django.shortcuts import render
 from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from taskite.models import (
-    WorkspaceMembership,
-    Board,
+from taskite.models import WorkspaceMembership, Board, Sprint
+from taskite.serializers import (
+    WorkspaceSerializer,
+    ProfileSerializer,
+    BoardSerializer,
+    SprintSerializer,
 )
-from taskite.serializers import WorkspaceSerializer, ProfileSerializer, BoardSerializer
 from taskite.mixins import BoardPermissionMixin
 
 

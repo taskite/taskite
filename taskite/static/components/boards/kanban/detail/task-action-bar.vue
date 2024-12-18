@@ -55,10 +55,10 @@ const getAvatarSrc = (memberId) => {
         <Avatar
           size="small"
           :src="
-            !!member.avatar ? member.avatar : generateAvatar(member.firstName)
+            !!member.avatar ? member.avatar : generateAvatar(member.displayName)
           "
         />
-        <div>{{ member.firstName }} {{ member?.lastName }}</div>
+        <div>{{ member.displayName }}</div>
       </div>
     </SelectOption>
   </Select>

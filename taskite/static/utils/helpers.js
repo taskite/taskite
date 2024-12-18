@@ -1,7 +1,7 @@
 import { initials } from '@dicebear/collection'
 import { createAvatar } from '@dicebear/core'
 import { getPresignUrlAPI, fileUploadAPI } from './api'
-import { message } from 'ant-design-vue'
+import { message, notification } from 'ant-design-vue'
 
 export const generateAvatar = (seedValue, radius = 50) => {
   return createAvatar(initials, {
@@ -63,7 +63,7 @@ export const uploadRequestHandler = async (
 }
 
 export const handleResponseError = (error) => {
-  // console.error('An error occurred:', error)
+  console.error('An error occurred:', error)
 
   let errorMessage = 'An unexpected error occurred. Please try again.'
 
@@ -146,5 +146,18 @@ export const processImage = (
         }, file.type)
       }
     }
+  })
+}
+
+export const notify = (notificationMessage, notificationDescription) => {
+  notification.open({
+    message: notificationMessage,
+    description: notificationDescription,
+    placement: 'bottomRight',
+    style: {
+      width: '350px',
+      padding: '16px',
+      borderLeft: '12px solid #8B5CF6',
+    },
   })
 }

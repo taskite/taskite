@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from taskite.mixins import NameAndSourceSerializerMixin
-from taskite.models import Workspace, User, Team, Board
+from taskite.models import Workspace, User, Team, Board, Sprint
 
 
 class ProfileSerializer(NameAndSourceSerializerMixin, serializers.ModelSerializer):
@@ -49,3 +49,9 @@ class BoardSerializer(serializers.ModelSerializer):
             "is_estimate_enabled",
             "created_at",
         ]
+
+
+class SprintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sprint
+        fields = ["id", "name", "start_date", "end_date", "is_active", "created_at"]
