@@ -22,7 +22,7 @@ const fetchBoards = async () => {
 }
 
 const redirectToBoard = (board) => {
-    window.location.href = `/b/${board.slug}/`
+    window.location.href = `/b/${board.id}/`
 }
 
 const openNewBoardModal = ref(false)

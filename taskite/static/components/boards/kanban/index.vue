@@ -1,7 +1,7 @@
 <script setup>
 import BoardLayout from '@/components/base/board-layout.vue'
 import { useKanbanStore } from '@/stores/kanban'
-import { h, onMounted, ref, watch } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
 import {
   taskListAPI,
   stateListAPI,
@@ -35,6 +35,7 @@ import {
   BorderOutlined,
   EllipsisOutlined,
 } from '@ant-design/icons-vue'
+import { useNProgress } from '@vueuse/integrations/useNProgress'
 import WorkspaceLayout from '@/components/base/workspace-layout.vue'
 import FilterList from '@/components/boards/kanban/filters/filter-list.vue'
 import TaskAddForm from '@/components/boards/kanban/task-add-form.vue'
@@ -42,10 +43,32 @@ import TaskView from '@/components/boards/kanban/detail/task-view.vue'
 import StateMenu from './state-menu.vue'
 import BaseSpinner from '../../base/base-spinner.vue'
 
-const props = defineProps(['workspace', 'board'])
+// const props = defineProps(['workspace', 'board'])
+const props = defineProps({
+  workspace: {
+    type: Object,
+    required: true,
+  },
+  board: {
+    type: Object,
+    required: true,
+  },
+  currentSprint: {
+    type: Object,
+    required: false,
+    default: null,
+  },
+  currentTab: {
+    type: String,
+    default: 'kanban',
+  }
+})
+
+const hasCurrentSprint = computed(() => !!props.currentSprint)
 const store = useKanbanStore()
 
 const isInitializing = ref(true)
+const { isLoading } = useNProgress(null, { minimum: '0.5' })
 const taskLoading = ref(false)
 
 const fetchStates = async () => {
@@ -62,9 +85,10 @@ const fetchTasks = async (filters = {}) => {
     taskLoading.value = true
     const { data } = await taskListAPI(props.board.id, filters)
     store.setTasks(data)
-    taskLoading.value = false
   } catch (error) {
     handleResponseError(error)
+  } finally {
+    taskLoading.value = false
   }
 }
 
@@ -113,24 +137,29 @@ const fetchSprints = async () => {
   }
 }
 
-const loading = ref(false)
 const loadKanban = async () => {
   try {
-    loading.value = true
+    isLoading.value = true
     await fetchStates()
-    await fetchSprints()
+
+    if (hasCurrentSprint.value) {
+      await store.setSprintFilters([props.currentSprint.id])
+    } else {
+      await fetchSprints()
+    }
 
     isInitializing.value = false
+    isLoading.value = false
 
     await fetchTasks({ sprints: store.sprintFilters })
     await store.setupKanban()
-    loading.value = false
 
     fetchMembers()
     fetchPriorities()
     fetchLabels()
     fetchEstimates()
   } catch (error) {
+    console.log(error)
     handleResponseError(error)
   }
 }
@@ -245,12 +274,12 @@ const closeTaskAddDrawer = () => {
       <BoardLayout
         :workspace="props.workspace"
         :board="props.board"
-        page="kanban"
+        :page="props.currentTab"
       >
         <template #default>
           <div class="board-container">
             <div
-              v-if="loading || taskLoading"
+              v-if="isLoading || taskLoading"
               class="flex justify-center items-center h-[80vh]"
             >
               <div class="flex items-center gap-2">
@@ -375,7 +404,10 @@ const closeTaskAddDrawer = () => {
             >
               <Button :icon="h(FilterOutlined)">Filters</Button>
               <template #overlay>
-                <FilterList :board="props.board" />
+                <FilterList
+                  :board="props.board"
+                  :currentSprint="props.currentSprint"
+                />
               </template>
             </Dropdown>
 

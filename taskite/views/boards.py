@@ -15,8 +15,9 @@ from taskite.mixins import BoardPermissionMixin
 
 
 class BoardKanbanView(LoginRequiredMixin, BoardPermissionMixin, View):
-    def get(self, request, board_slug):
-        board = get_object_or_404(Board, slug=board_slug)
+    def get(self, request, *args, **kwargs):
+        print(kwargs)
+        board = get_object_or_404(Board, id=kwargs.get("board_id"))
 
         if not self.has_valid_board_permission(board, request.user):
             raise Http404
@@ -32,8 +33,8 @@ class BoardKanbanView(LoginRequiredMixin, BoardPermissionMixin, View):
 
 
 class BoardTableView(LoginRequiredMixin, BoardPermissionMixin, View):
-    def get(self, request, board_slug):
-        board = get_object_or_404(Board, slug=board_slug)
+    def get(self, request, *args, **kwargs):
+        board = get_object_or_404(Board, id=kwargs.get("board_id"))
 
         if not self.has_valid_board_permission(board, request.user):
             raise Http404
@@ -47,9 +48,43 @@ class BoardTableView(LoginRequiredMixin, BoardPermissionMixin, View):
         return render(request, "boards/table.html", context)
 
 
+class BoardSprintsListView(LoginRequiredMixin, BoardPermissionMixin, View):
+    def get(self, request, *args, **kwargs):
+        board = get_object_or_404(Board, id=kwargs.get("board_id"))
+
+        if not self.has_valid_board_permission(board, request.user):
+            raise Http404
+
+        context = {
+            "props": {
+                "workspace": WorkspaceSerializer(board.workspace).data,
+                "board": BoardSerializer(board).data,
+            }
+        }
+        return render(request, "boards/sprints/list.html", context)
+
+
+class BoardSprintsDetailView(LoginRequiredMixin, BoardPermissionMixin, View):
+    def get(self, request, *args, **kwargs):
+        board = get_object_or_404(Board, id=kwargs.get("board_id"))
+        sprint = get_object_or_404(Sprint, id=kwargs.get("sprint_id"), board=board)
+
+        if not self.has_valid_board_permission(board, request.user):
+            raise Http404
+
+        context = {
+            "props": {
+                "workspace": WorkspaceSerializer(board.workspace).data,
+                "board": BoardSerializer(board).data,
+                "sprint": SprintSerializer(sprint).data,
+            }
+        }
+        return render(request, "boards/sprints/detail.html", context)
+
+
 class BoardSettingsGeneralView(LoginRequiredMixin, BoardPermissionMixin, View):
-    def get(self, request, board_slug):
-        board = get_object_or_404(Board, slug=board_slug)
+    def get(self, request, *args, **kwargs):
+        board = get_object_or_404(Board, id=kwargs.get("board_id"))
 
         if not self.has_valid_board_permission(board, request.user):
             raise Http404
@@ -70,8 +105,8 @@ class BoardSettingsGeneralView(LoginRequiredMixin, BoardPermissionMixin, View):
 
 
 class BoardSettingsCollaboratorsView(LoginRequiredMixin, BoardPermissionMixin, View):
-    def get(self, request, board_slug):
-        board = get_object_or_404(Board, slug=board_slug)
+    def get(self, request, *args, **kwargs):
+        board = get_object_or_404(Board, id=kwargs.get("board_id"))
 
         if not self.has_valid_board_permission(board, request.user):
             raise Http404
@@ -92,8 +127,8 @@ class BoardSettingsCollaboratorsView(LoginRequiredMixin, BoardPermissionMixin, V
 
 
 class BoardSettingsStatesView(LoginRequiredMixin, BoardPermissionMixin, View):
-    def get(self, request, board_slug):
-        board = get_object_or_404(Board, slug=board_slug)
+    def get(self, request, *args, **kwargs):
+        board = get_object_or_404(Board, id=kwargs.get("board_id"))
 
         if not self.has_valid_board_permission(board, request.user):
             raise Http404

@@ -10,9 +10,9 @@ const activeKey = ref(props.page)
 
 const switchTab = (key) => {
     if (key === 'kanban') {
-        window.location.href = `/b/${props.board.slug}/`
+        window.location.href = `/b/${props.board.id}/`
     } else {
-        window.location.href = `/b/${props.board.slug}/${key}/`
+        window.location.href = `/b/${props.board.id}/${key}/`
     }
 }
 </script>
@@ -43,7 +43,7 @@ const switchTab = (key) => {
                 </template>
             </TabPane>
 
-            <TabPane key="sprints" disabled>
+            <TabPane key="sprints">
                 <template #tab>
                     <CarryOutOutlined />
                     Sprints

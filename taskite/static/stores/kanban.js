@@ -137,6 +137,10 @@ export const useKanbanStore = defineStore('kanban', () => {
     selectedTask.value = taskId
   }
 
+  const setSprintFilters = (sprintIds) => {
+    sprintFilters.value = sprintIds
+  }
+
   return {
     states,
     setStates,
@@ -161,6 +165,7 @@ export const useKanbanStore = defineStore('kanban', () => {
     labelFilters,
     estimateFilters,
     sprintFilters,
+    setSprintFilters,
     addNewTask,
     updateTask,
     updateTaskState,

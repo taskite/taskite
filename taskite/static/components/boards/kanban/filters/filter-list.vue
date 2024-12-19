@@ -7,8 +7,22 @@ import PriorityFilters from './priority-filters.vue'
 import LabelFilters from './label-filters.vue'
 import EstimateFilters from './estimate-filters.vue'
 import SprintFilters from './sprint-filters.vue'
+import { computed } from 'vue'
 
-const props = defineProps(['board'])
+// const props = defineProps(['board'])
+const props = defineProps({
+  board: {
+    type: Object,
+    required: true,
+  },
+  currentSprint: {
+    type: Object,
+    required: false,
+    default: null,
+  },
+})
+
+const hasCurrentSprint = computed(() => props.currentSprint !== null)
 </script>
 
 <template>
@@ -33,14 +47,15 @@ const props = defineProps(['board'])
       </div>
     </template>
 
+    <template v-if="!hasCurrentSprint">
+      <Divider class="my-2 p-0" />
+      <div>
+        <div class="font-semibold text-gray-600">Sprints</div>
+        <SprintFilters />
+      </div>
+    </template>
+
     <Divider class="my-2 p-0" />
-
-    <div>
-      <div class="font-semibold text-gray-600">Sprints</div>
-      <SprintFilters />
-    </div>
-
-    <Divider class="my-2 p-0"/> 
 
     <div>
       <div class="font-semibold text-gray-600">Types</div>

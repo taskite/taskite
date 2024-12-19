@@ -23,7 +23,7 @@
     "@tiptap/vue-3": "^2.9.1",
     "@vueup/vue-quill": "^1.2.0",
     "@vueuse/core": "^11.0.3",
-    "@vueuse/integrations": "^11.0.3",
+    "@vueuse/integrations": "^11.3.0",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.7.4",
     "axios-case-converter": "^1.1.1",

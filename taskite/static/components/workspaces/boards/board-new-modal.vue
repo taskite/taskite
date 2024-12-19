@@ -31,7 +31,7 @@ const onSubmit = async (values) => {
 
     const { data } = await boardCreateAPI(postData)
 
-    window.location.href = `/b/${data.slug}`
+    window.location.href = `/b/${data.id}`
   } catch (error) {
     handleResponseError(error)
   }
