@@ -1,12 +1,17 @@
 <script setup>
-import { Avatar, Divider, Select, SelectOption } from 'ant-design-vue'
+import { Avatar, Divider, Select, SelectOption, Button } from 'ant-design-vue'
 import { generateAvatar } from '@/utils/helpers'
 import { useKanbanStore } from '@/stores/kanban'
 import TaskTypeIcon from '../../../icons/task-type-icon.vue'
-import { BorderOutlined, ClockCircleOutlined, FlagOutlined } from '@ant-design/icons-vue'
+import {
+  ClockCircleOutlined,
+  FlagOutlined,
+  InboxOutlined,
+} from '@ant-design/icons-vue'
+import { h } from 'vue'
 
-const props = defineProps(['task', 'board'])
-const emit = defineEmits(['updateProperties', 'updateState'])
+const props = defineProps(['task', 'board', 'isArchived'])
+const emit = defineEmits(['updateProperties', 'updateState', 'archive'])
 
 const store = useKanbanStore()
 
@@ -129,6 +134,13 @@ const getAvatarSrc = (memberId) => {
       </SelectOption>
     </Select>
   </template>
+
+  <div class="text-base font-semibold mt-4 mb-2">Actions</div>
+  <div class="flex flex-col gap-2" v-if="!props.isArchived">
+    <Button :icon="h(InboxOutlined)" @click="emit('archive')"
+      ><span class="font-semibold">Archive</span></Button
+    >
+  </div>
 </template>
 
 <style scoped></style>

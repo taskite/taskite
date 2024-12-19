@@ -26,6 +26,7 @@ import {
   Drawer,
   Breadcrumb,
   BreadcrumbItem,
+  Tag,
 } from 'ant-design-vue'
 import {
   FilterOutlined,
@@ -34,6 +35,7 @@ import {
   UnorderedListOutlined,
   BorderOutlined,
   EllipsisOutlined,
+  SyncOutlined,
 } from '@ant-design/icons-vue'
 import { useNProgress } from '@vueuse/integrations/useNProgress'
 import WorkspaceLayout from '@/components/base/workspace-layout.vue'
@@ -61,7 +63,7 @@ const props = defineProps({
   currentTab: {
     type: String,
     default: 'kanban',
-  }
+  },
 })
 
 const hasCurrentSprint = computed(() => !!props.currentSprint)
@@ -337,7 +339,7 @@ const closeTaskAddDrawer = () => {
                             store.selectedTask === task.id,
                         }"
                       >
-                        <TaskCard :task="task" :board="props.board" />
+                        <TaskCard :task="task" :board="props.board" :hasCurrentSprint="hasCurrentSprint" />
                       </Card>
                     </div>
                   </VueDraggable>
@@ -375,6 +377,12 @@ const closeTaskAddDrawer = () => {
 
         <template #actions>
           <div class="flex me-2 gap-3 items-center">
+            <Tag :bordered="false" v-if="hasCurrentSprint">
+              <span class="font-semibold text-primary">
+                <SyncOutlined class="mr-2" />
+                {{ currentSprint.name }}
+              </span>
+            </Tag>
             <Button type="text" :icon="h(ReloadOutlined)" @click="loadKanban"
               >Refresh board</Button
             >

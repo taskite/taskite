@@ -13,6 +13,7 @@ import {
   Upload,
   message,
   Modal,
+  Alert,
 } from 'ant-design-vue'
 import {
   EllipsisOutlined,
@@ -26,7 +27,12 @@ import {
   CheckSquareOutlined,
   FileOutlined,
 } from '@ant-design/icons-vue'
-import { handleResponseError, generateAvatar, notify } from '@/utils/helpers'
+import {
+  handleResponseError,
+  generateAvatar,
+  notify,
+  uploadRequestHandler,
+} from '@/utils/helpers'
 import { useKanbanStore } from '@/stores/kanban'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -51,8 +57,8 @@ import {
   taskAttachmentsCreateAPI,
   taskAttachmentsListAPI,
   taskListAPI,
+  taskArchiveApi,
 } from '@/utils/api'
-import { uploadRequestHandler } from '@/utils/helpers'
 
 // Setup dayjs
 dayjs.extend(relativeTime)
@@ -73,6 +79,7 @@ const attachments = ref([])
 const subtasks = ref([])
 const showSubtaskAddForm = ref(false)
 const openDescriptionActionButton = ref(false)
+const isArchived = ref(false)
 
 // Task Management
 const loadTask = async () => {
@@ -103,6 +110,18 @@ const updateTask = async (updatedData) => {
     handleResponseError(error)
   } finally {
     updateLoading.value = false
+  }
+}
+
+const archiveTask = async () => {
+  try {
+    const { data } = await taskArchiveApi(props.board.id, props.taskId)
+    isArchived.value = true
+    notify('ARCHIVED', data.detail)
+    store.removeTask(props.taskId)
+  } catch (error) {
+    console.log(error)
+    handleResponseError(error)
   }
 }
 
@@ -298,6 +317,15 @@ watch(
 <template>
   <div v-if="!!task && !loading">
     <div class="mb-4">
+      <!-- Archive Banner -->
+      <div
+        v-if="isArchived"
+        class="bg-gray-300 border-l-4 border-gray-500 text-gray-700 px-2 py-3 flex items-center rounded"
+        role="alert"
+      >
+        <div class="font-semibold"><span class="font-bold">Warning: </span> This task has been archived.</div>
+      </div>
+
       <Button
         :icon="h(LeftSquareOutlined)"
         v-if="!!task.parentId"
@@ -346,10 +374,7 @@ watch(
       <div class="col-span-9">
         <div class="text-lg font-semibold">Description</div>
         <div>
-          <TextEditor
-            v-model="task.description"
-            @saved="updateDescription"
-          />
+          <TextEditor v-model="task.description" @saved="updateDescription" />
         </div>
 
         <div class="mb-4">
@@ -439,10 +464,12 @@ watch(
         </div>
 
         <TaskActionBar
+          :isArchived="isArchived"
           :task="task"
           :board="props.board"
           @updateProperties="updateTask"
           @updateState="updateState"
+          @archive="archiveTask"
         />
       </div>
     </div>

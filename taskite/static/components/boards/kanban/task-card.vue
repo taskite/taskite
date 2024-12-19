@@ -5,10 +5,25 @@ import TaskTypeIcon from '@/components/icons/task-type-icon.vue'
 import {
   ClockCircleOutlined,
   FlagOutlined,
+  MinusCircleOutlined,
   SyncOutlined,
 } from '@ant-design/icons-vue'
 
-const props = defineProps(['board', 'task'])
+// const props = defineProps(['board', 'task'])
+const props = defineProps({
+  board: {
+    type: Object,
+    required: true,
+  },
+  task: {
+    type: Object,
+    required: true,
+  },
+  hasCurrentSprint: {
+    type: Boolean,
+    default: false
+  }
+})
 </script>
 
 <template>
@@ -43,10 +58,18 @@ const props = defineProps(['board', 'task'])
       <Tag
         :bordered="false"
         class="text-xs font-semibold"
-        v-if="!!props.task.sprint"
+        v-if="!!props.task.sprint && !props.hasCurrentSprint"
       >
         <SyncOutlined />
         <span>{{ props.task?.sprint.name }}</span>
+      </Tag>
+
+      <Tag
+        :bordered="false"
+        class="text-xs font-semibold"
+        v-if="!props.task.sprint && props.hasCurrentSprint">
+        <MinusCircleOutlined />
+        <span>No sprint</span>
       </Tag>
     </div>
     <AvatarGroup size="small">

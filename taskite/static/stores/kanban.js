@@ -37,18 +37,18 @@ export const useKanbanStore = defineStore('kanban', () => {
   const sprints = ref([])
   const setSprints = (sprintsData) => {
     sprints.value = sprintsData
-    const activeSprint = sprintsData.find(sprint => sprint.isActive === true)
-    if(!!activeSprint) {
+    const activeSprint = sprintsData.find((sprint) => sprint.isActive === true)
+    if (!!activeSprint) {
       sprintFilters.value = [activeSprint.id]
     }
   }
 
   const activeSprint = computed(() => {
-    if(sprints.value.length === 0) {
+    if (sprints.value.length === 0) {
       return null
     }
 
-    return sprints.value.find(sprint => sprint.isActive === true)
+    return sprints.value.find((sprint) => sprint.isActive === true)
   })
 
   const assigneeFilters = ref([])
@@ -90,6 +90,17 @@ export const useKanbanStore = defineStore('kanban', () => {
         ...updatedTaskData,
       }
     }
+  }
+
+  const removeTask = (taskId) => {
+    const task = tasks.value.find((task) => task.id === taskId)
+    if (!task) return false
+
+    const state = kanban.value.find((state) => state.id === task.stateId)
+    if (!state) return false
+
+    state.tasks = state.tasks.filter((task) => task.id !== taskId)
+    tasks.value = tasks.value.filter((task) => task.id !== taskId)
   }
 
   const updateTaskState = (oldStateId, updatedTaskData) => {
@@ -146,6 +157,7 @@ export const useKanbanStore = defineStore('kanban', () => {
     setStates,
     tasks,
     setTasks,
+    removeTask,
     setupKanban,
     kanban,
     members,

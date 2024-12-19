@@ -1,5 +1,8 @@
 import { client } from './client'
 
+export const taskArchiveApi = (boardId, taskId) =>
+  client.patch(`/boards/${boardId}/tasks/${taskId}/archive`)
+
 export const taskCommentsAPI = (boardId, taskId, commentType = 'all') =>
   client.get(`/boards/${boardId}/tasks/${taskId}/comments`, {
     params: {

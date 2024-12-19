@@ -64,7 +64,7 @@ onMounted(() => {
                     <span>{{ item.endDate }}</span>
                   </Tag>
 
-                  <Button size="small" @click="openSprintTasks(item.id)"><span class="text-xs">View details</span></Button>
+                  <Button size="small" @click="openSprintTasks(item.id)"><span class="text-xs">View tasks</span></Button>
                 </div>
               </div>
             </ListItem>

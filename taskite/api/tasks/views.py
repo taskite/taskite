@@ -76,6 +76,18 @@ class TasksViewSet(BoardMixin, ViewSet):
                         ]
                     ),
                 ]
+
+            case "archive":
+                return [
+                    IsAuthenticated(),
+                    BoardGenericPermission(
+                        allowed_roles=[
+                            BoardPermissionRole.ADMIN,
+                            BoardPermissionRole.MAINTAINER,
+                            BoardPermissionRole.COLLABORATOR,
+                        ]
+                    ),
+                ]
             case _:
                 return super().get_permissions()
 
@@ -309,4 +321,14 @@ class TasksViewSet(BoardMixin, ViewSet):
         return Response(
             data={"detail": "Task sequence updated", "new_sequence": task.sequence},
             status=status.HTTP_200_OK,
+        )
+
+    @action(methods=["PATCH"], detail=True, url_path="archive")
+    def archive(self, request, *args, **kwargs):
+        task = get_object_or_raise_api_404(
+            Task, board=request.board, id=kwargs.get("pk")
+        )
+        task.archive()
+        return Response(
+            data={"detail": "Task archived successfully"}, status=status.HTTP_200_OK
         )
