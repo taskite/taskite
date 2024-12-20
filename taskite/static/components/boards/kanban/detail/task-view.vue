@@ -117,7 +117,7 @@ const archiveTask = async () => {
   try {
     const { data } = await taskArchiveApi(props.board.id, props.taskId)
     isArchived.value = true
-    notify('ARCHIVED', data.detail)
+    notify('ARCHIVED', data.detail, 'info')
     store.removeTask(props.taskId)
   } catch (error) {
     console.log(error)
@@ -143,6 +143,28 @@ const updateState = async (stateId) => {
     )
     comments.value.push(lastCommentResponse.data)
   } catch (error) {
+    handleResponseError(error)
+  } finally {
+    updateLoading.value = false
+  }
+}
+
+const updateSprint = async (sprintId) => {
+  try {
+    updateLoading.value = true
+    const { data } = await taskUpdateAPI(props.board.id, props.taskId, {
+      sprintId,
+    })
+    store.updateTask(data.task)
+    task.value = data.task
+
+    logComment(data.comments)
+
+    if(!store.sprintFilters.includes(sprintId)) {
+      store.removeTask(task.value.id)
+    }
+  } catch (error) {
+    console.log(error)
     handleResponseError(error)
   } finally {
     updateLoading.value = false
@@ -323,7 +345,9 @@ watch(
         class="bg-gray-300 border-l-4 border-gray-500 text-gray-700 px-2 py-3 flex items-center rounded"
         role="alert"
       >
-        <div class="font-semibold"><span class="font-bold">Warning: </span> This task has been archived.</div>
+        <div class="font-semibold">
+          <span class="font-bold">Warning: </span> This task has been archived.
+        </div>
       </div>
 
       <Button
@@ -334,7 +358,7 @@ watch(
       >
 
       <div class="flex items-center justify-between">
-        <div class="text-xs font-semibold">#{{ task.name }}</div>
+        <div class="text-xs font-bold">#{{ task.name }}</div>
         <div class="flex gap-2 items-center">
           <div v-if="updateLoading" class="text-gray-400">
             <SyncOutlined />
@@ -372,6 +396,46 @@ watch(
 
     <div class="grid grid-cols-12 gap-4">
       <div class="col-span-9">
+        <div class="mb-5">
+          <Dropdown :trigger="['click']" placement="rightTop">
+            <Button :icon="h(PlusOutlined)" type="primary"
+              ><span class="font-semibold">Add</span></Button
+            >
+            <template #overlay>
+              <Menu>
+                <MenuItem key="subtask" @click="openSubtaskAddForm">
+                  <SwitcherOutlined />
+                  Subtask
+                </MenuItem>
+
+                <MenuItem key="attachment">
+                  <Upload
+                    :multiple="false"
+                    name="file"
+                    :customRequest="createAttachment"
+                  >
+                    <template #itemRender="{ file, actions }">
+                      <!-- Don't render anything -->
+                    </template>
+                    <FileOutlined />
+                    Attachment
+                  </Upload>
+                </MenuItem>
+
+                <MenuItem key="checklist" disabled>
+                  <CheckSquareOutlined />
+                  Checklist (Coming Soon)
+                </MenuItem>
+
+                <MenuItem key="link" disabled>
+                  <LinkOutlined />
+                  Link (Coming Soon)
+                </MenuItem>
+              </Menu>
+            </template>
+          </Dropdown>
+        </div>
+
         <div class="text-lg font-semibold">Description</div>
         <div>
           <TextEditor v-model="task.description" @saved="updateDescription" />
@@ -423,52 +487,13 @@ watch(
       </div>
 
       <div class="col-span-3">
-        <div class="mb-5">
-          <Dropdown :trigger="['click']" placement="left">
-            <Button :icon="h(PlusOutlined)" class="w-full" type="primary"
-              >Add</Button
-            >
-            <template #overlay>
-              <Menu>
-                <MenuItem key="subtask" @click="openSubtaskAddForm">
-                  <SwitcherOutlined />
-                  Subtask
-                </MenuItem>
-
-                <MenuItem key="attachment">
-                  <Upload
-                    :multiple="false"
-                    name="file"
-                    :customRequest="createAttachment"
-                  >
-                    <template #itemRender="{ file, actions }">
-                      <!-- Don't render anything -->
-                    </template>
-                    <FileOutlined />
-                    Attachment
-                  </Upload>
-                </MenuItem>
-
-                <MenuItem key="checklist" disabled>
-                  <CheckSquareOutlined />
-                  Checklist (Coming Soon)
-                </MenuItem>
-
-                <MenuItem key="link" disabled>
-                  <LinkOutlined />
-                  Link (Coming Soon)
-                </MenuItem>
-              </Menu>
-            </template>
-          </Dropdown>
-        </div>
-
         <TaskActionBar
           :isArchived="isArchived"
           :task="task"
           :board="props.board"
           @updateProperties="updateTask"
           @updateState="updateState"
+          @updateSprint="updateSprint"
           @archive="archiveTask"
         />
       </div>

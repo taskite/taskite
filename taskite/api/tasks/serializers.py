@@ -139,6 +139,7 @@ class TaskUpdateSerializer(serializers.Serializer):
     state_id = serializers.UUIDField(required=False)
     task_type = serializers.ChoiceField(choices=Task.TaskType, required=False)
     estimate_id = serializers.UUIDField(required=False)
+    sprint_id = serializers.UUIDField(required=False, allow_null=True)
 
 
 class AuthorSerializer(serializers.ModelSerializer):

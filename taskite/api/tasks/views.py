@@ -17,6 +17,7 @@ from taskite.models import (
     TaskComment,
     BoardPermissionRole,
     Estimate,
+    Sprint,
 )
 from taskite.mixins import BoardMixin
 from taskite.api.tasks.serializers import (
@@ -182,6 +183,7 @@ class TasksViewSet(BoardMixin, ViewSet):
     def partial_update(self, request, *args, **kwargs):
         update_serializer = TaskUpdateSerializer(data=request.data)
         if not update_serializer.is_valid():
+            print('Failed to validate', update_serializer.errors)
             raise InvalidInputException
 
         task = get_object_or_raise_api_404(
@@ -189,6 +191,7 @@ class TasksViewSet(BoardMixin, ViewSet):
         )
 
         data = update_serializer.validated_data
+        print('---> Data', data)
         task_updates = []
         assignee_ids = None
         if data.get("assignee_ids"):
@@ -227,6 +230,18 @@ class TasksViewSet(BoardMixin, ViewSet):
                 task_updates.append(
                     f"changed state from {task.state.name} to {state.name}."
                 )
+
+            if key == "sprint_id":
+                if value:
+                    sprint = get_object_or_raise_api_404(
+                        Sprint, board=request.board, id=value
+                    )
+                    if not task.sprint:
+                        task_updates.append(f"added to sprint {sprint.name}.")
+                    else:
+                        task_updates.append(f"moved to sprint {sprint.name}.")
+                else:
+                    task_updates.append(f"removed from sprint {task.sprint.name}.")
 
             if key == "description":
                 TaskComment.objects.create(
@@ -280,8 +295,13 @@ class TasksViewSet(BoardMixin, ViewSet):
             )
         task_serializer = TaskSerializer(task)
         comments_serializer = TaskCommentSerializer(comments, many=True)
+        response_data = {
+            "task": task_serializer.data,
+            "comments": comments_serializer.data,
+            "detail": "Task updated successfully.",
+        }
         return Response(
-            data={"task": task_serializer.data, "comments": comments_serializer.data},
+            data=response_data,
             status=status.HTTP_200_OK,
         )
 

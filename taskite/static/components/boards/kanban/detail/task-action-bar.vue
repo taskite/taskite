@@ -7,11 +7,17 @@ import {
   ClockCircleOutlined,
   FlagOutlined,
   InboxOutlined,
+  SyncOutlined,
 } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
 const props = defineProps(['task', 'board', 'isArchived'])
-const emit = defineEmits(['updateProperties', 'updateState', 'archive'])
+const emit = defineEmits([
+  'updateProperties',
+  'updateState',
+  'updateSprint',
+  'archive',
+])
 
 const store = useKanbanStore()
 
@@ -131,6 +137,27 @@ const getAvatarSrc = (memberId) => {
       >
         <ClockCircleOutlined class="text-xs" />
         <span class="ml-1">{{ estimate.value }}</span>
+      </SelectOption>
+    </Select>
+  </template>
+
+  <template v-if="store.sprints.length > 0">
+    <Divider class="p-0 my-3" />
+
+    <div class="mb-2 font-semibold">Sprint</div>
+    <Select
+      v-model:value="task.sprintId"
+      @change="(sprintId) => emit('updateSprint', sprintId)"
+      class="w-full"
+    >
+      <SelectOption :value="null">-</SelectOption>
+      <SelectOption
+        :value="sprint.id"
+        v-for="sprint in store.sprints"
+        :key="sprint.id"
+      >
+        <SyncOutlined />
+        <span class="ml-1">{{ sprint.name }}</span>
       </SelectOption>
     </Select>
   </template>

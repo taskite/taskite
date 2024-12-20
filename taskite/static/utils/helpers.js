@@ -149,15 +149,16 @@ export const processImage = (
   })
 }
 
-export const notify = (notificationMessage, notificationDescription) => {
+export const notify = (notificationMessage, notificationDescription, type="success", duration=2.5) => {
   notification.open({
     message: notificationMessage,
     description: notificationDescription,
     placement: 'bottomRight',
+    duration: duration,
     style: {
       width: '350px',
       padding: '16px',
-      borderLeft: '12px solid #8B5CF6',
+      borderLeft: `12px solid ${type === 'success' ? '#8B5CF6' : '#CBD5E1'}`,
     },
   })
 }
