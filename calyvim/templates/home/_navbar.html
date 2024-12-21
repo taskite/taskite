@@ -3,7 +3,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/">
             <img src="{% static 'home/images/logo.png' %}" alt="Calyvim Logo">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -15,15 +15,18 @@
                     <a class="nav-link" href="#pricing">Pricing</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#about">About Us</a>
+                    <a class="nav-link" href="#contact">Contact Us</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#features">Features</a>
                 </li>
             </ul>
-            <div class="d-flex">
-                <a href="#" class="btn btn-outline-primary btn-sm me-2">Get Started</a>
-                <a href="#" class="btn btn-primary btn-sm">Dashboard</a>
+            <div class="d-flex align-items-center">
+                <a href="https://github.com/getcalyvim/calyvim" class="btn btn-outline-dark btn-sm me-3" target="_blank">
+                    <i class="bi bi-github me-2"></i>Star us
+                </a>
+                <a href="{% url 'accounts-login' %}" class="btn btn-outline-primary btn-sm me-2">Get Started</a>
+                <a href="{% url 'workspace-index' %}" class="btn btn-primary btn-sm">Dashboard</a>
             </div>
         </div>
     </div>

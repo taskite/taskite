@@ -1,9 +1,12 @@
+{% load static %}
+
 <!-- Footer -->
 <footer>
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-4">
-                <img src="/api/placeholder/120/40" alt="Calyvim Logo" class="mb-4">
+                <img src="{% static 'home/images/logo_invert.png' %}" alt="Calyvim Logo" class="mb-4"
+                    style="fill: white;">
                 <p>Open source project management solution with smart business workflows and team collaboration
                     features.</p>
                 <div class="social-icons">
@@ -16,43 +19,50 @@
             <div class="col-lg-2">
                 <h5>Product</h5>
                 <ul class="footer-links">
-                    <li><a href="#">Features</a></li>
-                    <li><a href="#">Pricing</a></li>
-                    <li><a href="#">Documentation</a></li>
-                    <li><a href="#">API</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <!-- <li><a href="#">Documentation</a></li> -->
+                    <!-- <li><a href="#">API</a></li> -->
                 </ul>
             </div>
             <div class="col-lg-2">
                 <h5>Company</h5>
                 <ul class="footer-links">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Careers</a></li>
-                    <li><a href="#">Blog</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <!-- <li><a href="#">About Us</a></li> -->
+                    <!-- <li><a href="#">Careers</a></li> -->
+                    <!-- <li><a href="#">Blog</a></li> -->
+                    <li><a href="#contact">Contact</a></li>
                 </ul>
             </div>
             <div class="col-lg-2">
                 <h5>Resources</h5>
                 <ul class="footer-links">
-                    <li><a href="#">Community</a></li>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Status</a></li>
-                    <li><a href="#">Security</a></li>
+                    <!-- <li><a href="#">Community</a></li> -->
+                    <li><a href="mailto:hey@calyvim.com">Help Center</a></li>
+                    <li><a href="https://status.calyvim.com" target="_blank">Status</a></li>
+                    <!-- <li><a href="#">Security</a></li> -->
                 </ul>
             </div>
             <div class="col-lg-2">
                 <h5>Legal</h5>
                 <ul class="footer-links">
                     <li><a href="#">Privacy</a></li>
-                    <li><a href="#">Terms</a></li>
+                    <li><a href="{% url 'home-terms' %}">Terms</a></li>
                     <li><a href="#">Cookie Policy</a></li>
                     <li><a href="#">Licenses</a></li>
                 </ul>
             </div>
         </div>
         <hr class="mt-5 mb-4">
-        <div class="text-center">
-            <p>© 2024 Calyvim. All rights reserved.</p>
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="mb-0">© 2024 Calyvim. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="https://github.com/getcalyvim/calyvim" class="btn btn-outline-light" target="_blank">
+                    <i class="bi bi-github me-2"></i>Star us on GitHub
+                </a>
+            </div>
         </div>
     </div>
 </footer>

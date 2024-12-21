@@ -7,13 +7,14 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-5 fw-bold mb-4">Calyvim: Open Source Solution for Seamless Project Management</h1>
-                <p class="lead mb-4">Empower your team with smart business workflows and intuitive collaboration features.</p>
-                <a href="#" class="btn btn-primary btn-lg me-3">Get Started Free</a>
-                <a href="#" class="btn btn-outline-primary btn-lg">Watch Demo</a>
+                <h1 class="display-5 fw-bold mb-4">Calyvim: Open Source Product/Project Management Tool</h1>
+                <p class="lead mb-4">Empower your team with smart business workflows and intuitive collaboration
+                    features.</p>
+                <a href="{% url 'accounts-login' %}" class="btn btn-primary btn-lg me-3">Get Started Free</a>
             </div>
             <div class="col-lg-6">
-                <img src="{% static 'home/images/dashboard.png' %}" alt="Calyvim Dashboard" class="img-fluid rounded-4 shadow">
+                <img src="{% static 'home/images/dashboard.png' %}" alt="Calyvim Dashboard"
+                    class="img-fluid rounded-4 shadow">
             </div>
         </div>
     </div>
@@ -27,16 +28,17 @@
             <div class="col-md-6 col-lg-3">
                 <div class="feature-box h-100">
                     <div class="feature-icon">
-                        <i class="fas fa-columns"></i>
+                        <i class="bi bi-kanban" style="font-size: 1.5rem;"></i>
                     </div>
                     <h3>Board</h3>
-                    <p>Create Kanban boards with sprints and estimates. Visualize your workflow and track progress effectively.</p>
+                    <p>Create Kanban boards with sprints and estimates. Visualize your workflow and track progress
+                        effectively.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3">
                 <div class="feature-box h-100">
                     <div class="feature-icon">
-                        <i class="fas fa-newspaper"></i>
+                        <i class="bi bi-newspaper" style="font-size: 1.5rem;"></i>
                     </div>
                     <h3>Newslines</h3>
                     <p>Share updates and news across your organization and teams with ease.</p>
@@ -45,7 +47,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="feature-box h-100">
                     <div class="feature-icon">
-                        <i class="fas fa-tasks"></i>
+                        <i class="bi bi-list-task" style="font-size: 1.5rem;"></i>
                     </div>
                     <h3>Todos</h3>
                     <p>Manage personal tasks and stay organized with smart todo lists.</p>
@@ -54,7 +56,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="feature-box h-100">
                     <div class="feature-icon">
-                        <i class="fas fa-calendar"></i>
+                        <i class="bi bi-calendar-check" style="font-size: 1.5rem;"></i>
                     </div>
                     <h3>Calendar</h3>
                     <p>Schedule and manage meetings efficiently with team calendar integration.</p>
@@ -70,18 +72,19 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h2 class="display-6 fw-bold mb-4">Team Collaboration Made Simple</h2>
-                <p class="lead mb-4">Create and manage multiple teams with granular permissions across boards, newslines, and other utilities.</p>
+                <p class="lead mb-4">Create and manage multiple teams with granular permissions across boards,
+                    newslines, and other utilities.</p>
                 <div class="d-flex gap-4 mb-4">
                     <div>
                         <div class="feature-icon mb-3">
-                            <i class="fas fa-users"></i>
+                            <i class="bi bi-people" style="font-size: 1.5rem;"></i>
                         </div>
                         <h5>Team Management</h5>
                         <p class="text-muted">Create multiple teams and organize your workspace effectively</p>
                     </div>
                     <div>
                         <div class="feature-icon mb-3">
-                            <i class="fas fa-key"></i>
+                            <i class="bi bi-key" style="font-size: 1.5rem;"></i>
                         </div>
                         <h5>Permission Control</h5>
                         <p class="text-muted">Set granular access permissions for teams and individual members</p>
@@ -91,8 +94,10 @@
             </div>
             <div class="col-lg-6">
                 <div class="position-relative">
-                    <img src="{% static 'home/images/permissions.png' %}" alt="Team Collaboration Interface" class="img-fluid rounded-4 shadow-lg">
-                    <div class="position-absolute top-0 end-0 bg-white rounded-4 shadow-lg p-3 me-4 mt-4" style="width: 200px;">
+                    <img src="{% static 'home/images/permissions.png' %}" alt="Team Collaboration Interface"
+                        class="img-fluid rounded-4 shadow-lg">
+                    <div class="position-absolute top-0 end-0 bg-white rounded-4 shadow-lg p-3 me-4 mt-4"
+                        style="width: 200px;">
                         <div class="d-flex align-items-center mb-2">
                             <div class="feature-icon" style="width: 32px; height: 32px; font-size: 14px;">
                                 <i class="fas fa-shield-alt"></i>
@@ -109,4 +114,144 @@
         </div>
     </div>
 </section>
+
+<!-- Pricing Section -->
+<section id="pricing" class="pricing-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Simple, Transparent Pricing</h2>
+            <p class="lead text-muted">We're excited to announce that Calyvim is completely free during our launch
+                period!</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="card border-primary position-relative overflow-hidden">
+                    <div class="position-absolute" style="top: 0; right: 0; transform: translate(30%, -30%);">
+                        <div
+                            style="width: 150px; height: 150px; background-color: var(--primary-color); opacity: 0.1; border-radius: 50%;">
+                        </div>
+                    </div>
+                    <div class="card-body p-5">
+                        <h3 class="card-title fw-bold mb-4">Launch Offer</h3>
+                        <div class="d-flex align-items-center mb-4">
+                            <span class="display-4 fw-bold me-2">$0</span>
+                            <span class="text-muted">/month</span>
+                        </div>
+                        <p class="text-muted mb-4">Get early access to all features during our launch period:</p>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3">
+                                <i class="fas fa-check text-primary me-2"></i>
+                                Unlimited Boards
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-primary me-2"></i>
+                                Team Collaboration
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-primary me-2"></i>
+                                Advanced Features
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-primary me-2"></i>
+                                Priority Support
+                            </li>
+                        </ul>
+                        <div class="d-grid">
+                            <a href="{% url 'accounts-login' %}" class="btn btn-primary btn-lg">Get Started Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <p class="text-muted mb-0">🚀 Future paid plans will be introduced as we grow</p>
+            <p class="small text-muted">Early adopters will receive special benefits when we transition to paid plans
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section id="contact" class="contact-section py-5" style="background: linear-gradient(135deg, #fff 0%, #f8f5ff 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5">
+                <h2 class="display-5 fw-bold mb-4">Get in Touch</h2>
+                <p class="lead mb-4">Have questions about Calyvim? We're here to help!</p>
+
+                <div class="d-flex mb-4">
+                    <div class="feature-icon me-3">
+                        <i class="bi bi-envelope" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">Email Us</h5>
+                        <p class="mb-0">
+                            <a href="mailto:hey@calyvim.com"
+                                class="text-primary text-decoration-none">hey@calyvim.com</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- <div class="d-flex mb-4">
+                    <div class="feature-icon me-3">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-2">Live Chat</h5>
+                        <p class="mb-0">Available Monday to Friday<br>9:00 AM - 6:00 PM EST</p>
+                    </div>
+                </div> -->
+
+                <div class="social-links mt-4">
+                    <a href="https://x.com/calyvim" class="me-3"><i class="bi bi-twitter-x" style="color: #8b5cf6;"></i></a>
+                    <a href="https://github.com/getcalyvim/calyvim" target="_blank" class="me-3"><i class="bi bi-github"
+                            style="color: #8b5cf6;"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-6 offset-lg-1">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4">Send us a message</h4>
+                        <form accept-charset='UTF-8'
+                            action='https://app.formester.com/forms/22ea3ea8-935b-486d-a50e-b6542b455390/submissions'
+                            method='POST'>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Your Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="John Doe" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="john@example.com"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject</label>
+                                <select class="form-select" id="subject" name="subject" required>
+                                    <option value="">Select a subject</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="support">Technical Support</option>
+                                    <option value="feedback">Feedback</option>
+                                    <option value="partnership">Partnership</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea class="form-control" id="message" name="message" rows="5" placeholder="Your message here..."
+                                    required></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">Send Message</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}

@@ -71,7 +71,7 @@ const onFinish = async (values) => {
 
         <p class="mt-4 text-center text-sm text-gray-600">
             Already have an account account?
-            <a href="/accounts/login" class="font-medium text-primary">Log in</a>
+            <a href="/app/accounts/login" class="font-medium text-primary">Log in</a>
         </p>
 
         <div class="mt-6" v-if="!!!props.invitationId">

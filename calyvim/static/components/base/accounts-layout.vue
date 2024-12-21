@@ -1,8 +1,6 @@
 <script setup>
 import BaseLayout from '@/components/base/base-layout.vue';
-import TaskiteLogo from '@/assets/logo.png'
-import { Button } from 'ant-design-vue';
-import { h } from 'vue'
+import CalyvimLogo from '@/assets/logo.png'
 import { GithubOutlined, GoogleOutlined } from '@ant-design/icons-vue';
 
 </script>
@@ -11,7 +9,7 @@ import { GithubOutlined, GoogleOutlined } from '@ant-design/icons-vue';
     <BaseLayout>
         <div
             class="min-h-screen flex items-center justify-center p-4 bg-[#F5F3FF] bg-gradient-to-br from-violet-50 to-violet-100">
-            <a href="https://github.com/calyvim/calyvim" target="_blank" rel="noopener noreferrer"
+            <a href="https://github.com/getcalyvim/calyvim" target="_blank" rel="noopener noreferrer"
                 class="absolute top-4 right-4 inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 text-gray-700 hover:text-gray-900 text-xs no-underline">
                 <GithubOutlined className="w-5 h-5" />
                 <span>Star us on GitHub</span>
@@ -21,8 +19,8 @@ import { GithubOutlined, GoogleOutlined } from '@ant-design/icons-vue';
                 <div class="p-8 md:w-1/2 flex items-center justify-center">
                     <div class="text-center">
                         <div class="flex items-center gap-3 mb-3">
-                            <img :src="TaskiteLogo" height="30" />
-                            <div class="text-xl font-semibold text-gray-800">TasKite Cloud</div>
+                            <img :src="CalyvimLogo" height="30" />
+                            <div class="text-xl font-semibold text-gray-800">Calyvim Platform</div>
                         </div>
                         <p class="mt-1 text-gray-600">Catch the productivity wind.</p>
                     </div>
@@ -37,7 +35,7 @@ import { GithubOutlined, GoogleOutlined } from '@ant-design/icons-vue';
                 </div>
 
                 <!-- Bottom-left Status Button -->
-                <a href="https://status.calyvim.in" target="_blank" rel="noopener noreferrer"
+                <a href="https://status.calyvim.com" target="_blank" rel="noopener noreferrer"
                     class="absolute bottom-4 left-4 inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 text-gray-700 hover:text-gray-900 text-xs no-underline">
                     <span>Status</span>
                 </a>
@@ -45,7 +43,7 @@ import { GithubOutlined, GoogleOutlined } from '@ant-design/icons-vue';
                 <!-- Bottom-right Contact Text -->
                 <div class="absolute bottom-4 right-4 text-gray-600 text-xs">
                     <p>Need help? Contact us at <a href="mailto:hey@calyvim.in"
-                            class="underline hover:text-gray-900">hey@calyvim.in</a></p>
+                            class="underline hover:text-gray-900">hey@calyvim.com</a></p>
                 </div>
             </div>
         </div>

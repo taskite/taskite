@@ -53,7 +53,7 @@ const onFinish = async (values) => {
 
         <p class="mt-4 text-center text-sm text-gray-600">
             Don't have an account?
-            <a href="/accounts/register/" class="font-medium text-primary">Create an account</a>
+            <a href="/app/accounts/register/" class="font-medium text-primary">Create an account</a>
         </p>
 
         <div class="mt-6">
