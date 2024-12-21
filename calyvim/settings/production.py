@@ -44,6 +44,9 @@ SCOUT_MONITOR = True
 SCOUT_KEY = os.environ.get("SCOUT_KEY")
 SCOUT_NAME = os.environ.get("SCOUT_NAME", "Calyvim")
 
+STATIC_HOST = os.environ.get("DJANGO_STATIC_HOST", "")
+STATIC_URL = STATIC_HOST + "/static/"
+
 
 # Sentry Setup
 sentry_sdk.init(
