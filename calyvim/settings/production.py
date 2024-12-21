@@ -1,6 +1,7 @@
 import os
 import sentry_sdk
 import dj_database_url
+import re
 from calyvim.settings.base import *
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -87,3 +88,11 @@ STORAGES = {
 }
 
 USE_S3 = True
+
+# http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_IMMUTABLE_FILE_TEST
+def immutable_file_test(path, url):
+    # Match vite (rollup)-generated hashes, à la, `some_file-CSliV9zW.js`
+    return re.match(r"^.+[.-][0-9a-zA-Z_-]{8,12}\..+$", url)
+
+
+WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
