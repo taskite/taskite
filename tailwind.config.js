@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./taskite/static/**/*.{vue,js,ts,jsx,tsx}'],
+  content: ['./calyvim/static/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {

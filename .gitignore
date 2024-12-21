@@ -292,8 +292,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-taskite/static/dashboard/
-taskite/templates/dashboard/
+calyvim/static/dashboard/
+calyvim/templates/dashboard/
 
 media/
 

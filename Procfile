@@ -1,3 +1,3 @@
 release: python3 manage.py migrate
-web: gunicorn taskite.wsgi
-worker: celery -A taskite worker -l INFO
+web: gunicorn calyvim.wsgi
+worker: celery -A calyvim worker -l INFO

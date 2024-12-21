@@ -5,22 +5,12 @@ import sys
 import subprocess
 
 
-def run_npm_build():
-    print("Building frontend assets...")
-    try:
-        subprocess.run(["npm", "run", "test:build"], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to build frontend assets: {e}")
-        sys.exit(1)
-
-
 def main():
     """Run administrative tasks."""
     if "test" in sys.argv:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taskite.settings.test")
-        # run_npm_build()
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "calyvim.settings.test")
     else:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "taskite.settings.development")
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "calyvim.settings.development")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

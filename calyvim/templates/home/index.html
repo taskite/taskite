@@ -1,0 +1,112 @@
+{% extends '_site.html' %}
+{% load static %}
+
+{% block main %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-5 fw-bold mb-4">Calyvim: Open Source Solution for Seamless Project Management</h1>
+                <p class="lead mb-4">Empower your team with smart business workflows and intuitive collaboration features.</p>
+                <a href="#" class="btn btn-primary btn-lg me-3">Get Started Free</a>
+                <a href="#" class="btn btn-outline-primary btn-lg">Watch Demo</a>
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'home/images/dashboard.png' %}" alt="Calyvim Dashboard" class="img-fluid rounded-4 shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="feature-section" id="features">
+    <div class="container">
+        <h2 class="text-center mb-5">Powerful Features for Modern Teams</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-box h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-columns"></i>
+                    </div>
+                    <h3>Board</h3>
+                    <p>Create Kanban boards with sprints and estimates. Visualize your workflow and track progress effectively.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-box h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <h3>Newslines</h3>
+                    <p>Share updates and news across your organization and teams with ease.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-box h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3>Todos</h3>
+                    <p>Manage personal tasks and stay organized with smart todo lists.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-box h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <h3>Calendar</h3>
+                    <p>Schedule and manage meetings efficiently with team calendar integration.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Collaboration Section -->
+<section class="collaboration-section py-5" style="background: linear-gradient(135deg, #fff 0%, #f8f5ff 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-6 fw-bold mb-4">Team Collaboration Made Simple</h2>
+                <p class="lead mb-4">Create and manage multiple teams with granular permissions across boards, newslines, and other utilities.</p>
+                <div class="d-flex gap-4 mb-4">
+                    <div>
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5>Team Management</h5>
+                        <p class="text-muted">Create multiple teams and organize your workspace effectively</p>
+                    </div>
+                    <div>
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h5>Permission Control</h5>
+                        <p class="text-muted">Set granular access permissions for teams and individual members</p>
+                    </div>
+                </div>
+                <a href="#" class="btn btn-primary">Explore collaboration features</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <img src="{% static 'home/images/permissions.png' %}" alt="Team Collaboration Interface" class="img-fluid rounded-4 shadow-lg">
+                    <div class="position-absolute top-0 end-0 bg-white rounded-4 shadow-lg p-3 me-4 mt-4" style="width: 200px;">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="feature-icon" style="width: 32px; height: 32px; font-size: 14px;">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h6 class="mb-0 ms-2">Permissions</h6>
+                        </div>
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: 75%"></div>
+                        </div>
+                        <small class="text-muted">Team access levels</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,20 @@
+<div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #dddddd;">
+    <div style="background-color: #6f5c92; padding: 20px; text-align: center;">
+        <h1 style="color: #ffffff;">You're Invited!</h1>
+    </div>
+    <div style="padding: 20px;">
+        <p>Hello,</p>
+        <p>You have been invited to join {{ invite.workspace.name }}'s workspace on Calyvim.</p>
+        <p>To confirm your invitation, please click the button below:</p>
+        <p style="text-align: center;">
+            <a href="{{ invite.confirmation_link }}"
+                style="display: inline-block; padding: 15px 25px; background-color: #6f5c92; color: #ffffff; text-decoration: none; border-radius: 5px;">
+                Confirm Invitation
+            </a>
+        </p>
+        <p>If you did not expect this invitation, you can safely ignore this email.</p>
+    </div>
+    <div style="background-color: #f4f4f4; padding: 10px; text-align: center;">
+        <p>Thank you,<br>Calyvim</p>
+    </div>
+</div>

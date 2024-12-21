@@ -1,12 +1,12 @@
-# Taskite
+# Calyvim
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Django](https://img.shields.io/badge/Django-4.2+-green.svg)](https://www.djangoproject.com/)
 [![Vue](https://img.shields.io/badge/Vue.js-3.0+-blue.svg)](https://vuejs.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/your-username/taskite/issues)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/your-username/calyvim/issues)
 
-Taskite is an open-source task management tool built with Django and Vue.js, designed to help teams and individuals organize their work efficiently and effectively.
+Calyvim is an open-source task management tool built with Django and Vue.js, designed to help teams and individuals organize their work efficiently and effectively.
 
 ## Features
 
@@ -100,7 +100,7 @@ docker-compose up --build
 
 ### Cloud Platforms
 
-Taskite can be deployed on various cloud platforms:
+Calyvim can be deployed on various cloud platforms:
 
 - **Heroku**
   - Use the provided `Procfile`
@@ -135,7 +135,7 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing to the
 
 ## Contributors
 
-Thanks to all the amazing contributors who have helped make Taskite better! ✨
+Thanks to all the amazing contributors who have helped make Calyvim better! ✨
 
 ## License
 
@@ -143,6 +143,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📫 Contact us at: support@taskite.com
+- 📫 Contact us at: support@calyvim.com
 - 🌟 Star us on GitHub
-- 📢 Follow us on Twitter [@taskite](https://twitter.com/taskite)
+- 📢 Follow us on Twitter [@calyvim](https://twitter.com/calyvim)

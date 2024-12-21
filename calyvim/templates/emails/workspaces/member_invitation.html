@@ -1,0 +1,63 @@
+{% extends '_email.html' %}
+
+{% block body %}
+<table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <td align="center" style="padding: 40px 0;">
+            <table role="presentation"
+                style="width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <!-- Header -->
+                <tr>
+                    <td style="padding: 40px 30px; text-align: center;">
+                        <h1
+                            style="margin: 0; font-family: 'Inter', Arial, sans-serif; font-weight: 800; font-size: 36px; color: #8B5CF6; letter-spacing: -1px;">
+                            Calyvim</h1>
+                    </td>
+                </tr>
+                <!-- Content -->
+                <tr>
+                    <td style="padding: 0 30px 30px;">
+                        <h2
+                            style="color: #333333; font-family: 'Inter', Arial, sans-serif; font-weight: 600; font-size: 24px; margin-bottom: 20px; text-align: center;">
+                            You've Been Invited to Join a Workspace</h2>
+                        <p
+                            style="color: #666666; font-family: 'Inter', Arial, sans-serif; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">
+                            Hello,
+                        </p>
+                        <p
+                            style="color: #666666; font-family: 'Inter', Arial, sans-serif; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">
+                            {{ invite.invited_by.display_name }} has invited you to join their workspace "{{ invite.workspace.name }}" on Calyvim. To accept this invitation and start collaborating, please click the button below:
+                        </p>
+                        <table role="presentation" style="width: 100%;">
+                            <tr>
+                                <td align="center">
+                                    <a href="{{ invite.confirmation_link }}"
+                                        style="display: inline-block; padding: 14px 30px; background-color: #8B5CF6; color: #ffffff; text-decoration: none; font-family: 'Inter', Arial, sans-serif; font-weight: 600; font-size: 16px; border-radius: 4px;">Accept Invitation</a>
+                                </td>
+                            </tr>
+                        </table>
+                        <p
+                            style="color: #666666; font-family: 'Inter', Arial, sans-serif; font-size: 14px; line-height: 1.5; margin-top: 30px;">
+                            If you don't have a Calyvim account yet, don't worry! Clicking the button above will guide you through the process of creating one.
+                        </p>
+                        <p
+                            style="color: #666666; font-family: 'Inter', Arial, sans-serif; font-size: 14px; line-height: 1.5; margin-top: 20px;">
+                            If you believe this invitation was sent to you by mistake, you can safely ignore this email.
+                        </p>
+                    </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                    <td
+                        style="background-color: #f8f8f8; padding: 20px 30px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                        <p
+                            style="color: #999999; font-family: 'Inter', Arial, sans-serif; font-size: 14px; line-height: 1.5; margin: 0; text-align: center;">
+                            This is an automated email from Calyvim. Please do not reply to this message.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+{% endblock body %}
