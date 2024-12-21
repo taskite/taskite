@@ -50,7 +50,7 @@ const onFinish = async (values) => {
     try {
         const { data } = await accountsPasswordResetConfirmAPI(values)
         localStorage.setItem('currentUser', JSON.stringify(data.user))
-        window.location.href = `/`
+        window.location.href = `/app/`
     } catch (error) {
         
     }

@@ -9,11 +9,11 @@ const props = defineProps(['page'])
 const selectedKeys = ref([props.page])
 
 const changePage = (event) => {
-    window.location.href = `/accounts/${event.key}`
+    window.location.href = `/app/accounts/${event.key}`
 }
 
 const redirectBackToDashboard = () => {
-    window.location.href = '/'
+    window.location.href = '/app/'
 }
 </script>
 

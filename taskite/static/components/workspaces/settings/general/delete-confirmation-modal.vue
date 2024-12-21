@@ -10,7 +10,7 @@ const disabled = computed(() => {
 })
 
 const deleteWorkspace = () => {
-    window.location.href = `/${props.workspaceSlug}/delete/`
+    window.location.href = `/app/${props.workspaceSlug}/delete/`
 }
 </script>
 

@@ -14,20 +14,20 @@ const selectedKeys = ref([props.page])
 
 const changePage = (event) => {
     if (event.key === 'dashboard') {
-        window.location.href = `/${props.workspace.slug}/`
+        window.location.href = `/app/${props.workspace.slug}/`
     } else if (event.key === 'boards') {
-        window.location.href = `/${props.workspace.slug}/boards`
+        window.location.href = `/app/${props.workspace.slug}/boards`
     } else {
-        window.location.href = `/${props.workspace.slug}/${event.key}/`
+        window.location.href = `/app/${props.workspace.slug}/${event.key}/`
     }
 }
 
 const logoutUser = () => {
-    window.location.href = "/accounts/logout"
+    window.location.href = "/app/accounts/logout"
 }
 
 const redirecToProfilePage = () => {
-    window.location.href = "/accounts/profile"
+    window.location.href = "/app/accounts/profile"
 }
 
 const openWorkspaceMenu = ref(false)
@@ -39,7 +39,7 @@ const currentUser = computed(() => {
     const currentUserString = localStorage.getItem('currentUser')
 
     if (!currentUserString) {
-        window.location.href = "/accounts/login"
+        window.location.href = "/app/accounts/login"
     }
 
     return JSON.parse(currentUserString)

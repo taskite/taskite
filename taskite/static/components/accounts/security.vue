@@ -16,7 +16,7 @@ const onFinish = async (values) => {
     try {
         const { data } = await accountsPasswordChangeAPI(values)
         message.success(data.detail)
-        window.location.href = "/"
+        window.location.href = "/app/"
     } catch (error) {
         handleResponseError(error)
     }

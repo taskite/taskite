@@ -10,9 +10,10 @@ urlpatterns = [
     path("up/", UpView.as_view(), name="up"),
     path("api/", include("taskite.api")),
     path("admin/", admin.site.urls),
-    path("accounts/", include("taskite.urls.accounts")),
-    path("b/<uuid:board_id>/", include("taskite.urls.boards")),
-    path("", include("taskite.urls.workspaces")),
+    path("app/accounts/", include("taskite.urls.accounts")),
+    path("app/b/<uuid:board_id>/", include("taskite.urls.boards")),
+    path("app/", include("taskite.urls.workspaces")),
+    path("", include("taskite.urls.home")),
 ]
 
 if settings.DEBUG:

@@ -10,9 +10,9 @@ const activeKey = ref(props.page)
 
 const switchTab = (key) => {
     if (key === 'kanban') {
-        window.location.href = `/b/${props.board.id}/`
+        window.location.href = `/app/b/${props.board.id}/`
     } else {
-        window.location.href = `/b/${props.board.id}/${key}/`
+        window.location.href = `/app/b/${props.board.id}/${key}/`
     }
 }
 </script>

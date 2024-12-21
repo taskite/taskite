@@ -25,7 +25,7 @@ const fetchSprint = async () => {
 }
 
 const openSprintTasks = (sprintId) => {
-  window.location.href = `/b/${props.board.id}/sprints/${sprintId}/`
+  window.location.href = `/app/b/${props.board.id}/sprints/${sprintId}/`
 }
 
 onMounted(() => {

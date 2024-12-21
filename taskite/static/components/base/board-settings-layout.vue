@@ -10,9 +10,9 @@ const selectedKeys = ref([props.page])
 
 const changePage = (event) => {
     if (event.key === 'general') {
-        window.location.href = `/b/${props.board.id}/settings`
+        window.location.href = `/app/b/${props.board.id}/settings`
     } else {
-        window.location.href = `/b/${props.board.id}/settings/${event.key}/`
+        window.location.href = `/app/b/${props.board.id}/settings/${event.key}/`
     }
 }
 </script>

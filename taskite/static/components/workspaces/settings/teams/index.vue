@@ -48,7 +48,7 @@ const columns = [
 ]
 
 const redirectToEditPage = (team) => {
-    window.location.href = `/${props.workspace.slug}/settings/teams/${team.id}/edit`
+    window.location.href = `/app/${props.workspace.slug}/settings/teams/${team.id}/edit`
 }
 
 const openTeamAddModal = ref(false)

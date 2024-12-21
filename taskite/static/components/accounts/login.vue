@@ -17,7 +17,7 @@ const onFinish = async (values) => {
         loading.value = true
         const { data } = await accountsLoginAPI(values)
         localStorage.setItem('currentUser', JSON.stringify(data.user))
-        window.location.href = `/`
+        window.location.href = `/app/`
     } catch (error) {
         message.info(error?.response.data?.detail)
     } finally {
