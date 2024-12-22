@@ -6,8 +6,6 @@ const props = defineProps(['data'])
 
 const heatmap = ref(null);
 
-console.log(props)
-
 const drawHeatmap = () => {
     const width = 900;
     const height = 160;

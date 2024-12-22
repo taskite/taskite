@@ -21,7 +21,6 @@ const onFinish = async (values) => {
         emit('added', data)
         formRef.value.resetFields()
     } catch (error) {
-        console.log(error)
         handleResponseError(error)
     }
 }

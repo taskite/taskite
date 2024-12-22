@@ -120,7 +120,6 @@ const archiveTask = async () => {
     notify('ARCHIVED', data.detail, 'info')
     store.removeTask(props.taskId)
   } catch (error) {
-    console.log(error)
     handleResponseError(error)
   }
 }
@@ -164,7 +163,6 @@ const updateSprint = async (sprintId) => {
       store.removeTask(task.value.id)
     }
   } catch (error) {
-    console.log(error)
     handleResponseError(error)
   } finally {
     updateLoading.value = false

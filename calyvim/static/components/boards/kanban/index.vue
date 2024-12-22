@@ -161,7 +161,6 @@ const loadKanban = async () => {
     fetchLabels()
     fetchEstimates()
   } catch (error) {
-    console.log(error)
     handleResponseError(error)
   }
 }

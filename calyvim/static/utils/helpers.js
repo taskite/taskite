@@ -67,11 +67,19 @@ export const handleResponseError = (error) => {
 
   let errorMessage = 'An unexpected error occurred. Please try again.'
 
-  if (error.response && error.response.data) {
-    if (error.response.data?.detail) {
-      errorMessage = error.response.data.detail
-    } else if (typeof error.response.data === 'string') {
-      errorMessage = error.response.data
+  if (error.response) {
+    const { status, data } = error.response
+
+    if (status === 500) {
+      errorMessage = 'A server error occurred. Please try again later or contact support at hey@calyvim.com.'
+    } else if (status === 429) {
+      errorMessage = 'Too many requests. Please try again later.'
+    } else if (data) {
+      if (data?.detail) {
+        errorMessage = data.detail
+      } else if (typeof data === 'string') {
+        errorMessage = data
+      }
     }
   }
 
@@ -149,7 +157,12 @@ export const processImage = (
   })
 }
 
-export const notify = (notificationMessage, notificationDescription, type="success", duration=2.5) => {
+export const notify = (
+  notificationMessage,
+  notificationDescription,
+  type = 'success',
+  duration = 2.5
+) => {
   notification.open({
     message: notificationMessage,
     description: notificationDescription,

@@ -4,6 +4,7 @@ import AccountsLayout from '@/components/base/accounts-layout.vue'
 import { Button, Form, FormItem, Input, InputPassword, message } from 'ant-design-vue';
 import { GithubOutlined, GoogleOutlined } from '@ant-design/icons-vue';
 import { accountsRegisterAPI } from '@/utils/api';
+import GoogleOauthButton from './google-oauth-button.vue';
 
 const props = defineProps(['invitationId'])
 
@@ -74,20 +75,19 @@ const onFinish = async (values) => {
             <a href="/app/accounts/login" class="font-medium text-primary">Log in</a>
         </p>
 
-        <div class="mt-6" v-if="!!!props.invitationId">
-            <div class="relative">
+        <div class="mt-2" v-if="!!!props.invitationId">
+            <!-- <div class="relative">
                 <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-300"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                    <span class="px-2 bg-white text-gray-500">Or</span>
                 </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-2 gap-3">
-                <Button :icon="h(GoogleOutlined)" ghost disabled>Google (beta)</Button>
-                <Button :icon="h(GithubOutlined)" ghost disabled>Github (beta)</Button>
-            </div>
+            <div class="flex justify-center mt-2">
+                <GoogleOauthButton />
+            </div> -->
         </div>
     </AccountsLayout>
 </template>

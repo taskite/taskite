@@ -36,13 +36,25 @@ class LogoutView(View):
     def get(self, request):
         logout(request)
         return redirect("accounts-login")
+    
+
+class GoogleOAuthView(View):
+    def get(self, request):
+        pass
 
 
 class VerifyView(LoginRequiredMixin, View):
     def get(self, request):
         if request.user.is_verified:
             return redirect("accounts-login")
-        return render(request, "accounts/verify.html")
+        
+        context = {
+            "props": {
+                "current_user": UserSerializer(request.user).data,
+            }
+        }
+
+        return render(request, "accounts/verify.html", context)
 
 
 class VerifyConfirmView(View):
@@ -79,3 +91,4 @@ class ProfileView(LoginRequiredMixin, View):
 class SecurityView(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, "accounts/security.html")
+    
