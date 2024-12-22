@@ -69,6 +69,9 @@ watch(() => createForm.value.name, (newValue) => {
                             <Select v-model:value="createForm.orgSize">
                                 <SelectOption value="1">Just myself</SelectOption>
                                 <SelectOption value="0-10">0 - 10</SelectOption>
+                                <SelectOption value="11-50">11 - 50</SelectOption>
+                                <SelectOption value="51-200">51 - 200</SelectOption>
+                                <SelectOption value="201-500">201 - 500</SelectOption>
                             </Select>
                         </FormItem>
 
