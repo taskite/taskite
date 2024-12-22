@@ -1,8 +1,8 @@
 from django.urls import path
 
-from calyvim.views.home import IndexView, TermsView
+from calyvim.views.home import index, terms
 
 urlpatterns = [
-    path("terms/", TermsView.as_view(), name="home-terms"),
-    path("", IndexView.as_view(), name="home-index"),
+    path("terms/", terms, name="home-terms"),
+    path("", index, name="home-index"),
 ]

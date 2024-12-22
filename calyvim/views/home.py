@@ -1,12 +1,12 @@
 from django.views import View
 from django.shortcuts import render
+from django.views.decorators.cache import cache_page
 
 
-class IndexView(View):
-    def get(self, request):
-        return render(request, "home/index.html")
+@cache_page(60 * 15, key_prefix="home")
+def index(request):
+    return render(request, "home/index.html")
     
 
-class TermsView(View):
-    def get(self, request):
-        return render(request, "home/terms.html")
+def terms(request):
+    return render(request, "home/terms.html")
