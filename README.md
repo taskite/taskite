@@ -1,10 +1,13 @@
 # Calyvim
 
+![Calyvim Logo](https://calyvim.com/static/home/images/logo.png)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Django](https://img.shields.io/badge/Django-4.2+-green.svg)](https://www.djangoproject.com/)
+[![Django](https://img.shields.io/badge/Django-5.1+-green.svg)](https://www.djangoproject.com/)
 [![Vue](https://img.shields.io/badge/Vue.js-3.0+-blue.svg)](https://vuejs.org/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/your-username/calyvim/issues)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/getcaluvim/calyvim/issues)
+[![Better Stack Badge](https://uptime.betterstack.com/status-badges/v1/monitor/1pliu.svg)](https://uptime.betterstack.com/?utm_source=status_badge)
 
 Calyvim is an open-source task management tool built with Django and Vue.js, designed to help teams and individuals organize their work efficiently and effectively.
 
@@ -18,102 +21,114 @@ Calyvim is an open-source task management tool built with Django and Vue.js, des
 - 🔍 Advanced search and filtering
 - 📱 Responsive design
 
-## Local Development
+## Frontend Setup
+
+1. **Install dependencies:**
+
+    ```bash
+    npm install
+    ```
+
+2. **Run the development server:**
+
+    ```bash
+    npm run serve
+    ```
+
+This will start the Vue.js development server, and you can access the frontend at `http://localhost:5173`.
+
+## Backend Setup
 
 ### Prerequisites
 
-- Python 3.8+
-- Node.js 16+
-- PostgreSQL
-- Redis (for background tasks)
+Ensure you have the following installed:
 
-### Backend Setup
+- **PostgreSQL**
+- **Redis**
+- **Python 3.8+**
 
-```bash
-# Create a virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+### PostgreSQL Setup
 
-# Install dependencies
-pip install -r requirements.txt
+1. **Install PostgreSQL:**
 
-# Set up environment variables
-cp .env.example .env
+    Follow the instructions for your operating system from the [official PostgreSQL documentation](https://www.postgresql.org/download/).
 
-# Run migrations
-python manage.py migrate
+2. **Create a database and user:**
 
-# Create a superuser
-python manage.py createsuperuser
+    ```sql
+    CREATE USER calyvim WITH PASSWORD 'calyvim';
+    CREATE DATABASE calyvim WITH OWNER calyvim;
+    ```
 
-# Start the Django development server
-python manage.py runserver
-```
+### Redis Setup
 
-### Frontend Setup
+1. **Install Redis:**
 
-```bash
-# Navigate to frontend directory
-cd frontend
+    Follow the instructions for your operating system from the [official Redis documentation](https://redis.io/download).
 
-# Install dependencies
-npm install
+2. **Start Redis server:**
 
-# Start development server
-npm run dev
-```
+    ```bash
+    redis-server
+    ```
 
-The application will be available at:
-- Backend: http://localhost:8000
-- Frontend: http://localhost:5173
+### Python Setup
 
-## Deployment
+1. **Create a virtual environment:**
 
-### Docker Deployment
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
 
-```bash
-# Build and run with docker-compose
-docker-compose up --build
-```
+2. **Install dependencies:**
 
-### Manual Deployment
+    ```bash
+    pip install -r requirements-dev.txt
+    ```
 
-1. Set up a production-grade web server (nginx/Apache)
-2. Configure PostgreSQL database
-3. Set up environment variables
-4. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   cd frontend && npm install
-   ```
-5. Build frontend:
-   ```bash
-   npm run build
-   ```
-6. Collect static files:
-   ```bash
-   python manage.py collectstatic
-   ```
-7. Set up Gunicorn or uWSGI
-8. Configure SSL certificate
-9. Set up monitoring
+### Environment Setup
+**Copy environment variables:**
 
-### Cloud Platforms
+    ```bash
+    cp .env.example .env
+    ```
 
-Calyvim can be deployed on various cloud platforms:
+### Django Setup
 
-- **Heroku**
-  - Use the provided `Procfile`
-  - Configure environment variables
-  - Add PostgreSQL addon
+1. **Set up the database:**
 
-- **DigitalOcean**
-  - Deploy using App Platform
-  - Or set up a Droplet manually
+    ```bash
+    python manage.py migrate
+    ```
 
-- **AWS**
-  - Use Elastic Beanstalk
-  - Or deploy to EC2 instances
+2. **Create a superuser:**
+
+    ```bash
+    python manage.py createsuperuser
+    ```
+
+3. **Run the development server:**
+
+    ```bash
+    python manage.py runserver
+    ```
+
+### Celery Setup
+
+1. **Start the Celery worker:**
+
+    ```bash
+    celery -A calyvim worker -l INFO
+    ```
+
+<!-- 2. **Start the Celery beat scheduler:**
+
+    ```bash
+    celery -A calyvim beat -l INFO
+    ``` -->
+
+This will set up the backend for your project. Add these sections below the "Frontend Setup" section in your [README.md](http://_vscodecontentref_/1) file. Let me know if you need any further modifications or if you're ready to proceed to the next section.
 
 ## Contributing
 
@@ -143,6 +158,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📫 Contact us at: support@calyvim.com
+- 📫 Contact us at: hey@calyvim.com
 - 🌟 Star us on GitHub
-- 📢 Follow us on Twitter [@calyvim](https://twitter.com/calyvim)
+- 📢 Follow us on Twitter [@calyvim](https://x.com/calyvim)
