@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 from calyvim.models import WorkspaceMembership, Board, Sprint
 from calyvim.serializers import (
@@ -14,6 +16,7 @@ from calyvim.serializers import (
 from calyvim.mixins import BoardPermissionMixin
 
 
+@method_decorator(cache_page(60 * 15, key_prefix="boards"), name="dispatch")
 class BoardKanbanView(LoginRequiredMixin, BoardPermissionMixin, View):
     def get(self, request, *args, **kwargs):
         print(kwargs)
