@@ -4,6 +4,8 @@ from django.shortcuts import redirect
 from django.contrib.auth import logout, login
 from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 from rest_framework import serializers
 
 from calyvim.models import User
@@ -15,6 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["email", "first_name", "last_name", "display_name", "username"]
 
 
+@method_decorator(cache_page(60 * 60 * 24, key_prefix="accounts"), name="dispatch")
 class LoginView(View):
     def get(self, request):
         next = request.GET.get("next", "/")
@@ -26,6 +29,7 @@ class LoginView(View):
         return render(request, "accounts/login.html", context)
 
 
+@method_decorator(cache_page(60 * 60 * 24, key_prefix="accounts"), name="dispatch")
 class RegisterView(View):
     def get(self, request):
         context = {"props": {"invitation_id": request.GET.get("invitation_id", None)}}
@@ -36,7 +40,7 @@ class LogoutView(View):
     def get(self, request):
         logout(request)
         return redirect("accounts-login")
-    
+
 
 class GoogleOAuthView(View):
     def get(self, request):
@@ -47,7 +51,7 @@ class VerifyView(LoginRequiredMixin, View):
     def get(self, request):
         if request.user.is_verified:
             return redirect("accounts-login")
-        
+
         context = {
             "props": {
                 "current_user": UserSerializer(request.user).data,
@@ -91,4 +95,3 @@ class ProfileView(LoginRequiredMixin, View):
 class SecurityView(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, "accounts/security.html")
-    
