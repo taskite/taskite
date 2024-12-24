@@ -25,8 +25,11 @@
                 <a href="https://github.com/getcalyvim/calyvim" class="btn btn-outline-dark btn-sm me-3" target="_blank">
                     <i class="bi bi-github me-2"></i>Star us
                 </a>
-                <a href="{% url 'accounts-login' %}" class="btn btn-outline-primary btn-sm me-2">Get Started</a>
-                <a href="{% url 'workspace-index' %}" class="btn btn-primary btn-sm">Dashboard</a>
+                <a href="{% url 'accounts-login' %}" class="btn me-2">Login</a>
+                <a href="{% url 'accounts-register' %}" class="btn btn-primary btn-sm me-2">
+                    <span>Register</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
         </div>
     </div>

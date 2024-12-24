@@ -16,7 +16,7 @@ from calyvim.serializers import (
 from calyvim.mixins import BoardPermissionMixin
 
 
-@method_decorator(cache_page(60 * 15, key_prefix="boards"), name="dispatch")
+# @method_decorator(cache_page(60 * 15, key_prefix="boards"), name="dispatch")
 class BoardKanbanView(LoginRequiredMixin, BoardPermissionMixin, View):
     def get(self, request, *args, **kwargs):
         print(kwargs)

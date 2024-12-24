@@ -6,14 +6,9 @@ import { handleResponseError } from '@/utils/helpers'
 import { onMounted, ref, h } from 'vue'
 import BaseSpinner from '../../../base/base-spinner.vue'
 import SprintAddForm from './sprint-add-form.vue'
+import { CalendarCog } from 'lucide-vue-next'
 
-import {
-  List,
-  ListItem,
-  Tag,
-  Button,
-  Dropdown,
-} from 'ant-design-vue'
+import { List, ListItem, Tag, Button, Dropdown } from 'ant-design-vue'
 import {
   ArrowRightOutlined,
   PlusOutlined,
@@ -73,36 +68,56 @@ onMounted(() => {
           </div>
         </div>
         <div v-else>
-          <List :dataSource="sprints">
-            <template #renderItem="{ item }">
-              <ListItem>
-                <div class="flex justify-between w-full">
-                  <div>
-                    <SyncOutlined class="mr-2" />
-                    <span>{{ item.name }}</span>
-                    <Tag
-                      v-if="item.isActive"
-                      class="ml-2 text-primary"
-                      :bordered="false"
-                      >Active</Tag
-                    >
-                  </div>
-
-                  <div class="flex items-center gap-2">
-                    <Tag :bordered="false">
-                      <span>{{ item.startDate }}</span>
-                      <ArrowRightOutlined />
-                      <span>{{ item.endDate }}</span>
-                    </Tag>
-
-                    <Button size="small" @click="openSprintTasks(item.id)"
-                      ><span class="text-xs">View tasks</span></Button
-                    >
-                  </div>
-                </div>
-              </ListItem>
-            </template></List
+          <div
+            v-if="sprints.length === 0"
+            class="flex justify-center items-center h-[80vh]"
           >
+            <div class="flex flex-col items-center gap-4">
+              <CalendarCog class="mx-auto h-16 w-16 text-primary" />
+              <div class="text-gray-500">
+                You haven't created any sprints yet. Get started by clicking on
+                Create new sprint.
+              </div>
+              <Button
+                type="primary"
+                @click="showSprintAddDropdown"
+                :icon="h(PlusOutlined)"
+                >Create a new Sprint</Button
+              >
+            </div>
+          </div>
+          <div v-else>
+            <List :dataSource="sprints">
+              <template #renderItem="{ item }">
+                <ListItem>
+                  <div class="flex justify-between w-full">
+                    <div>
+                      <SyncOutlined class="mr-2" />
+                      <span>{{ item.name }}</span>
+                      <Tag
+                        v-if="item.isActive"
+                        class="ml-2 text-primary"
+                        :bordered="false"
+                        >Active</Tag
+                      >
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                      <Tag :bordered="false">
+                        <span>{{ item.startDate }}</span>
+                        <ArrowRightOutlined />
+                        <span>{{ item.endDate }}</span>
+                      </Tag>
+
+                      <Button size="small" @click="openSprintTasks(item.id)"
+                        ><span class="text-xs">View tasks</span></Button
+                      >
+                    </div>
+                  </div>
+                </ListItem>
+              </template></List
+            >
+          </div>
         </div>
       </template>
 
@@ -117,6 +132,7 @@ onMounted(() => {
               type="primary"
               @click="showSprintAddDropdown"
               :icon="h(PlusOutlined)"
+              :disabled="sprints.length === 0"
             >
               Create Sprint
             </Button>

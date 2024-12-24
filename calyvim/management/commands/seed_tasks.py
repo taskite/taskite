@@ -53,7 +53,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "board_slug", type=str, help="Slug of the board to associate tasks with"
+            "board_id", type=str, help="Id of the board to associate tasks with"
         )
 
     def create_tasks(
@@ -109,8 +109,8 @@ class Command(BaseCommand):
                 )
 
     def handle(self, *args, **options):
-        board_slug = options["board_slug"]
-        board = get_object_or_404(Board, slug=board_slug)
+        board_id = options["board_id"]
+        board = get_object_or_404(Board, id=board_id)
         priorities = board.priorities.all()
         states = board.states.all()
         estimates = board.estimates.all()
